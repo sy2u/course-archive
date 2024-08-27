@@ -26,7 +26,7 @@ In a Delta terminal, navigate to the location where you would like to keep your 
 
   `git clone git@github.com:illinois-cs-coursework/fa24_ece408_NETID ece408git` where NETID is your UIUC NetID.
 
-You will be prompted to enter your username and password. Enter your Github username enter your Personal Access Token instead of your password.  This will clone the remote repository to "ece408git" on your computer where you will be able to retrieve/submit/work on assignments.
+You will be prompted to enter your username and password. Enter your Github username and then enter your Personal Access Token instead of your password.  This will clone the remote repository to "ece408git" on your computer where you will be able to retrieve/submit/work on assignments.
 
 And finally add release repository so you can receive class assignments: 
 
