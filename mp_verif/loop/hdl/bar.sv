@@ -1,3 +1,5 @@
+// A module with an up-counter that sends its value along with a req signal to a, to generate the ack pulse
+
 module bar(
     input   logic           clk,
     input   logic           rst,
@@ -26,6 +28,6 @@ module bar(
     end
 
     assign req = 1'b1;
-    assign req_key = internal_counter_next;
+    assign req_key = internal_counter;
 
 endmodule

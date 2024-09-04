@@ -1,3 +1,5 @@
+// A module with a down-counter that generates the ack pulse when its counter matches an input value and req is high.
+
 module foo(
     input   logic           clk,
     input   logic           rst,
