@@ -32,7 +32,7 @@ module alu
     always_comb begin
         f_and = a_reg & b_reg;
         f_or  = a_reg | b_reg;
-        f_not = !a_reg;
+        f_not = ~a_reg;
         f_add = a_reg + b_reg;
         f_sub = a_reg - b_reg;
         f_shl = a_reg << b_reg[4:0];
