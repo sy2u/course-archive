@@ -44,7 +44,7 @@ module alu
             3'd0 : f_next = f_and;
             3'd1 : f_next = f_or;
             3'd2 : f_next = f_not;
-            3'd3 : f_next = f_and;
+            3'd3 : f_next = f_add;
             3'd4 : f_next = f_sub;
             3'd5 : f_next = f_shl;
             3'd6 : f_next = f_shr;
