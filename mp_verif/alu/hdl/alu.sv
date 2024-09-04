@@ -48,6 +48,7 @@ module alu
             3'd4 : f_next = f_sub;
             3'd5 : f_next = f_shl;
             3'd6 : f_next = f_shr;
+            default: f_next = 'x;
         endcase
     end
 
