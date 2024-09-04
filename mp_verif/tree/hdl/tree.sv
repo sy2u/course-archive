@@ -8,7 +8,7 @@ module tree(
             logic   [7:0]   intermediate1;
             logic   [3:0]   intermediate2;
             logic   [1:0]   intermediate3;
-            logic   [1:0]   intermediate3_reg;
+            logic   [3:0]   intermediate2_reg;
             logic           intermediate4;
 
     always_ff @(posedge clk) begin
@@ -18,15 +18,15 @@ module tree(
     always_comb begin
         intermediate1 = a_reg[15:8] & a_reg[7:0];
         intermediate2 = intermediate1[7:4] ^ intermediate1[3:0];
-        intermediate3 = intermediate2[3:2] | intermediate2[1:0];
     end
 
     always_ff @(posedge clk) begin
-        intermediate3_reg <= intermediate3;
+        intermediate2_reg <= intermediate2;
     end
 
     always_comb begin
-        intermediate4 = intermediate3_reg[1] ^ intermediate3_reg[0];
+        intermediate3 = intermediate2_reg[3:2] | intermediate2_reg[1:0];
+        intermediate4 = intermediate3[1] ^ intermediate3[0];
     end
 
     always_ff @(posedge clk) begin
