@@ -85,11 +85,19 @@ package rv32i_types;
             rv32i_opcode opcode;
         } s_type;
 
-        /* TODO: Write the struct for b-type instructions.
+        // TODO: Write the struct for b-type instructions.
         struct packed {
-         // Fill this out to get branches running!
+        // Fill this out to get branches running!
+            logic           imm_12;
+            logic [10:5]    imm_10_5;
+            logic [4:0]     rs2;
+            logic [4:0]     rs1;
+            logic [2:0]     funct3;
+            logic [4:1]     imm_4_1;
+            logic           imm_11;
+            rv32i_opcode    opcode;
         } b_type;
-        */
+
 
         struct packed {
             logic [31:12] imm;
