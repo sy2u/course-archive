@@ -36,6 +36,7 @@ class RandInst;
     // to see the typedef enums.
 
     constraint instr_c {
+
         // Reg-imm instructions
         instr_type[0] -> {
             instr.i_type.opcode == op_b_imm;
@@ -58,8 +59,11 @@ class RandInst;
         instr_type[1] -> {
             // TODO: Fill this out!
             instr.r_type.opcode == op_b_reg;
-            instr.r_type.funct7 inside {base, variant};
-            instr.r_type.funct3 inside {arith_f3_sll, arith_f3_slt, arith_f3_sltu, arith_f3_xor, arith_f3_or, arith_f3_and} -> { instr.r_type.funct7 == base; }
+            if (instr.r_type.funct3 inside {arith_f3_add, arith_f3_sr}){
+                instr.r_type.funct7 inside {base, variant};
+            } else { 
+                instr.r_type.funct7 == base;
+            }
         }
 
         // Store instructions -- these are easy to constrain!
@@ -72,35 +76,59 @@ class RandInst;
         instr_type[3] -> {
             instr.i_type.opcode == op_b_load;
         //TODO: Constrain funct3 as well.
-            instr.i_type.funct3 inside {load_f3_lb,load_f3_lh,load_f3_lw,load_f3_lbu,load_f3_lhu};
+            instr.i_type.funct3 inside {load_f3_lb, load_f3_lh, load_f3_lw, load_f3_lbu, load_f3_lhu};
         }
 
         // TODO: Do all 9 types!
+
         // load upper immediate (U type)
+        // instr_type[4] -> {
+        //     instr.j_type.opcode == op_b_lui;
+        // }
+
+        // // add upper immediate PC (U type)
+        // instr_type[5] -> {
+        //     instr.j_type.opcode == op_b_auipc;
+        // }
+
+        // // jump and link (J type)
+        // instr_type[6] -> {
+        //     instr.j_type.opcode == op_b_jal;
+        // }
+
+        // // jump and link register (I type)
+        // instr_type[7] -> {
+        //     instr.i_type.opcode == op_b_jalr;
+        //     instr.i_type.funct3 == 3'b000;
+        // }
+
+        // // branch (B type)
+        // instr_type[8] -> {
+        //     instr.b_type.opcode == op_b_br;
+        //     instr.b_type.funct3 inside {branch_f3_beq, branch_f3_bne, branch_f3_blt, branch_f3_bge, branch_f3_bltu, branch_f3_bgeu};
+        // }
+
+        // The index of instr_type matters! but why?
         instr_type[4] -> {
-            instr.j_type.opcode == op_b_lui;
+            instr.b_type.opcode == op_b_br;
+            instr.b_type.funct3 inside {branch_f3_beq, branch_f3_bne, branch_f3_blt, branch_f3_bge, branch_f3_bltu, branch_f3_bgeu};
         }
 
-        // add upper immediate PC (U type)
         instr_type[5] -> {
-            instr.j_type.opcode == op_b_auipc;
-        }
-
-        // jump and link (J type)
-        instr_type[6] -> {
             instr.j_type.opcode == op_b_jal;
         }
 
-        // jump and link register (I type)
-        instr_type[7] -> {
+        instr_type[6] -> {
             instr.i_type.opcode == op_b_jalr;
-            instr.i_type.funct3 == branch_f3_beq;
+            instr.i_type.funct3 == 3'b000;
         }
 
-        // branch (B type)
+        instr_type[7] -> {
+            instr.j_type.opcode == op_b_auipc;
+        }
+
         instr_type[8] -> {
-            instr.b_type.opcode == op_b_br;
-            instr.b_type.funct3 inside {branch_f3_beq, branch_f3_bne, branch_f3_blt, branch_f3_bge, branch_f3_bltu, branch_f3_bgeu};
+            instr.j_type.opcode == op_b_lui;
         }
 
     }
