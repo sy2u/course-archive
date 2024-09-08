@@ -20,10 +20,6 @@ class RandInst;
     rand bit [2:0] funct3;
     rand bit [6:0] funct7;
     constraint solve_order_funct3_c { solve funct3 before funct7; }
-    constraint apply_order_funct3_c { 
-        instr.r_type.funct3 == funct3; 
-        instr.r_type.funct7 == funct7; 
-    }
 
     // Pick one of the instruction types.
     constraint instr_type_c {
@@ -40,6 +36,9 @@ class RandInst;
         // Reg-imm instructions
         instr_type[0] -> {
             instr.i_type.opcode == op_b_imm;
+
+            instr.r_type.funct3 == funct3; 
+            instr.r_type.funct7 == funct7;
 
             // Implies syntax: if funct3 is arith_f3_sr, then funct7 must be
             // one of two possibilities.
@@ -59,6 +58,10 @@ class RandInst;
         instr_type[1] -> {
             // TODO: Fill this out!
             instr.r_type.opcode == op_b_reg;
+
+            instr.r_type.funct3 == funct3; 
+            instr.r_type.funct7 == funct7;
+
             if (instr.r_type.funct3 inside {arith_f3_add, arith_f3_sr}){
                 instr.r_type.funct7 inside {base, variant};
             } else { 
