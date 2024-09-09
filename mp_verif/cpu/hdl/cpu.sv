@@ -141,7 +141,7 @@ import rv32i_types::*;
         pc_next    = pc;
         mem_addr   = 'x;
         mem_rmask  = '0;
-        mem_wmask  = '1;
+        mem_wmask  = '0;    // Fix 1: set default write enable to be 0
         mem_wdata  = 'x;
         rd_v       = 'x;
         load_ir    = 1'b0;
@@ -221,7 +221,7 @@ import rv32i_types::*;
                 state_next = s_fetch;
             end
             s_load: begin
-                mem_addr = i_imm;
+                mem_addr = rs1_v + i_imm;   // FIX2: mem_addr missing base addr
                 unique case (funct3)
                     load_f3_lb, load_f3_lbu: mem_rmask = 4'b0001 << mem_addr[1:0];
                     load_f3_lh, load_f3_lhu: mem_rmask = 4'b0011 << mem_addr[1:0];
