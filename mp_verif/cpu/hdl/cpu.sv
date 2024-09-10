@@ -91,28 +91,30 @@ import rv32i_types::*;
     assign au = unsigned'(a);
     assign bu = unsigned'(b);
 
+    // FIX3: sll, srl and sra bu should be 5 bits
     always_comb begin
         unique case (aluop)
             alu_op_add: aluout = au +   bu;
-            alu_op_sll: aluout = au <<  bu[3:0];
-            alu_op_sra: aluout = unsigned'(as >>> bu[3:0]);
+            alu_op_sll: aluout = au <<  bu[4:0];
+            alu_op_sra: aluout = unsigned'(as >>> bu[4:0]);
             alu_op_sub: aluout = au -   bu;
             alu_op_xor: aluout = au ^   bu;
-            alu_op_srl: aluout = au >>  bu[3:0];
+            alu_op_srl: aluout = au >>  bu[4:0];
             alu_op_or : aluout = au |   bu;
             alu_op_and: aluout = au &   bu;
             default   : aluout = 'x;
         endcase
     end
 
+    // FIX4: add equal sign for bge and bgeu
     always_comb begin
         unique case (cmpop)
             branch_f3_beq : br_en = (au == bu);
             branch_f3_bne : br_en = (au != bu);
             branch_f3_blt : br_en = (as <  bs);
-            branch_f3_bge : br_en = (as >  bs);
+            branch_f3_bge : br_en = (as >=  bs);
             branch_f3_bltu: br_en = (au <  bu);
-            branch_f3_bgeu: br_en = (au >  bu);
+            branch_f3_bgeu: br_en = (au >=  bu);
             default       : br_en = 1'bx;
         endcase
     end

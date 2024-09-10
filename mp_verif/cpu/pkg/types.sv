@@ -46,6 +46,11 @@ package rv32i_types;
         branch_f3_bgeu = 3'b111
     } branch_f3_t;
 
+    typedef enum logic [6:0] {
+        base           = 7'b0000000,
+        variant        = 7'b0100000
+    } funct7_t;
+
     typedef enum logic [2:0] {
         alu_op_add     = 3'b000,
         alu_op_sll     = 3'b001,
@@ -87,9 +92,16 @@ package rv32i_types;
         } s_type;
 
 
-        // struct packed {
-        //
-        // } b_type;
+        struct packed {
+            logic           imm_12;
+            logic [10:5]    imm_10_5;
+            logic [4:0]     rs2;
+            logic [4:0]     rs1;
+            logic [2:0]     funct3;
+            logic [4:1]     imm_4_1;
+            logic           imm_11;
+            rv32i_opcode    opcode;
+        } b_type;
 
         struct packed {
             logic [31:12] imm;
