@@ -2,6 +2,7 @@
 // RISC-V cores.
 
 class RandInst;
+
     // You will increment this number as you generate more random instruction
     // types. Once finished, NUM_TYPES should be 9, for each opcode type in
     // rv32i_opcode.
@@ -33,12 +34,12 @@ class RandInst;
 
     constraint instr_c {
 
+            instr.r_type.funct3 == funct3; 
+            instr.r_type.funct7 == funct7;
+
         // Reg-imm instructions
         instr_type[0] -> {
             instr.i_type.opcode == op_b_imm;
-
-            instr.r_type.funct3 == funct3; 
-            instr.r_type.funct7 == funct7;
 
             // Implies syntax: if funct3 is arith_f3_sr, then funct7 must be
             // one of two possibilities.
@@ -59,9 +60,6 @@ class RandInst;
             // TODO: Fill this out!
             instr.r_type.opcode == op_b_reg;
 
-            instr.r_type.funct3 == funct3; 
-            instr.r_type.funct7 == funct7;
-
             if (instr.r_type.funct3 inside {arith_f3_add, arith_f3_sr}){
                 instr.r_type.funct7 inside {base, variant};
             } else { 
@@ -74,9 +72,9 @@ class RandInst;
             instr.s_type.opcode == op_b_store;
             instr.s_type.funct3 inside {store_f3_sb, store_f3_sh, store_f3_sw};
             // trap mismatch
-            instr.s_type.rs1 == '0;
-            instr.s_type.funct3 == store_f3_sw -> { instr.s_type.imm_s_bot[1:0] == 0; }
-            instr.s_type.funct3 == store_f3_sh -> { instr.s_type.imm_s_bot[0] == 0; }
+            // instr.s_type.rs1 == '0;
+            // instr.s_type.funct3 == store_f3_sw -> { instr.s_type.imm_s_bot[1:0] == 0; }
+            // instr.s_type.funct3 == store_f3_sh -> { instr.s_type.imm_s_bot[0] == 0; }
         }
 
         // Load instructions
@@ -85,39 +83,12 @@ class RandInst;
             //TODO: Constrain funct3 as well.
             instr.i_type.funct3 inside {load_f3_lb, load_f3_lh, load_f3_lw, load_f3_lbu, load_f3_lhu};
             // trap mismatch
-            instr.i_type.rs1 == '0;
-            instr.i_type.funct3 == load_f3_lw -> { instr.i_type.i_imm[1:0] == 0; }
-            instr.i_type.funct3 inside {load_f3_lh,load_f3_lhu} -> { instr.i_type.i_imm[0] == 0; }
+            // instr.i_type.rs1 == '0;
+            // instr.i_type.funct3 == load_f3_lw -> { instr.i_type.i_imm[1:0] == 0; }
+            // instr.i_type.funct3 inside {load_f3_lh,load_f3_lhu} -> { instr.i_type.i_imm[0] == 0; }
         }
 
         // TODO: Do all 9 types!
-
-        // load upper immediate (U type)
-        // instr_type[4] -> {
-        //     instr.j_type.opcode == op_b_lui;
-        // }
-
-        // // add upper immediate PC (U type)
-        // instr_type[5] -> {
-        //     instr.j_type.opcode == op_b_auipc;
-        // }
-
-        // // jump and link (J type)
-        // instr_type[6] -> {
-        //     instr.j_type.opcode == op_b_jal;
-        // }
-
-        // // jump and link register (I type)
-        // instr_type[7] -> {
-        //     instr.i_type.opcode == op_b_jalr;
-        //     instr.i_type.funct3 == 3'b000;
-        // }
-
-        // // branch (B type)
-        // instr_type[8] -> {
-        //     instr.b_type.opcode == op_b_br;
-        //     instr.b_type.funct3 inside {branch_f3_beq, branch_f3_bne, branch_f3_blt, branch_f3_bge, branch_f3_bltu, branch_f3_bgeu};
-        // }
 
         // The index of instr_type matters! but why?
         instr_type[4] -> {

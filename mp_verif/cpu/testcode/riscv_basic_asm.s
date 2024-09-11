@@ -8,6 +8,9 @@ _start:
     add     x4 , x1, x2
     lw      x5, 4(x1)
     sw      x2, 0(x1)
+    lh      x2, 4(x1)
+    lhu     x5, 4(x1)
+    sh      x5, 4(x1)
     bne     x1, x2, end
     nop
 

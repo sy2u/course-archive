@@ -11,6 +11,8 @@ module top_tb;
     mem_itf_w_mask mem_itf(.*);
     mon_itf mon_itf(.*);
 
+    bit   [31:0]  rs1_v;
+
     // Pick one of the two options (only one of these should be uncommented at a time):
     // simple_memory_32_w_mask simple_memory(.itf(mem_itf)); // For directed testing with PROG
     random_tb random_tb(.itf(mem_itf)); // For randomized testing
