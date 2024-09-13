@@ -24,10 +24,11 @@ module n_port_pipeline_memory_32_w_mask #(
     always_ff @(posedge itf.clk) begin
         for (int unsigned channel = 0; channel < CHANNELS; channel++) begin
             if (itf.rst) begin
-                cached_addr [channel] <= 'x;
-                cached_rmask[channel] <= '0;
-                cached_wmask[channel] <= '0;
-                cached_wdata[channel] <= 'x;
+                delay_counter[channel] <= '0;
+                cached_addr [channel]  <= itf.addr [channel];
+                cached_rmask[channel]  <= itf.rmask[channel];
+                cached_wmask[channel]  <= itf.wmask[channel];
+                cached_wdata[channel]  <= itf.wdata[channel];
                 for (int i = 0; i < 8; i++) begin
                     tag[channel][i] <= '0;
                 end
@@ -54,7 +55,7 @@ module n_port_pipeline_memory_32_w_mask #(
             stall[channel] = 1'b0;
             tag_we[channel] = 1'b0;
             mem_we[channel] = 1'b0;
-            if (|cached_rmask[channel] || |cached_wmask[channel]) begin
+            if (!itf.rst && (|cached_rmask[channel] || |cached_wmask[channel])) begin
                 if (delay_counter[channel] != 0) begin
                     delay_counter_next[channel] = delay_counter[channel] - 1;
                     if (delay_counter[channel] == 1) begin

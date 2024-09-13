@@ -139,6 +139,12 @@ This is our recommended method of dealing with pipelined memory.
 
 How this configuration interacts with stalling and flushing is left as an exercise to the reader.
 
+### Reset Correctness
+
+Since we are considering these registers in the memory model as part of our pipeline registers, they should be reset in the same way.
+However, this is not entirely straightforward. The memory model’s register does not have a reset function;
+it will always take in the next value. How to deal with this is left as an exercise for the reader.
+
 ## Forwarding
 We recommend you refer to the lectures or the textbook (Computer Organization and Design the Hardware/Software Interface RISC-V edition by Patterson & Hennessy in section 4.7), where this topic is discussed in detail.
 
