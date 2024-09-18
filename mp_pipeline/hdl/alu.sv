@@ -9,6 +9,8 @@ import rv32i_types::*;
     output  logic   [31:0]  aluout
 );
 
+    logic   [31:0]  as, bs, au, bu;
+
     assign as =   signed'(a);
     assign bs =   signed'(b);
     assign au = unsigned'(a);

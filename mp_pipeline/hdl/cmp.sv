@@ -4,8 +4,10 @@ import rv32i_types::*;
     input   logic   [2:0]   cmpop,
     input   logic   [31:0]  a,
     input   logic   [31:0]  b,
-    output  logic   [31:0]  br_en
+    output  logic           br_en
 );
+
+    logic   [31:0]  as, bs, au, bu;
 
     assign as =   signed'(a);
     assign bs =   signed'(b);
@@ -24,4 +26,4 @@ import rv32i_types::*;
         endcase
     end
 
-endmodule : ALU
+endmodule : CMP

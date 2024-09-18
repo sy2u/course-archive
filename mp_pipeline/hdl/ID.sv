@@ -16,10 +16,13 @@ import rv32i_types::*;
 
     input   if_id_stage_reg_t   if_id_reg,
     output  id_ex_stage_reg_t   id_ex_reg
-)
+);
+
     ex_ctrl_t   ex_ctrl;
     mem_ctrl_t  mem_ctrl;
     wb_ctrl_t   wb_ctrl;
+
+    logic   [4:0]  rs1_addr, rs2_addr;
 
     logic   [31:0]  inst;
     logic   [2:0]   funct3;
@@ -55,11 +58,24 @@ import rv32i_types::*;
 
     // control ROM
     always_comb begin
-        commit = 1'b1;
+        // commit = 1'b1;
+        ex_ctrl.alu_m1_sel = invalid_alu_m1;
+        ex_ctrl.alu_m2_sel = invalid_alu_m2;
+        ex_ctrl.aluop = alu_op_add; // random chose
+        ex_ctrl.cmp_sel = invalid_cmp;
+        ex_ctrl.cmpop = cmp_op_beq; // random chose
+        mem_ctrl.funct3 = funct3;
+        mem_ctrl.mem_re = 'x;
+        mem_ctrl.mem_we = 'x;
+        wb_ctrl.regf_we = 1'b0;
+        wb_ctrl.rd_m_sel = invalid_rd;
         unique case (opcode)
             op_b_lui: begin
-                wb_ctrl.rd_m_sel = u_imm_m;
+                wb_ctrl.rd_m_sel = u_imm_m_rd;
                 wb_ctrl.regf_we = 1'b1;
+                // monitor
+                rs1_addr = '0;
+                rs2_addr = '0;
             end
             op_b_auipc: begin
                 ex_ctrl.aluop = alu_op_add;
@@ -67,15 +83,21 @@ import rv32i_types::*;
                 ex_ctrl.alu_m2_sel = u_imm_m;
                 wb_ctrl.rd_m_sel = alu_out;
                 wb_ctrl.regf_we = 1'b1;
+                // monitor
+                rs1_addr = '0;
+                rs2_addr = '0;
             end
             op_b_store: begin
                 // mem_addr = rs1_v + s_imm;
                 ex_ctrl.aluop = alu_op_add;
                 ex_ctrl.alu_m1_sel = rs1_out;
-                ex_ctrl.alu_m2_sel = s_imm;
+                ex_ctrl.alu_m2_sel = s_imm_m;
                 // set mem_rmask
                 mem_ctrl.funct3 = funct3;
                 mem_ctrl.mem_we = 1'b1;
+                // monitor
+                rs1_addr = rs1_s;
+                rs2_addr = '0;
             end
             op_b_load: begin
                 // mem_addr = rs1_v + i_imm;
@@ -88,17 +110,25 @@ import rv32i_types::*;
                 // set write back register select
                 wb_ctrl.regf_we = 1'b1;
                 unique case (funct3)
-                    load_f3_lb: rd_m_sel = lb;
-                    load_f3_lh: rd_m_sel = lh;
-                    load_f3_lw: rd_m_sel = lw;
-                    load_f3_lbu: rd_m_sel = lbu;
-                    load_f3_lhu: rd_m_sel = lhu;
-                    default: wb_ctrl.rd_m_sel = 'x;
+                    load_f3_lb: wb_ctrl.rd_m_sel = lb;
+                    load_f3_lh: wb_ctrl.rd_m_sel = lh;
+                    load_f3_lw: wb_ctrl.rd_m_sel = lw;
+                    load_f3_lbu: wb_ctrl.rd_m_sel = lbu;
+                    load_f3_lhu: wb_ctrl.rd_m_sel = lhu;
+                    default: wb_ctrl.rd_m_sel = invalid_rd;
                 endcase
+                // monitor
+                rs1_addr = rs1_s;
+                rs2_addr = '0;
             end
             op_b_imm: begin
                 wb_ctrl.regf_we = 1'b1;
-                ex_ctrl.cmp_sel = i_imm_m;
+                ex_ctrl.cmp_sel = i_imm_m_cmp;
+                ex_ctrl.alu_m1_sel = rs1_out;
+                ex_ctrl.alu_m2_sel = i_imm_m;
+                // monitor
+                rs1_addr = rs1_s;
+                rs2_addr = '0;
                 unique case (funct3)
                     arith_f3_slt: begin
                         ex_ctrl.cmpop = cmp_op_blt;
@@ -117,13 +147,18 @@ import rv32i_types::*;
                         wb_ctrl.rd_m_sel = alu_out;
                     end
                     default: begin
-                        ex_ctrl.aluop = funct3;
+                        ex_ctrl.aluop = alu_op_add; // random chose
                         wb_ctrl.rd_m_sel = alu_out;
                     end
                 endcase
             end
             op_b_reg: begin
-                ex_ctrl.cmp_sel = rs2_out;
+                ex_ctrl.cmp_sel = rs2_out_cmp;
+                ex_ctrl.alu_m1_sel = rs1_out;
+                ex_ctrl.alu_m2_sel = rs2_out;
+                // monitor
+                rs1_addr = rs1_s;
+                rs2_addr = rs2_s;
                 unique case (funct3)
                     arith_f3_slt: begin
                         ex_ctrl.cmpop = cmp_op_blt;
@@ -150,7 +185,7 @@ import rv32i_types::*;
                         wb_ctrl.rd_m_sel = alu_out;
                     end
                     default: begin
-                        ex_ctrl.aluop = funct3;
+                        ex_ctrl.aluop = alu_op_add; // random chose
                         wb_ctrl.rd_m_sel = alu_out;
                     end
                 endcase
@@ -158,8 +193,9 @@ import rv32i_types::*;
             // CP1: NO Jump or Branch
             // op_b_jal:
             // op_b_jalr:
-            // op_b_br: begin
-            default: 
+            // op_b_br:
+            default: begin
+            end
         endcase
     end
 
@@ -167,7 +203,9 @@ import rv32i_types::*;
     always_comb begin
         id_ex_reg.inst_s = inst;
         id_ex_reg.pc_s = if_id_reg.pc_s;
+        id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
         id_ex_reg.order_s = if_id_reg.order_s;
+        id_ex_reg.valid_s = if_id_reg.valid_s;
         id_ex_reg.ex_ctrl_s = ex_ctrl;
         id_ex_reg.mem_ctrl_s = mem_ctrl;
         id_ex_reg.wb_ctrl_s = wb_ctrl;
@@ -176,6 +214,8 @@ import rv32i_types::*;
         id_ex_reg.i_imm_s = i_imm;
         id_ex_reg.rs1_v_s = rs1_v;
         id_ex_reg.rs2_v_s = rs2_v;
+        id_ex_reg.rs1_s_s = rs1_addr;
+        id_ex_reg.rs2_s_s = rs2_addr;
         id_ex_reg.rd_s_s = rd_s;
     end
 

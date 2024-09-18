@@ -1,9 +1,6 @@
 module EX
 import rv32i_types::*;
 (
-    input   logic   clk,
-    input   logic   rst,
-
     input   id_ex_stage_reg_t   id_ex_reg,
     output  ex_mem_stage_reg_t  ex_mem_reg
 );
@@ -46,27 +43,31 @@ import rv32i_types::*;
     // cmp_mux
     always_comb begin
         unique case (ex_ctrl.cmp_sel)
-            rs2_out:cmp_b = rs2_v;
-            i_imm:  cmp_b = i_imm;
-            default:cmp_b = 'x;
+            rs2_out_cmp:    cmp_b = rs2_v;
+            i_imm_m_cmp:    cmp_b = i_imm;
+            default:        cmp_b = 'x;
         endcase
     end
 
-    alu alu(.aluop(ex_ctrl.aluop), .a(alu_a), .b(alu_b), .aluout(alu_out));
-    cmp cmp(.cmpop(ex_ctrl.cmpop), .a(rs1_v), .b(cmp_b), .br_en(br_en));
+    ALU alu(.aluop(ex_ctrl.aluop), .a(alu_a), .b(alu_b), .aluout(alu_out));
+    CMP cmp(.cmpop(ex_ctrl.cmpop), .a(rs1_v), .b(cmp_b), .br_en(br_en));
 
     // assign signals to the register struct
     always_comb begin
         ex_mem_reg.pc_s         = id_ex_reg.pc_s;
+        ex_mem_reg.pc_next_s     = id_ex_reg.pc_next_s;
         ex_mem_reg.order_s      = id_ex_reg.order_s;
+        ex_mem_reg.valid_s       = id_ex_reg.valid_s;
         ex_mem_reg.mem_ctrl_s   = id_ex_reg.mem_ctrl_s;
         ex_mem_reg.wb_ctrl_s    = id_ex_reg.wb_ctrl_s;
         ex_mem_reg.u_imm_s      = u_imm;
         ex_mem_reg.alu_out_s    = alu_out;
         ex_mem_reg.br_en_s      = br_en;
+        ex_mem_reg.rs1_v_s      = rs1_v;
         ex_mem_reg.rs2_v_s      = rs2_v;
+        ex_mem_reg.rs1_s_s      = id_ex_reg.rs1_s_s;
+        ex_mem_reg.rs2_s_s      = id_ex_reg.rs2_s_s;
         ex_mem_reg.rd_s_s       = id_ex_reg.rd_s_s;   
-        ex_mem_reg.br_en_s      = id_ex_reg.br_en_s; 
     end
 
 

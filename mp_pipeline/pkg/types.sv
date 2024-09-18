@@ -16,16 +16,16 @@ package rv32i_types;
         op_b_reg       = 7'b0110011  // arith ops with register operands (R type)
     } rv32i_opcode;
 
-    // typedef enum logic [2:0] {
-    //     arith_f3_add   = 3'b000, // check logic 30 for sub if op_reg op
-    //     arith_f3_sll   = 3'b001,
-    //     arith_f3_slt   = 3'b010,
-    //     arith_f3_sltu  = 3'b011,
-    //     arith_f3_xor   = 3'b100,
-    //     arith_f3_sr    = 3'b101, // check logic 30 for logical/arithmetic
-    //     arith_f3_or    = 3'b110,
-    //     arith_f3_and   = 3'b111
-    // } arith_f3_t;
+    typedef enum logic [2:0] {
+        arith_f3_add   = 3'b000, // check logic 30 for sub if op_reg op
+        arith_f3_sll   = 3'b001,
+        arith_f3_slt   = 3'b010,
+        arith_f3_sltu  = 3'b011,
+        arith_f3_xor   = 3'b100,
+        arith_f3_sr    = 3'b101, // check logic 30 for logical/arithmetic
+        arith_f3_or    = 3'b110,
+        arith_f3_and   = 3'b111
+    } arith_f3_t;
 
     typedef enum logic [2:0] {
         load_f3_lb     = 3'b000,
@@ -73,32 +73,37 @@ package rv32i_types;
 ///////////
 // Muxes //
 ///////////
-    typedef enum logic {
-        rs1_out = 1'b0,
-        pc_out  = 1'b1
+    typedef enum logic [1:0] {
+        rs1_out = 2'b00,
+        pc_out  = 2'b01,
+        invalid_alu_m1 = 2'b10
     } alu_m1_sel_t;
 
-    typedef enum logic {
-        rs2_out = 2'b00,
-        u_imm_m = 2'b01,
-        i_imm_m = 2'b10, 
-        const4  = 2'b11
+    typedef enum logic [2:0] {
+        rs2_out = 3'b000,
+        u_imm_m = 3'b001,
+        i_imm_m = 3'b010, 
+        s_imm_m = 3'b011,
+        const4  = 3'b100,
+        invalid_alu_m2 = 3'b101
     } alu_m2_sel_t;
 
-    typedef enum logic {
-        rs2_out = 1'b0,
-        i_imm_m = 1'b1
+    typedef enum logic [1:0] {
+        rs2_out_cmp = 2'b00,
+        i_imm_m_cmp = 2'b01,
+        invalid_cmp = 2'b10
     } cmp_m_sel_t;
 
-    typedef enum logic {
-        u_imm_m     = 3'd0, 
-        alu_out     = 3'd1,
-        ext_br      = 3'd2,
-        lb          = 3'd3,
-        lbu         = 3'd4,
-        lh          = 3'd5,
-        lhu         = 3'd6,
-        lw          = 3'd7
+    typedef enum logic [3:0] {
+        u_imm_m_rd  = 4'b0000, 
+        alu_out     = 4'b0001,
+        ext_br      = 4'b0010,
+        lb          = 4'b0011,
+        lbu         = 4'b0100,
+        lh          = 4'b0101,
+        lhu         = 4'b0110,
+        lw          = 4'b0111,
+        invalid_rd  = 4'b1000
     } rd_m_sel_t;
 
 ////////////////////
@@ -127,15 +132,22 @@ package rv32i_types;
 // Stage registers //
 /////////////////////
     typedef struct packed {
-        logic   [31:0]      pc;
-        logic   [63:0]      order;
+        logic   [31:0]      pc_s;
+        logic   [31:0]      pc_next_s;
+        logic   [63:0]      order_s;
+        logic               valid_s;
     } if_id_stage_reg_t;
 
     typedef struct packed {
-        // data
+        // data: monitor
         logic   [31:0]      inst_s;
         logic   [31:0]      pc_s;
+        logic   [31:0]      pc_next_s;
         logic   [63:0]      order_s;
+        logic               valid_s;
+        logic   [4:0]       rs1_s_s;
+        logic   [4:0]       rs2_s_s;
+        // data
         logic   [31:0]      u_imm_s;
         logic   [31:0]      s_imm_s;
         logic   [31:0]      i_imm_s;
@@ -149,10 +161,17 @@ package rv32i_types;
     } id_ex_stage_reg_t;
 
     typedef struct packed {
-        // data
+        // data: monitor
         logic   [31:0]      inst_s;
         logic   [31:0]      pc_s;
+        logic   [31:0]      pc_next_s;
         logic   [63:0]      order_s;
+        logic               valid_s;
+        logic   [4:0]       rs1_s_s;
+        logic   [4:0]       rs2_s_s;
+        logic   [31:0]      rs1_v_s;
+        logic   [31:0]      rd_s_s;
+        // data
         logic               br_en_s;
         logic   [31:0]      u_imm_s;
         logic   [31:0]      alu_out_s;
@@ -167,7 +186,16 @@ package rv32i_types;
         // data: monitor
         logic   [31:0]      inst_s;
         logic   [31:0]      pc_s;
+        logic   [31:0]      pc_next_s;
         logic   [63:0]      order_s;
+        logic               valid_s;
+        logic   [4:0]       rs1_s_s;
+        logic   [4:0]       rs2_s_s;
+        logic   [31:0]      rs1_v_s;
+        logic   [31:0]      rs2_v_s;
+        logic   [31:0]      mem_rmask_s;
+        logic   [31:0]      mem_wmask_s;
+        logic   [31:0]      mem_wdata_s;
         // data for reg
         logic               br_en_s;
         logic   [31:0]      u_imm_s;
@@ -176,5 +204,56 @@ package rv32i_types;
         logic   [31:0]      dmem_addr_s;
         wb_ctrl_t           wb_ctrl_s;
     } mem_wb_stage_reg_t;
+
+// from verif, for random test
+    typedef union packed {
+        logic [31:0] word;
+
+        struct packed {
+            logic [11:0] i_imm;
+            logic [4:0]  rs1;
+            logic [2:0]  funct3;
+            logic [4:0]  rd;
+            rv32i_opcode opcode;
+        } i_type;
+
+        struct packed {
+            logic [6:0]  funct7;
+            logic [4:0]  rs2;
+            logic [4:0]  rs1;
+            logic [2:0]  funct3;
+            logic [4:0]  rd;
+            rv32i_opcode opcode;
+        } r_type;
+
+        struct packed {
+            logic [11:5] imm_s_top;
+            logic [4:0]  rs2;
+            logic [4:0]  rs1;
+            logic [2:0]  funct3;
+            logic [4:0]  imm_s_bot;
+            rv32i_opcode opcode;
+        } s_type;
+
+
+        struct packed {
+            logic           imm_12;
+            logic [10:5]    imm_10_5;
+            logic [4:0]     rs2;
+            logic [4:0]     rs1;
+            logic [2:0]     funct3;
+            logic [4:1]     imm_4_1;
+            logic           imm_11;
+            rv32i_opcode    opcode;
+        } b_type;
+
+        struct packed {
+            logic [31:12] imm;
+            logic [4:0]   rd;
+            rv32i_opcode  opcode;
+        } j_type;
+
+    } instr_t;
+
 
 endpackage
