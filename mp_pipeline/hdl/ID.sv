@@ -47,13 +47,30 @@ import rv32i_types::*;
     assign rs2_s  = inst[24:20];
     assign rd_s   = inst[11:7];
 
+    logic [63:0] order, order_next;
+
     // read instruction memory data
     always_ff @(posedge clk) begin
         if (rst) begin
             inst <= '0;
+            order <= '0;
         end else if (imem_resp) begin
             inst <= imem_rdata;
+            order <= order_next;
         end
+    end
+
+    // always_comb begin
+    //     inst = 'x;
+    //     if (rst) begin
+    //         inst = '0;
+    //     end else if (imem_resp) begin
+    //         inst = imem_rdata;
+    //     end
+    // end
+
+    always_comb begin
+        order_next = order + 'd1;
     end
 
     // control ROM
@@ -69,6 +86,8 @@ import rv32i_types::*;
         mem_ctrl.mem_we = 'x;
         wb_ctrl.regf_we = 1'b0;
         wb_ctrl.rd_m_sel = invalid_rd;
+        rs1_addr = '0;
+        rs2_addr = '0;
         unique case (opcode)
             op_b_lui: begin
                 wb_ctrl.rd_m_sel = u_imm_m_rd;
@@ -81,7 +100,7 @@ import rv32i_types::*;
                 ex_ctrl.aluop = alu_op_add;
                 ex_ctrl.alu_m1_sel = pc_out;
                 ex_ctrl.alu_m2_sel = u_imm_m;
-                wb_ctrl.rd_m_sel = alu_out;
+                wb_ctrl.rd_m_sel = alu_out_rd;
                 wb_ctrl.regf_we = 1'b1;
                 // monitor
                 rs1_addr = '0;
@@ -144,11 +163,11 @@ import rv32i_types::*;
                         end else begin
                             ex_ctrl.aluop = alu_op_srl;
                         end
-                        wb_ctrl.rd_m_sel = alu_out;
+                        wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                     default: begin
                         ex_ctrl.aluop = alu_op_add; // random chose
-                        wb_ctrl.rd_m_sel = alu_out;
+                        wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                 endcase
             end
@@ -174,7 +193,7 @@ import rv32i_types::*;
                         end else begin
                             ex_ctrl.aluop = alu_op_srl;
                         end
-                        wb_ctrl.rd_m_sel = alu_out;
+                        wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                     arith_f3_add: begin
                         if (funct7[5]) begin
@@ -182,11 +201,11 @@ import rv32i_types::*;
                         end else begin
                             ex_ctrl.aluop = alu_op_add;
                         end
-                        wb_ctrl.rd_m_sel = alu_out;
+                        wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                     default: begin
                         ex_ctrl.aluop = alu_op_add; // random chose
-                        wb_ctrl.rd_m_sel = alu_out;
+                        wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                 endcase
             end
@@ -201,22 +220,41 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
-        id_ex_reg.inst_s = inst;
-        id_ex_reg.pc_s = if_id_reg.pc_s;
-        id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
-        id_ex_reg.order_s = if_id_reg.order_s;
-        id_ex_reg.valid_s = if_id_reg.valid_s;
-        id_ex_reg.ex_ctrl_s = ex_ctrl;
-        id_ex_reg.mem_ctrl_s = mem_ctrl;
-        id_ex_reg.wb_ctrl_s = wb_ctrl;
-        id_ex_reg.u_imm_s = u_imm;
-        id_ex_reg.s_imm_s = s_imm;
-        id_ex_reg.i_imm_s = i_imm;
-        id_ex_reg.rs1_v_s = rs1_v;
-        id_ex_reg.rs2_v_s = rs2_v;
-        id_ex_reg.rs1_s_s = rs1_addr;
-        id_ex_reg.rs2_s_s = rs2_addr;
-        id_ex_reg.rd_s_s = rd_s;
+        if (rst) begin
+            id_ex_reg.inst_s    = '0;
+            id_ex_reg.pc_s      = '0;
+            id_ex_reg.pc_next_s = '0;
+            id_ex_reg.order_s   = '0;
+            id_ex_reg.valid_s   = '0;
+            id_ex_reg.ex_ctrl_s = '0;
+            id_ex_reg.mem_ctrl_s= '0;
+            id_ex_reg.wb_ctrl_s = '0;
+            id_ex_reg.u_imm_s   = '0;
+            id_ex_reg.s_imm_s   = '0;
+            id_ex_reg.i_imm_s   = '0;
+            id_ex_reg.rs1_v_s   = '0;
+            id_ex_reg.rs2_v_s   = '0;
+            id_ex_reg.rs1_s_s   = '0;
+            id_ex_reg.rs2_s_s   = '0;
+            id_ex_reg.rd_s_s    = '0;
+        end else begin
+            id_ex_reg.inst_s    = inst;
+            id_ex_reg.pc_s      = if_id_reg.pc_s;
+            id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
+            id_ex_reg.order_s   = order;
+            id_ex_reg.valid_s   = if_id_reg.valid_s;
+            id_ex_reg.ex_ctrl_s = ex_ctrl;
+            id_ex_reg.mem_ctrl_s= mem_ctrl;
+            id_ex_reg.wb_ctrl_s = wb_ctrl;
+            id_ex_reg.u_imm_s   = u_imm;
+            id_ex_reg.s_imm_s   = s_imm;
+            id_ex_reg.i_imm_s   = i_imm;
+            id_ex_reg.rs1_v_s   = rs1_v;
+            id_ex_reg.rs2_v_s   = rs2_v;
+            id_ex_reg.rs1_s_s   = rs1_addr;
+            id_ex_reg.rs2_s_s   = rs2_addr;
+            id_ex_reg.rd_s_s    = rd_s;
+        end
     end
 
 endmodule

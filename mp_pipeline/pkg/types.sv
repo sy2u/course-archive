@@ -96,7 +96,7 @@ package rv32i_types;
 
     typedef enum logic [3:0] {
         u_imm_m_rd  = 4'b0000, 
-        alu_out     = 4'b0001,
+        alu_out_rd  = 4'b0001,
         ext_br      = 4'b0010,
         lb          = 4'b0011,
         lbu         = 4'b0100,
@@ -134,7 +134,6 @@ package rv32i_types;
     typedef struct packed {
         logic   [31:0]      pc_s;
         logic   [31:0]      pc_next_s;
-        logic   [63:0]      order_s;
         logic               valid_s;
     } if_id_stage_reg_t;
 

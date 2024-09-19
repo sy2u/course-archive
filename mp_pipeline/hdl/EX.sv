@@ -1,6 +1,7 @@
 module EX
 import rv32i_types::*;
-(
+(   
+    input   logic               rst,
     input   id_ex_stage_reg_t   id_ex_reg,
     output  ex_mem_stage_reg_t  ex_mem_reg
 );
@@ -32,10 +33,10 @@ import rv32i_types::*;
 
     always_comb begin
         unique case (ex_ctrl.alu_m2_sel)
-            rs2_out:alu_b = rs2_v;
-            u_imm:  alu_b = u_imm;
-            i_imm:  alu_b = i_imm;
-            const4: alu_b = 'd4;
+            rs2_out:  alu_b = rs2_v;
+            u_imm_m:  alu_b = u_imm;
+            i_imm_m:  alu_b = i_imm;
+            const4:   alu_b = 'd4;
             default: alu_b = 'x;
         endcase
     end
@@ -54,20 +55,39 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
-        ex_mem_reg.pc_s         = id_ex_reg.pc_s;
-        ex_mem_reg.pc_next_s     = id_ex_reg.pc_next_s;
-        ex_mem_reg.order_s      = id_ex_reg.order_s;
-        ex_mem_reg.valid_s       = id_ex_reg.valid_s;
-        ex_mem_reg.mem_ctrl_s   = id_ex_reg.mem_ctrl_s;
-        ex_mem_reg.wb_ctrl_s    = id_ex_reg.wb_ctrl_s;
-        ex_mem_reg.u_imm_s      = u_imm;
-        ex_mem_reg.alu_out_s    = alu_out;
-        ex_mem_reg.br_en_s      = br_en;
-        ex_mem_reg.rs1_v_s      = rs1_v;
-        ex_mem_reg.rs2_v_s      = rs2_v;
-        ex_mem_reg.rs1_s_s      = id_ex_reg.rs1_s_s;
-        ex_mem_reg.rs2_s_s      = id_ex_reg.rs2_s_s;
-        ex_mem_reg.rd_s_s       = id_ex_reg.rd_s_s;   
+        if (rst) begin
+            ex_mem_reg.inst_s       = '0;
+            ex_mem_reg.pc_s         = '0;
+            ex_mem_reg.pc_next_s    = '0;
+            ex_mem_reg.order_s      = '0;
+            ex_mem_reg.valid_s      = '0;
+            ex_mem_reg.mem_ctrl_s   = '0;
+            ex_mem_reg.wb_ctrl_s    = '0;
+            ex_mem_reg.u_imm_s      = '0;
+            ex_mem_reg.alu_out_s    = '0;
+            ex_mem_reg.br_en_s      = '0;
+            ex_mem_reg.rs1_v_s      = '0;
+            ex_mem_reg.rs2_v_s      = '0;
+            ex_mem_reg.rs1_s_s      = '0;
+            ex_mem_reg.rs2_s_s      = '0;
+            ex_mem_reg.rd_s_s       = '0;
+        end else begin
+            ex_mem_reg.inst_s       = id_ex_reg.inst_s;
+            ex_mem_reg.pc_s         = id_ex_reg.pc_s;
+            ex_mem_reg.pc_next_s     = id_ex_reg.pc_next_s;
+            ex_mem_reg.order_s      = id_ex_reg.order_s;
+            ex_mem_reg.valid_s       = id_ex_reg.valid_s;
+            ex_mem_reg.mem_ctrl_s   = id_ex_reg.mem_ctrl_s;
+            ex_mem_reg.wb_ctrl_s    = id_ex_reg.wb_ctrl_s;
+            ex_mem_reg.u_imm_s      = u_imm;
+            ex_mem_reg.alu_out_s    = alu_out;
+            ex_mem_reg.br_en_s      = br_en;
+            ex_mem_reg.rs1_v_s      = rs1_v;
+            ex_mem_reg.rs2_v_s      = rs2_v;
+            ex_mem_reg.rs1_s_s      = id_ex_reg.rs1_s_s;
+            ex_mem_reg.rs2_s_s      = id_ex_reg.rs2_s_s;
+            ex_mem_reg.rd_s_s       = id_ex_reg.rd_s_s;   
+        end
     end
 
 

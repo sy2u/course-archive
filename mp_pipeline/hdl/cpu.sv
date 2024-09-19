@@ -45,11 +45,11 @@ import rv32i_types::*;
 
     EX  stage_ex( .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next) );
 
-    MEM stage_mem(
+    MEM stage_mem( .rst(rst),
         .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
         .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg_next));
 
-    WB  stage_wb(
+    WB  stage_wb( .rst(rst),
         .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp), 
         .regf_we(regf_we), .rd_sel(rd_sel), .rd_v(rd_v), 
         .mem_wb_reg(mem_wb_reg));

@@ -1,6 +1,7 @@
 module MEM
 import rv32i_types::*;
 (
+    input   logic           rst,
     output  logic   [31:0]  dmem_addr,
     output  logic   [3:0]   dmem_rmask,
     output  logic   [3:0]   dmem_wmask,
@@ -21,15 +22,16 @@ import rv32i_types::*;
     end
 
     always_comb begin
+        mem_addr = ex_mem_reg.alu_out_s;
+        dmem_addr = mem_addr;
+        dmem_wmask = '0;
+        dmem_rmask = '0;
         // dmem read
         if( mem_ctrl.mem_we )begin
-            mem_addr = ex_mem_reg.alu_out_s;
-            dmem_addr = mem_addr;
             unique case (mem_ctrl.funct3)
                 store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
                 store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
                 store_f3_sw: dmem_wmask = 4'b1111;
-                default    : dmem_wmask = '0;
             endcase
             unique case (mem_ctrl.funct3)
                 store_f3_sb: dmem_wdata[8 *mem_addr[1:0] +: 8 ] = rs2_v[7 :0];
@@ -46,7 +48,6 @@ import rv32i_types::*;
                 load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
                 load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];
                 load_f3_lw             : dmem_rmask = 4'b1111;
-                default                : dmem_rmask = '0;
             endcase
             mem_addr[1:0] = 2'd0;
         end
@@ -54,22 +55,43 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
-        mem_wb_reg.pc_s         = ex_mem_reg.pc_s;
-        mem_wb_reg.pc_next_s    = ex_mem_reg.pc_next_s;
-        mem_wb_reg.order_s      = ex_mem_reg.order_s;
-        mem_wb_reg.valid_s      = ex_mem_reg.valid_s;
-        mem_wb_reg.wb_ctrl_s    = ex_mem_reg.wb_ctrl_s; 
-        mem_wb_reg.rd_s_s       = ex_mem_reg.rd_s_s;
-        mem_wb_reg.br_en_s      = ex_mem_reg.br_en_s;
-        mem_wb_reg.alu_out_s    = ex_mem_reg.alu_out_s;
-        mem_wb_reg.rs1_v_s      = ex_mem_reg.rs1_v_s;
-        mem_wb_reg.rs2_v_s      = ex_mem_reg.rs2_v_s;
-        mem_wb_reg.rs1_s_s      = ex_mem_reg.rs1_s_s;
-        mem_wb_reg.rs2_s_s      = ex_mem_reg.rs2_s_s;
-        mem_wb_reg.dmem_addr_s  = mem_addr;
-        mem_wb_reg.mem_rmask_s  = dmem_rmask;
-        mem_wb_reg.mem_wmask_s  = dmem_wmask;
-        mem_wb_reg.mem_wdata_s  = dmem_wdata;
+        if( rst )begin
+            mem_wb_reg.inst_s       = '0;
+            mem_wb_reg.pc_s         = '0;
+            mem_wb_reg.pc_next_s    = '0;
+            mem_wb_reg.order_s      = '0;
+            mem_wb_reg.valid_s      = '0;
+            mem_wb_reg.wb_ctrl_s    = '0;
+            mem_wb_reg.rd_s_s       = '0;
+            mem_wb_reg.br_en_s      = '0;
+            mem_wb_reg.alu_out_s    = '0;
+            mem_wb_reg.rs1_v_s      = '0;
+            mem_wb_reg.rs2_v_s      = '0;
+            mem_wb_reg.rs1_s_s      = '0;
+            mem_wb_reg.rs2_s_s      = '0;
+            mem_wb_reg.dmem_addr_s  = '0;
+            mem_wb_reg.mem_rmask_s  = '0;
+            mem_wb_reg.mem_wmask_s  = '0;
+            mem_wb_reg.mem_wdata_s  = '0;
+        end else begin
+            mem_wb_reg.inst_s       = ex_mem_reg.inst_s;
+            mem_wb_reg.pc_s         = ex_mem_reg.pc_s;
+            mem_wb_reg.pc_next_s    = ex_mem_reg.pc_next_s;
+            mem_wb_reg.order_s      = ex_mem_reg.order_s;
+            mem_wb_reg.valid_s      = ex_mem_reg.valid_s;
+            mem_wb_reg.wb_ctrl_s    = ex_mem_reg.wb_ctrl_s; 
+            mem_wb_reg.rd_s_s       = ex_mem_reg.rd_s_s;
+            mem_wb_reg.br_en_s      = ex_mem_reg.br_en_s;
+            mem_wb_reg.alu_out_s    = ex_mem_reg.alu_out_s;
+            mem_wb_reg.rs1_v_s      = ex_mem_reg.rs1_v_s;
+            mem_wb_reg.rs2_v_s      = ex_mem_reg.rs2_v_s;
+            mem_wb_reg.rs1_s_s      = ex_mem_reg.rs1_s_s;
+            mem_wb_reg.rs2_s_s      = ex_mem_reg.rs2_s_s;
+            mem_wb_reg.dmem_addr_s  = mem_addr;
+            mem_wb_reg.mem_rmask_s  = dmem_rmask;
+            mem_wb_reg.mem_wmask_s  = dmem_wmask;
+            mem_wb_reg.mem_wdata_s  = dmem_wdata;
+        end
     end
 
 
