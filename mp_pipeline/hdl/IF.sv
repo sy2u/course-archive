@@ -12,7 +12,6 @@ import rv32i_types::*;
 );
 
     logic [31:0] pc, pc_next;
-    // logic [3:0]  imem_rmask_next;
 
     // update pc
     always_ff @( posedge clk ) begin
@@ -23,12 +22,19 @@ import rv32i_types::*;
         end
     end
 
+    // update pc_next
+    always_comb begin
+        if (rst) begin
+            pc_next = pc;
+        end else begin
+            pc_next = pc +'d4;
+        end
+    end
+
     always_comb begin
         // fetch instruction
-        imem_addr = pc;
+        imem_addr = pc_next;
         imem_rmask = '1;
-        // update next cycle count
-        pc_next = pc + 'd4;
     end
 
     // assign signals to the register struct
