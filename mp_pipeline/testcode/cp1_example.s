@@ -8,5 +8,11 @@ _start:
     nop
     nop
     addi x3, x1, 8
+    nop
+    nop
+    nop
+    nop
+    nop
+    lui x1, 20
 
     slti x0, x0, -256 # this is the magic instruction to end the simulation

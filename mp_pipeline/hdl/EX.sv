@@ -2,6 +2,10 @@ module EX
 import rv32i_types::*;
 (   
     input   logic               rst,
+
+    input   logic   [31:0]      rs1_v,
+    input   logic   [31:0]      rs2_v,
+
     input   id_ex_stage_reg_t   id_ex_reg,
     output  ex_mem_stage_reg_t  ex_mem_reg
 );
@@ -15,8 +19,6 @@ import rv32i_types::*;
     // get value from prev reg
     always_comb begin
         ex_ctrl = id_ex_reg.ex_ctrl_s;
-        rs1_v = id_ex_reg.rs1_v_s;
-        rs2_v = id_ex_reg.rs2_v_s;
         u_imm = id_ex_reg.u_imm_s;
         i_imm = id_ex_reg.i_imm_s;
         pc = id_ex_reg.pc_s;

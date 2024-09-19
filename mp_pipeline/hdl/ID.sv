@@ -11,8 +11,6 @@ import rv32i_types::*;
 
     output  logic   [4:0]       rs1_s,
     output  logic   [4:0]       rs2_s,
-    input   logic   [31:0]      rs1_v,
-    input   logic   [31:0]      rs2_v,
 
     input   if_id_stage_reg_t   if_id_reg,
     output  id_ex_stage_reg_t   id_ex_reg
@@ -231,8 +229,6 @@ import rv32i_types::*;
             id_ex_reg.u_imm_s   = u_imm;
             id_ex_reg.s_imm_s   = s_imm;
             id_ex_reg.i_imm_s   = i_imm;
-            id_ex_reg.rs1_v_s   = rs1_v;
-            id_ex_reg.rs2_v_s   = rs2_v;
             id_ex_reg.rs1_s_s   = rs1_addr;
             id_ex_reg.rs2_s_s   = rs2_addr;
             id_ex_reg.rd_s_s    = rd_s;
