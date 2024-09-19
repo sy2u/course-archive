@@ -13,7 +13,7 @@ import rv32i_types::*;
 
     logic        valid;
     logic [31:0] pc, pc_next;
-    logic [31:0] order, order_next;
+    logic [63:0] order, order_next;
 
     // update pc
     always_ff @( posedge clk ) begin

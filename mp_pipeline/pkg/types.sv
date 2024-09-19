@@ -153,7 +153,7 @@ package rv32i_types;
         logic   [31:0]      i_imm_s;
         logic   [31:0]      rs1_v_s;
         logic   [31:0]      rs2_v_s;
-        logic   [31:0]      rd_s_s;
+        logic   [4:0]       rd_s_s;
         // control
         ex_ctrl_t           ex_ctrl_s;
         mem_ctrl_t          mem_ctrl_s;
@@ -170,7 +170,7 @@ package rv32i_types;
         logic   [4:0]       rs1_s_s;
         logic   [4:0]       rs2_s_s;
         logic   [31:0]      rs1_v_s;
-        logic   [31:0]      rd_s_s;
+        logic   [4:0]       rd_s_s;
         // data
         logic               br_en_s;
         logic   [31:0]      u_imm_s;
@@ -193,19 +193,21 @@ package rv32i_types;
         logic   [4:0]       rs2_s_s;
         logic   [31:0]      rs1_v_s;
         logic   [31:0]      rs2_v_s;
-        logic   [31:0]      mem_rmask_s;
-        logic   [31:0]      mem_wmask_s;
+        logic   [3:0]       mem_rmask_s;
+        logic   [3:0]       mem_wmask_s;
         logic   [31:0]      mem_wdata_s;
         // data for reg
         logic               br_en_s;
         logic   [31:0]      u_imm_s;
         logic   [31:0]      alu_out_s;
-        logic   [31:0]      rd_s_s;
+        logic   [4:0]       rd_s_s;
         logic   [31:0]      dmem_addr_s;
         wb_ctrl_t           wb_ctrl_s;
     } mem_wb_stage_reg_t;
 
-// from verif, for random test
+//////////////////////
+// imported instr_t //
+//////////////////////
     typedef union packed {
         logic [31:0] word;
 

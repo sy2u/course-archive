@@ -14,14 +14,16 @@ import rv32i_types::*;
 );
 
     wb_ctrl_t       wb_ctrl;
-    logic           valid, order;
+    logic           valid;
     logic   [31:0]  inst;
+    logic   [63:0]  order;
     logic           br_en;
     logic   [31:0]  mem_addr, u_imm, alu_out;
     logic   [4:0]   rs1_s, rs2_s;
     logic   [31:0]  rs1_v, rs2_v;
     logic   [31:0]  pc, pc_next;
-    logic   [31:0]  mem_rmask, mem_wmask, mem_wdata;
+    logic   [3:0]   mem_rmask, mem_wmask;
+    logic   [31:0]  mem_wdata;
 
     // get value from prev reg
     always_comb begin
@@ -54,11 +56,26 @@ import rv32i_types::*;
                 u_imm_m_rd: rd_v = u_imm;
                 alu_out: rd_v = alu_out;
                 ext_br: rd_v = {31'd0, br_en}; 
-                lb : rd_v = {{24{dmem_rdata[7 +8 *mem_addr[1:0]]}}, dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
-                lbu: rd_v = {{24{1'b0}}                          , dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
-                lh : rd_v = {{16{dmem_rdata[15+16*mem_addr[1]  ]}}, dmem_rdata[16*mem_addr[1]   +: 16]};
-                lhu: rd_v = {{16{1'b0}}                          , dmem_rdata[16*mem_addr[1]   +: 16]};
-                lw : rd_v = dmem_rdata;
+                lb : begin
+                    if( dmem_resp )
+                        rd_v = {{24{dmem_rdata[7 +8 *mem_addr[1:0]]}}, dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
+                end
+                lbu: begin
+                    if( dmem_resp )
+                        rd_v = {{24{1'b0}}                          , dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
+                end
+                lh : begin
+                    if( dmem_resp )
+                        rd_v = {{16{dmem_rdata[15+16*mem_addr[1]  ]}}, dmem_rdata[16*mem_addr[1]   +: 16]};
+                end
+                lhu: begin
+                    if( dmem_resp )
+                        rd_v = {{16{1'b0}}                          , dmem_rdata[16*mem_addr[1]   +: 16]};
+                end
+                lw : begin
+                    if( dmem_resp )
+                        rd_v = dmem_rdata;
+                end
                 default    : rd_v = 'x;
             endcase
         end
