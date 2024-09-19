@@ -13,6 +13,30 @@ _start:
     nop
     nop
     nop
-    lui x1, 20
+    lui x1, 4
+    nop
+    nop
+    nop
+    nop
+    nop
+    lui x2, 1
+    nop
+    nop
+    nop
+    nop
+    nop    
+    srl x5, x2, x1
+    nop
+    nop
+    nop
+    nop
+    nop  
+    sub x5, x2, x1
+    nop
+    nop
+    nop
+    nop
+    nop
+
 
     slti x0, x0, -256 # this is the magic instruction to end the simulation

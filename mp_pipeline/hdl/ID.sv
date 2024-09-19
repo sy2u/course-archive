@@ -164,12 +164,13 @@ import rv32i_types::*;
                         wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                     default: begin
-                        ex_ctrl.aluop = alu_op_add; // random chose
+                        ex_ctrl.aluop = alu_ops_t'(funct3);
                         wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                 endcase
             end
             op_b_reg: begin
+                wb_ctrl.regf_we = 1'b1;
                 ex_ctrl.cmp_sel = rs2_out_cmp;
                 ex_ctrl.alu_m1_sel = rs1_out;
                 ex_ctrl.alu_m2_sel = rs2_out;
@@ -202,7 +203,7 @@ import rv32i_types::*;
                         wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                     default: begin
-                        ex_ctrl.aluop = alu_op_add; // random chose
+                        ex_ctrl.aluop = alu_ops_t'(funct3);
                         wb_ctrl.rd_m_sel = alu_out_rd;
                     end
                 endcase

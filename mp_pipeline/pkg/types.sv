@@ -150,8 +150,6 @@ package rv32i_types;
         logic   [31:0]      u_imm_s;
         logic   [31:0]      s_imm_s;
         logic   [31:0]      i_imm_s;
-        logic   [31:0]      rs1_v_s;
-        logic   [31:0]      rs2_v_s;
         logic   [4:0]       rd_s_s;
         // control
         ex_ctrl_t           ex_ctrl_s;

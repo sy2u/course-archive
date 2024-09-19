@@ -14,7 +14,7 @@ import rv32i_types::*;
     logic           br_en;
     logic   [31:0]  cmp_b;
     logic   [31:0]  alu_a, alu_b, alu_out;
-    logic   [31:0]  rs1_v, rs2_v, u_imm, i_imm, pc;
+    logic   [31:0]  u_imm, i_imm, pc;
 
     // get value from prev reg
     always_comb begin
