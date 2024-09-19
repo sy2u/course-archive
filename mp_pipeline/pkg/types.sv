@@ -41,14 +41,14 @@ package rv32i_types;
         store_f3_sw    = 3'b010
     } store_f3_t;
 
-    // typedef enum logic [2:0] {
-    //     branch_f3_beq  = 3'b000,
-    //     branch_f3_bne  = 3'b001,
-    //     branch_f3_blt  = 3'b100,
-    //     branch_f3_bge  = 3'b101,
-    //     branch_f3_bltu = 3'b110,
-    //     branch_f3_bgeu = 3'b111
-    // } branch_f3_t;
+    typedef enum logic [2:0] {
+        branch_f3_beq  = 3'b000,
+        branch_f3_bne  = 3'b001,
+        branch_f3_blt  = 3'b100,
+        branch_f3_bge  = 3'b101,
+        branch_f3_bltu = 3'b110,
+        branch_f3_bgeu = 3'b111
+    } branch_f3_t;
 
     typedef enum logic [2:0] {
         cmp_op_beq  = 3'b000,
@@ -169,13 +169,12 @@ package rv32i_types;
         logic   [4:0]       rs1_s_s;
         logic   [4:0]       rs2_s_s;
         logic   [31:0]      rs1_v_s;
-        logic   [4:0]       rd_s_s;
         // data
         logic               br_en_s;
         logic   [31:0]      u_imm_s;
         logic   [31:0]      alu_out_s;
         logic   [31:0]      rs2_v_s;
-        logic   [31:0]      rd_s;
+        logic   [4:0]       rd_s_s;
         // control
         mem_ctrl_t          mem_ctrl_s;
         wb_ctrl_t           wb_ctrl_s;
@@ -204,9 +203,9 @@ package rv32i_types;
         wb_ctrl_t           wb_ctrl_s;
     } mem_wb_stage_reg_t;
 
-//////////////////////
-// imported instr_t //
-//////////////////////
+////////////////////////////
+// imported for random tb //
+////////////////////////////
     typedef union packed {
         logic [31:0] word;
 
@@ -256,5 +255,9 @@ package rv32i_types;
 
     } instr_t;
 
+    typedef enum logic [6:0] {
+        base           = 7'b0000000,
+        variant        = 7'b0100000
+    } funct7_t;
 
 endpackage

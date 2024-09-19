@@ -9,6 +9,7 @@ module top_tb;
 
     mem_itf_w_mask #(.CHANNELS(2)) mem_itf(.*);
     n_port_pipeline_memory_32_w_mask #(.CHANNELS(2), .MAGIC(1)) mem(.itf(mem_itf));
+    // random_tb random_tb(.itf(mem_itf));
 
     mon_itf mon_itf(.*);
     monitor monitor(.itf(mon_itf));

@@ -3,7 +3,6 @@
 module WB
 import rv32i_types::*;
 (
-    input   logic           rst,
     input   logic   [31:0]  dmem_rdata,
     input   logic           dmem_resp,
 
@@ -69,45 +68,24 @@ import rv32i_types::*;
     always_comb begin
         wb_ctrl = mem_wb_reg.wb_ctrl_s;
         // rvfi monitor
-        if( rst ) begin
-            inst        = '0;
-            order       = '0;
-            mem_addr    = '0;
-            br_en       = '0;
-            u_imm       = '0;
-            alu_out     = '0;
-            rd_sel      = '0;
-            regf_we     = '0;
-            valid       = '0;
-            rs1_v       = '0;
-            rs2_v       = '0;
-            rs1_s       = '0;
-            rs2_s       = '0;
-            pc          = '0;
-            pc_next     = '0;
-            mem_rmask   = '0;
-            mem_wmask   = '0;
-            mem_wdata   = '0;
-        end else begin
-            valid       = mem_wb_reg.valid_s;
-            rs1_v       = mem_wb_reg.rs1_v_s;
-            rs2_v       = mem_wb_reg.rs2_v_s;
-            rs1_s       = mem_wb_reg.rs1_s_s;
-            rs2_s       = mem_wb_reg.rs2_s_s;
-            pc          = mem_wb_reg.pc_s;
-            pc_next     = mem_wb_reg.pc_next_s;
-            mem_rmask   = mem_wb_reg.mem_rmask_s;
-            mem_wmask   = mem_wb_reg.mem_wmask_s;
-            mem_wdata   = mem_wb_reg.mem_wdata_s;
-            inst        = mem_wb_reg.inst_s;
-            order       = mem_wb_reg.order_s;
-            mem_addr    = mem_wb_reg.dmem_addr_s;
-            br_en       = mem_wb_reg.br_en_s;
-            u_imm       = mem_wb_reg.u_imm_s;
-            alu_out     = mem_wb_reg.alu_out_s;
-            rd_sel      = mem_wb_reg.rd_s_s;
-            regf_we     = wb_ctrl.regf_we;
-        end
+        valid       = mem_wb_reg.valid_s;
+        rs1_v       = mem_wb_reg.rs1_v_s;
+        rs2_v       = mem_wb_reg.rs2_v_s;
+        rs1_s       = mem_wb_reg.rs1_s_s;
+        rs2_s       = mem_wb_reg.rs2_s_s;
+        pc          = mem_wb_reg.pc_s;
+        pc_next     = mem_wb_reg.pc_next_s;
+        mem_rmask   = mem_wb_reg.mem_rmask_s;
+        mem_wmask   = mem_wb_reg.mem_wmask_s;
+        mem_wdata   = mem_wb_reg.mem_wdata_s;
+        inst        = mem_wb_reg.inst_s;
+        order       = mem_wb_reg.order_s;
+        mem_addr    = mem_wb_reg.dmem_addr_s;
+        br_en       = mem_wb_reg.br_en_s;
+        u_imm       = mem_wb_reg.u_imm_s;
+        alu_out     = mem_wb_reg.alu_out_s;
+        rd_sel      = mem_wb_reg.rd_s_s;
+        regf_we     = wb_ctrl.regf_we;
     end
 
 endmodule

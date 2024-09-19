@@ -220,24 +220,6 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
-        if (rst) begin
-            id_ex_reg.inst_s    = '0;
-            id_ex_reg.pc_s      = '0;
-            id_ex_reg.pc_next_s = '0;
-            id_ex_reg.order_s   = '0;
-            id_ex_reg.valid_s   = '0;
-            id_ex_reg.ex_ctrl_s = '0;
-            id_ex_reg.mem_ctrl_s= '0;
-            id_ex_reg.wb_ctrl_s = '0;
-            id_ex_reg.u_imm_s   = '0;
-            id_ex_reg.s_imm_s   = '0;
-            id_ex_reg.i_imm_s   = '0;
-            id_ex_reg.rs1_v_s   = '0;
-            id_ex_reg.rs2_v_s   = '0;
-            id_ex_reg.rs1_s_s   = '0;
-            id_ex_reg.rs2_s_s   = '0;
-            id_ex_reg.rd_s_s    = '0;
-        end else begin
             id_ex_reg.inst_s    = inst;
             id_ex_reg.pc_s      = if_id_reg.pc_s;
             id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
@@ -254,6 +236,8 @@ import rv32i_types::*;
             id_ex_reg.rs1_s_s   = rs1_addr;
             id_ex_reg.rs2_s_s   = rs2_addr;
             id_ex_reg.rd_s_s    = rd_s;
+        if (rst) begin
+            id_ex_reg.valid_s   = '0;
         end
     end
 

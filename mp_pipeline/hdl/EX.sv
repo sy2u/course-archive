@@ -55,28 +55,11 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
-        if (rst) begin
-            ex_mem_reg.inst_s       = '0;
-            ex_mem_reg.pc_s         = '0;
-            ex_mem_reg.pc_next_s    = '0;
-            ex_mem_reg.order_s      = '0;
-            ex_mem_reg.valid_s      = '0;
-            ex_mem_reg.mem_ctrl_s   = '0;
-            ex_mem_reg.wb_ctrl_s    = '0;
-            ex_mem_reg.u_imm_s      = '0;
-            ex_mem_reg.alu_out_s    = '0;
-            ex_mem_reg.br_en_s      = '0;
-            ex_mem_reg.rs1_v_s      = '0;
-            ex_mem_reg.rs2_v_s      = '0;
-            ex_mem_reg.rs1_s_s      = '0;
-            ex_mem_reg.rs2_s_s      = '0;
-            ex_mem_reg.rd_s_s       = '0;
-        end else begin
             ex_mem_reg.inst_s       = id_ex_reg.inst_s;
             ex_mem_reg.pc_s         = id_ex_reg.pc_s;
-            ex_mem_reg.pc_next_s     = id_ex_reg.pc_next_s;
+            ex_mem_reg.pc_next_s    = id_ex_reg.pc_next_s;
             ex_mem_reg.order_s      = id_ex_reg.order_s;
-            ex_mem_reg.valid_s       = id_ex_reg.valid_s;
+            ex_mem_reg.valid_s      = id_ex_reg.valid_s;
             ex_mem_reg.mem_ctrl_s   = id_ex_reg.mem_ctrl_s;
             ex_mem_reg.wb_ctrl_s    = id_ex_reg.wb_ctrl_s;
             ex_mem_reg.u_imm_s      = u_imm;
@@ -86,8 +69,10 @@ import rv32i_types::*;
             ex_mem_reg.rs2_v_s      = rs2_v;
             ex_mem_reg.rs1_s_s      = id_ex_reg.rs1_s_s;
             ex_mem_reg.rs2_s_s      = id_ex_reg.rs2_s_s;
-            ex_mem_reg.rd_s_s       = id_ex_reg.rd_s_s;   
-        end
+            ex_mem_reg.rd_s_s       = id_ex_reg.rd_s_s; 
+        if (rst) begin
+            ex_mem_reg.valid_s       = '0;
+        end 
     end
 
 
