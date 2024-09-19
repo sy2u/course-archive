@@ -31,7 +31,37 @@ _start:
     nop
     nop
     nop  
-    sub x5, x2, x1
+    slt x5, x2, x1
+    nop
+    nop
+    nop
+    nop
+    nop
+    sltu x5, x2, x1
+    nop
+    nop
+    nop
+    nop
+    nop
+    xor x3, x2, x1
+    nop
+    nop
+    nop
+    nop
+    nop
+    slti x5, x1, 10
+    nop
+    nop
+    nop
+    nop
+    nop
+    xori x5, x1, 10
+    nop
+    nop
+    nop
+    nop
+    nop
+    slli x5, x1, 10
     nop
     nop
     nop
