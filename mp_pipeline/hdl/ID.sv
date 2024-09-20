@@ -45,31 +45,15 @@ import rv32i_types::*;
     assign rs2_s  = inst[24:20];
     assign rd_s   = inst[11:7];
 
-    logic [63:0] order, order_next;
-
     // read instruction memory data
     always_ff @(posedge clk) begin
         if (rst) begin
             inst <= '0;
-            order <= '0;
         end else if (imem_resp) begin
             inst <= imem_rdata;
-            order <= order_next;
         end
     end
 
-    // always_comb begin
-    //     inst = 'x;
-    //     if (rst) begin
-    //         inst = '0;
-    //     end else if (imem_resp) begin
-    //         inst = imem_rdata;
-    //     end
-    // end
-
-    always_comb begin
-        order_next = order + 'd1;
-    end
 
     // control ROM
     always_comb begin
@@ -222,7 +206,7 @@ import rv32i_types::*;
             id_ex_reg.inst_s    = inst;
             id_ex_reg.pc_s      = if_id_reg.pc_s;
             id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
-            id_ex_reg.order_s   = order;
+            id_ex_reg.order_s   = if_id_reg.order_s;
             id_ex_reg.valid_s   = if_id_reg.valid_s;
             id_ex_reg.ex_ctrl_s = ex_ctrl;
             id_ex_reg.mem_ctrl_s= mem_ctrl;

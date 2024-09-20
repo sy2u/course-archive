@@ -17,7 +17,7 @@ import rv32i_types::*;
     mem_itf_w_mask.mem itf
 );
 
-    `include "../../hvl/vcs/cp1_randinst.svh"
+    `include "../../hvl/vcs/cp2_randinst.svh"
 
     RandInst gen = new();
 

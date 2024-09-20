@@ -25,6 +25,30 @@ import rv32i_types::*;
     logic   [3:0]   mem_rmask, mem_wmask;
     logic   [31:0]  mem_wdata;
 
+    // get value from prev reg
+    always_comb begin
+        wb_ctrl     = mem_wb_reg.wb_ctrl_s;
+        // rvfi monitor
+        valid       = mem_wb_reg.valid_s;
+        rs1_v       = mem_wb_reg.rs1_v_s;
+        rs2_v       = mem_wb_reg.rs2_v_s;
+        rs1_s       = mem_wb_reg.rs1_s_s;
+        rs2_s       = mem_wb_reg.rs2_s_s;
+        pc          = mem_wb_reg.pc_s;
+        pc_next     = mem_wb_reg.pc_next_s;
+        mem_rmask   = mem_wb_reg.mem_rmask_s;
+        mem_wmask   = mem_wb_reg.mem_wmask_s;
+        mem_wdata   = mem_wb_reg.mem_wdata_s;
+        inst        = mem_wb_reg.inst_s;
+        order       = mem_wb_reg.order_s;
+        mem_addr    = mem_wb_reg.dmem_addr_s;
+        br_en       = mem_wb_reg.br_en_s;
+        u_imm       = mem_wb_reg.u_imm_s;
+        alu_out     = mem_wb_reg.alu_out_s;
+        rd_sel      = mem_wb_reg.rd_s_s;
+        regf_we     = wb_ctrl.regf_we;
+    end
+    
     // reg file big mux
     always_comb begin
         rd_v = 'x;
@@ -62,30 +86,6 @@ import rv32i_types::*;
                 default: rd_v = 'x;
             endcase
         end
-    end
-
-    // get value from prev reg
-    always_comb begin
-        wb_ctrl = mem_wb_reg.wb_ctrl_s;
-        // rvfi monitor
-        valid       = mem_wb_reg.valid_s;
-        rs1_v       = mem_wb_reg.rs1_v_s;
-        rs2_v       = mem_wb_reg.rs2_v_s;
-        rs1_s       = mem_wb_reg.rs1_s_s;
-        rs2_s       = mem_wb_reg.rs2_s_s;
-        pc          = mem_wb_reg.pc_s;
-        pc_next     = mem_wb_reg.pc_next_s;
-        mem_rmask   = mem_wb_reg.mem_rmask_s;
-        mem_wmask   = mem_wb_reg.mem_wmask_s;
-        mem_wdata   = mem_wb_reg.mem_wdata_s;
-        inst        = mem_wb_reg.inst_s;
-        order       = mem_wb_reg.order_s;
-        mem_addr    = mem_wb_reg.dmem_addr_s;
-        br_en       = mem_wb_reg.br_en_s;
-        u_imm       = mem_wb_reg.u_imm_s;
-        alu_out     = mem_wb_reg.alu_out_s;
-        rd_sel      = mem_wb_reg.rd_s_s;
-        regf_we     = wb_ctrl.regf_we;
     end
 
 endmodule
