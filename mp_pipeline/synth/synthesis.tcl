@@ -55,6 +55,9 @@ source constraints.sdc
 link
 
 eval [getenv ECE411_COMPILE_CMD]
+for {set i 0} {$i < [getenv ECE411_COMPILE_ITER]} {incr i} {
+    eval [getenv ECE411_COMPILE_CMD_INC]
+}
 
 current_design $design_toplevel
 

@@ -4,6 +4,7 @@
         "ungroup"       : true,
         "gate_clock"    : true,
         "retime"        : true,
-        "min_power"     : false
+        "min_power"     : false,
+        "inc_iter"      : 0
     }
 }

@@ -12,13 +12,24 @@ os.chdir("..")
 with open("options.json") as f:
     j = json.load(f)
 
-if sys.argv[1] == "synth_cmd":
+if sys.argv[1] == "synth_inc_iter":
+    iter = int(j["synth"]["inc_iter"])
+    if iter > 10 or iter < 0:
+        print("Error: Synthesis incremental iterations need to be within 0 and 10", file=sys.stderr)
+        exit(1)
+    print(int(j["synth"]["inc_iter"]))
+
+if sys.argv[1] == "synth_cmd" or sys.argv[1] == "synth_cmd_inc":
     cmd = ""
 
     if j["synth"]["compile_ultra"]:
         cmd += "compile_ultra"
+        if sys.argv[1] == "synth_cmd_inc":
+            cmd += " -incremental"
     else:
         cmd += "compile"
+        if sys.argv[1] == "synth_cmd_inc":
+            cmd += " -incremental_mapping"
 
     if j["synth"]["compile_ultra"]:
         if not j["synth"]["ungroup"]:

@@ -20,8 +20,10 @@ outputs/synth.ddc:
 	mkdir -p reports outputs
 	python3 $(PWD)/../bin/get_options.py synth_cmd
 	export ECE411_CLOCK_PERIOD_PS=2000 ;\
-	export ECE411_MIN_POWER=0 ;\
+	export ECE411_MIN_POWER=$(shell python3 $(PWD)/../bin/get_options.py min_power) ;\
 	export ECE411_COMPILE_CMD="$(shell python3 $(PWD)/../bin/get_options.py synth_cmd)" ;\
+	export ECE411_COMPILE_CMD_INC="$(shell python3 $(PWD)/../bin/get_options.py synth_cmd_inc)" ;\
+	export ECE411_COMPILE_ITER="$(shell python3 $(PWD)/../bin/get_options.py synth_inc_iter)" ;\
 	export ECE411_DC_CORES=4 ;\
 	dc_shell -f synthesis.tcl |& tee reports/synthesis.log
 	rm -f  *.log

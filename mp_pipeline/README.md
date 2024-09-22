@@ -165,7 +165,7 @@ Failure to satisfy these requirements will result in a 0 on checkpoint 3:
 Failure to satisfy these requirements at checkpoint 3 will result in an exponential deduction on your checkpoint 3 score:
 - Area <= 20,000 μm<sup>2</sup> with half-life of 1,000μm<sup>2</sup>
 - Clock period <= 2ns (500MHz clock frequency) with half-life of 0.1ns
-- IPC when running CoreMark with `MAGIC=0` for `n_port_pipeline_memory_32_w_mask.sv` >= 0.6 with half-life of 0.02
+- IPC when running CoreMark with `MAGIC=1` for `n_port_pipeline_memory_32_w_mask.sv` >= 0.6 with half-life of 0.02
 
 Which is to say, your score at checkpoint 3 (before applying warning penalty) will be given by:
 
