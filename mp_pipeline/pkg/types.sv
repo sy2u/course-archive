@@ -199,6 +199,7 @@ package rv32i_types;
         logic   [31:0]      alu_out_s;
         logic   [4:0]       rd_s_s;
         logic   [31:0]      dmem_addr_s;
+        logic   [31:0]      mem_addr_s;
         wb_ctrl_t           wb_ctrl_s;
     } mem_wb_stage_reg_t;
 

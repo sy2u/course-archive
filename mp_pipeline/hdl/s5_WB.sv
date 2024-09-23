@@ -18,7 +18,7 @@ import rv32i_types::*;
     logic   [31:0]  inst;
     logic   [63:0]  order;
     logic           br_en;
-    logic   [31:0]  mem_addr, u_imm, alu_out;
+    logic   [31:0]  mem_addr, dmem_addr, u_imm, alu_out;
     logic   [4:0]   rs1_s, rs2_s;
     logic   [31:0]  rs1_v, rs2_v;
     logic   [31:0]  pc, pc_next;
@@ -41,18 +41,19 @@ import rv32i_types::*;
         mem_wdata   = mem_wb_reg.mem_wdata_s;
         inst        = mem_wb_reg.inst_s;
         order       = mem_wb_reg.order_s;
-        mem_addr    = mem_wb_reg.dmem_addr_s;
+        mem_addr    = mem_wb_reg.mem_addr_s;
+        dmem_addr   = mem_wb_reg.dmem_addr_s;
         br_en       = mem_wb_reg.br_en_s;
         u_imm       = mem_wb_reg.u_imm_s;
         alu_out     = mem_wb_reg.alu_out_s;
-        rd_sel      = mem_wb_reg.rd_s_s;
         regf_we     = wb_ctrl.regf_we;
     end
     
     // reg file big mux
     always_comb begin
-        rd_v = 'x;
+        rd_v = '0;
         if( regf_we )begin
+            rd_sel = mem_wb_reg.rd_s_s;
             unique case (wb_ctrl.rd_m_sel)
                 u_imm_m_rd: begin
                     rd_v = u_imm;
@@ -85,6 +86,8 @@ import rv32i_types::*;
                 end
                 default: rd_v = 'x;
             endcase
+        end else begin
+            rd_sel = '0; // don't care
         end
     end
 

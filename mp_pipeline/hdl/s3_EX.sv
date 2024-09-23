@@ -14,13 +14,14 @@ import rv32i_types::*;
     logic           br_en;
     logic   [31:0]  cmp_b;
     logic   [31:0]  alu_a, alu_b, alu_out;
-    logic   [31:0]  u_imm, i_imm, pc;
+    logic   [31:0]  u_imm, i_imm, s_imm, pc;
 
     // get value from prev reg
     always_comb begin
         ex_ctrl = id_ex_reg.ex_ctrl_s;
         u_imm = id_ex_reg.u_imm_s;
         i_imm = id_ex_reg.i_imm_s;
+        s_imm = id_ex_reg.s_imm_s;
         pc = id_ex_reg.pc_s;
     end
 
@@ -38,6 +39,7 @@ import rv32i_types::*;
             rs2_out:  alu_b = rs2_v;
             u_imm_m:  alu_b = u_imm;
             i_imm_m:  alu_b = i_imm;
+            s_imm_m:  alu_b = s_imm;
             const4:   alu_b = 'd4;
             default: alu_b = 'x;
         endcase

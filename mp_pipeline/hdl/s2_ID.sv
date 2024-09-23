@@ -98,7 +98,7 @@ import rv32i_types::*;
                 mem_ctrl.mem_we = 1'b1;
                 // monitor
                 rs1_addr = rs1_s;
-                rs2_addr = '0;
+                rs2_addr = rs2_s;
             end
             op_b_load: begin
                 // mem_addr = rs1_v + i_imm;
