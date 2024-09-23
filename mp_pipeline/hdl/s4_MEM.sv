@@ -4,7 +4,8 @@
 module MEM
 import rv32i_types::*;
 (
-    input   logic           dmem_stall,
+    input   logic           rst,
+    input   logic           stall,
     
     output  logic   [31:0]  dmem_addr,
     output  logic   [3:0]   dmem_rmask,
@@ -34,7 +35,7 @@ import rv32i_types::*;
         dmem_rmask = '0;
         dmem_wdata = '0;
         // load: dmem read
-        if( !dmem_stall ) begin
+        if( !stall ) begin
             if( mem_ctrl.mem_we )begin
                 unique case (mem_ctrl.funct3)
                     store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
@@ -84,6 +85,9 @@ import rv32i_types::*;
         mem_wb_reg.mem_wmask_s  = dmem_wmask;
         mem_wb_reg.mem_wdata_s  = dmem_wdata;
         mem_wb_reg.u_imm_s      = ex_mem_reg.u_imm_s;
+        if( rst ) begin
+            mem_wb_reg.valid_s  = '0;
+        end
     end
 
 

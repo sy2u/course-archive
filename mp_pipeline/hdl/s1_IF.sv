@@ -7,8 +7,7 @@ import rv32i_types::*;
     input   logic               clk,
     input   logic               rst,
 
-    input   logic               imem_stall,
-    input   logic               dmem_stall,
+    input   logic               stall,
 
     output  logic   [31:0]      imem_addr,
     output  logic   [3:0]       imem_rmask,
@@ -19,9 +18,6 @@ import rv32i_types::*;
     logic        valid;
     logic [63:0] order, order_next;
     logic [31:0] pc, pc_next;
-    logic        move;
-
-    assign move = (!imem_stall) && (!dmem_stall);
 
     // update pc
     always_ff @( posedge clk ) begin
@@ -29,30 +25,28 @@ import rv32i_types::*;
             pc <= 32'h1eceb000;
             order <= '0;
         end else begin
-            if( move ) begin
+            if( !stall ) begin
                 pc <= pc_next;
                 order <= order_next;
             end
         end
     end
 
-    // update pc_next
     always_comb begin
+        order_next = order + 'd1;
+        imem_rmask = '1;
+
         if (rst) begin
-            valid = 1'b0;
             pc_next = pc;
         end else begin
             pc_next = pc +'d4;
-            valid = 1'b1;
+            if( stall ) begin
+                imem_rmask = '0;
+            end
         end
     end
 
-    always_comb begin
-        // fetch instruction
-        imem_addr = pc_next;
-        imem_rmask = '1;
-        order_next = order + 'd1;
-    end
+    assign imem_addr = pc_next;
 
     // assign signals to the register struct
     always_comb begin
