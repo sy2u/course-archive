@@ -1,10 +1,12 @@
-// CP1: assume mem is always ready, omit mem_resp signal
+// Main Hardware: Big Mux, Register File
+// Function: Update the register file w/ new data
 
 module WB
 import rv32i_types::*;
 (
     input   logic   [31:0]  dmem_rdata,
     input   logic           dmem_resp,
+    output  logic           dmem_stall,
 
     output  logic           regf_we,
     output  logic   [4:0]   rd_sel,
@@ -28,6 +30,8 @@ import rv32i_types::*;
     // get value from prev reg
     always_comb begin
         wb_ctrl     = mem_wb_reg.wb_ctrl_s;
+        mem_addr    = mem_wb_reg.mem_addr_s;
+        regf_we     = wb_ctrl.regf_we;
         // rvfi monitor
         valid       = mem_wb_reg.valid_s;
         rs1_v       = mem_wb_reg.rs1_v_s;
@@ -41,17 +45,16 @@ import rv32i_types::*;
         mem_wdata   = mem_wb_reg.mem_wdata_s;
         inst        = mem_wb_reg.inst_s;
         order       = mem_wb_reg.order_s;
-        mem_addr    = mem_wb_reg.mem_addr_s;
         dmem_addr   = mem_wb_reg.dmem_addr_s;
         br_en       = mem_wb_reg.br_en_s;
         u_imm       = mem_wb_reg.u_imm_s;
         alu_out     = mem_wb_reg.alu_out_s;
-        regf_we     = wb_ctrl.regf_we;
     end
     
     // reg file big mux
     always_comb begin
         rd_v = '0;
+        dmem_stall = 1'b0;
         if( regf_we )begin
             rd_sel = mem_wb_reg.rd_s_s;
             unique case (wb_ctrl.rd_m_sel)
@@ -65,24 +68,39 @@ import rv32i_types::*;
                     rd_v = {31'd0, br_en}; 
                 end
                 lb : begin
-                    if( dmem_resp )
+                    dmem_stall = 1'b1;
+                    if( dmem_resp ) begin
+                        dmem_stall = 1'b0;
                         rd_v = {{24{dmem_rdata[7 +8 *mem_addr[1:0]]}}, dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
+                    end
                 end
                 lbu: begin
-                    if( dmem_resp )
+                    dmem_stall = 1'b1;
+                    if( dmem_resp ) begin
+                        dmem_stall = 1'b0;
                         rd_v = {{24{1'b0}}                          , dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
+                    end
                 end
                 lh : begin
-                    if( dmem_resp )
+                    dmem_stall = 1'b1;
+                    if( dmem_resp ) begin
+                        dmem_stall = 1'b0;
                         rd_v = {{16{dmem_rdata[15+16*mem_addr[1]  ]}}, dmem_rdata[16*mem_addr[1]   +: 16]};
+                    end
                 end
                 lhu: begin
-                    if( dmem_resp )
+                    dmem_stall = 1'b1;
+                    if( dmem_resp ) begin
+                        dmem_stall = 1'b0;
                         rd_v = {{16{1'b0}}                          , dmem_rdata[16*mem_addr[1]   +: 16]};
+                    end
                 end
                 lw : begin
-                    if( dmem_resp )
+                    dmem_stall = 1'b1;
+                    if( dmem_resp ) begin
+                        dmem_stall = 1'b0;
                         rd_v = dmem_rdata;
+                    end
                 end
                 default: rd_v = 'x;
             endcase

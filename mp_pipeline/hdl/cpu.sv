@@ -1,3 +1,5 @@
+// version: cp2 - support multiple cycle memory model
+//          stall - using back pressure
 module cpu
 import rv32i_types::*;
 (
@@ -17,29 +19,37 @@ import rv32i_types::*;
     input   logic           dmem_resp
 );
 
+    // Update Stage Register
+    logic               imem_stall, dmem_stall;
     if_id_stage_reg_t   if_id_reg, if_id_reg_next;
     id_ex_stage_reg_t   id_ex_reg, id_ex_reg_next;
     ex_mem_stage_reg_t  ex_mem_reg, ex_mem_reg_next;
     mem_wb_stage_reg_t  mem_wb_reg, mem_wb_reg_next;
 
     always_ff @( posedge clk ) begin
-        if_id_reg <= if_id_reg_next;
-        id_ex_reg <= id_ex_reg_next;
-        ex_mem_reg <= ex_mem_reg_next;
-        mem_wb_reg <= mem_wb_reg_next;
+        if( !dmem_stall ) begin
+            id_ex_reg <= id_ex_reg_next;
+            ex_mem_reg <= ex_mem_reg_next;
+            mem_wb_reg <= mem_wb_reg_next;
+            if( !imem_stall ) begin
+                if_id_reg <= if_id_reg_next;
+            end
+        end
     end
 
+    // Connect Hardware
     logic           regf_we;
     logic   [31:0]  rd_v;
     logic   [4:0]   rs1_s, rs2_s, rd_sel;
     logic   [31:0]  rs1_v, rs2_v;
 
     IF  stage_if( .clk(clk), .rst(rst), 
+        .imem_stall(imem_stall), .dmem_stall(dmem_stall),
         .imem_addr(imem_addr), .imem_rmask(imem_rmask), 
         .if_id_reg(if_id_reg_next) );
 
     ID  stage_id( .clk(clk), .rst(rst), 
-        .imem_resp(imem_resp), .imem_rdata(imem_rdata), 
+        .imem_resp(imem_resp), .imem_rdata(imem_rdata), .imem_stall(imem_stall),
         .rs1_s(rs1_s), .rs2_s(rs2_s),
         .if_id_reg(if_id_reg), .id_ex_reg(id_ex_reg_next) );
 
@@ -48,11 +58,12 @@ import rv32i_types::*;
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next) );
 
     MEM stage_mem(
+        .dmem_stall(dmem_stall),
         .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
         .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg_next));
 
     WB  stage_wb(
-        .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp), 
+        .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp), .dmem_stall(dmem_stall),
         .regf_we(regf_we), .rd_sel(rd_sel), .rd_v(rd_v), 
         .mem_wb_reg(mem_wb_reg));
 

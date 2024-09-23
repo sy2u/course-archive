@@ -1,3 +1,6 @@
+// Main Hardware: ALU, CMP
+// Function: Execute alu/cmp operation
+
 module EX
 import rv32i_types::*;
 (   
@@ -25,16 +28,14 @@ import rv32i_types::*;
         pc = id_ex_reg.pc_s;
     end
 
-    // alu_mux
+
     always_comb begin
+        // alu_mux
         unique case (ex_ctrl.alu_m1_sel)
             rs1_out:alu_a = rs1_v;
             pc_out: alu_a = pc;
             default:alu_a = 'x;
         endcase
-    end
-
-    always_comb begin
         unique case (ex_ctrl.alu_m2_sel)
             rs2_out:  alu_b = rs2_v;
             u_imm_m:  alu_b = u_imm;
@@ -43,10 +44,7 @@ import rv32i_types::*;
             const4:   alu_b = 'd4;
             default: alu_b = 'x;
         endcase
-    end
-
-    // cmp_mux
-    always_comb begin
+        // cmp_mux
         unique case (ex_ctrl.cmp_sel)
             rs2_out_cmp:    cmp_b = rs2_v;
             i_imm_m_cmp:    cmp_b = i_imm;

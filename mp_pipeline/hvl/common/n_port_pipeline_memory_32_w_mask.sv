@@ -2,7 +2,7 @@ import "DPI-C" function string getenv(input string env_name);
 
 module n_port_pipeline_memory_32_w_mask #(
     parameter CHANNELS = 2,
-    parameter MAGIC = 1
+    parameter MAGIC = 0
 )(
     mem_itf_w_mask.mem itf
 );

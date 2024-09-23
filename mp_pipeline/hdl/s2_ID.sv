@@ -6,8 +6,10 @@ import rv32i_types::*;
 (
     input   logic               clk,
     input   logic               rst,
+
     input   logic               imem_resp,
     input   logic   [31:0]      imem_rdata,
+    output  logic               imem_stall,
 
     output  logic   [4:0]       rs1_s,
     output  logic   [4:0]       rs2_s,
@@ -20,6 +22,7 @@ import rv32i_types::*;
     mem_ctrl_t  mem_ctrl;
     wb_ctrl_t   wb_ctrl;
 
+    logic          valid;
     logic   [4:0]  rs1_addr, rs2_addr;
 
     logic   [31:0]  inst;
@@ -54,15 +57,23 @@ import rv32i_types::*;
         end
     end
 
+    // stall
+    always_comb begin
+        imem_stall = 1'b0;
+        valid = if_id_reg.valid_s;
+        if( (!rst) && (!imem_resp) ) begin
+            imem_stall = 1'b1;
+            valid = '0;
+        end
+    end
 
     // control ROM
     always_comb begin
-        // commit = 1'b1;
         ex_ctrl.alu_m1_sel = invalid_alu_m1;
         ex_ctrl.alu_m2_sel = invalid_alu_m2;
-        ex_ctrl.aluop = alu_op_add; // random chose
+        ex_ctrl.aluop = alu_op_add; // random picked, '0
         ex_ctrl.cmp_sel = invalid_cmp;
-        ex_ctrl.cmpop = cmp_op_beq; // random chose
+        ex_ctrl.cmpop = cmp_op_beq; // random picked, '0
         mem_ctrl.funct3 = funct3;
         mem_ctrl.mem_re = 'x;
         mem_ctrl.mem_we = 'x;
@@ -192,7 +203,7 @@ import rv32i_types::*;
                     end
                 endcase
             end
-            // CP1: NO Jump or Branch
+            // CP1/2: NO Jump or Branch
             // op_b_jal:
             // op_b_jalr:
             // op_b_br:
@@ -207,7 +218,7 @@ import rv32i_types::*;
             id_ex_reg.pc_s      = if_id_reg.pc_s;
             id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
             id_ex_reg.order_s   = if_id_reg.order_s;
-            id_ex_reg.valid_s   = if_id_reg.valid_s;
+            id_ex_reg.valid_s   = valid;
             id_ex_reg.ex_ctrl_s = ex_ctrl;
             id_ex_reg.mem_ctrl_s= mem_ctrl;
             id_ex_reg.wb_ctrl_s = wb_ctrl;

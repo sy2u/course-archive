@@ -6,14 +6,22 @@ import rv32i_types::*;
 (
     input   logic               clk,
     input   logic               rst,
+
+    input   logic               imem_stall,
+    input   logic               dmem_stall,
+
     output  logic   [31:0]      imem_addr,
     output  logic   [3:0]       imem_rmask,
+
     output  if_id_stage_reg_t   if_id_reg
 );
 
+    logic        valid;
     logic [63:0] order, order_next;
     logic [31:0] pc, pc_next;
-    logic        valid;
+    logic        move;
+
+    assign move = (!imem_stall) && (!dmem_stall);
 
     // update pc
     always_ff @( posedge clk ) begin
@@ -21,16 +29,18 @@ import rv32i_types::*;
             pc <= 32'h1eceb000;
             order <= '0;
         end else begin
-            pc <= pc_next;
-            order <= order_next;
+            if( move ) begin
+                pc <= pc_next;
+                order <= order_next;
+            end
         end
     end
 
     // update pc_next
     always_comb begin
         if (rst) begin
-            pc_next = pc;
             valid = 1'b0;
+            pc_next = pc;
         end else begin
             pc_next = pc +'d4;
             valid = 1'b1;
@@ -49,7 +59,7 @@ import rv32i_types::*;
         if_id_reg.pc_s = pc;
         if_id_reg.pc_next_s = pc_next;
         if_id_reg.valid_s = valid;
-        if_id_reg.order_s   = order;
+        if_id_reg.order_s = order;
     end
 
 
