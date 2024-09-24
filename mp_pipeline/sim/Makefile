@@ -53,3 +53,12 @@ interactive_spike: $(ELF)
 .PHONY: clean
 clean:
 	rm -rf bin vcs verdi verilator spike
+
+.PHONY: run_coremark
+run_coremark: vcs/top_tb
+	mkdir -p spike
+	rm -f vcs/dump.fsdb
+	export ECE411_CLOCK_PERIOD_PS=2000 ;\
+	export ECE411_MEMFILE=bin/coremark.elf ;\
+	cd vcs && ./top_tb -l simulation.log -exitstatus
+	bash check_sim_error.sh

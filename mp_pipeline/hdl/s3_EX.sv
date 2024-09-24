@@ -21,14 +21,11 @@ import rv32i_types::*;
     logic   [31:0]  u_imm, i_imm, s_imm, pc;
 
     // get value from prev reg
-    always_comb begin
-        ex_ctrl = id_ex_reg.ex_ctrl_s;
-        u_imm = id_ex_reg.u_imm_s;
-        i_imm = id_ex_reg.i_imm_s;
-        s_imm = id_ex_reg.s_imm_s;
-        pc = id_ex_reg.pc_s;
-    end
-
+    assign  ex_ctrl = id_ex_reg.ex_ctrl_s;
+    assign  u_imm = id_ex_reg.u_imm_s;
+    assign  i_imm = id_ex_reg.i_imm_s;
+    assign  s_imm = id_ex_reg.s_imm_s;
+    assign  pc = id_ex_reg.pc_s;
 
     always_comb begin
         // alu_mux

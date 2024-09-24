@@ -8,7 +8,6 @@ import rv32i_types::*;
     input   logic               rst,
 
     input   logic               move,
-    input   logic               stop_fetch,
     input   logic               imem_resp,
     output  logic               imem_req,
 
@@ -43,13 +42,12 @@ import rv32i_types::*;
     end
 
     always_comb begin
+        imem_addr = pc;
         pc_next = pc +'d4;
         order_next = order + 'd1;
         valid = 1'b0;
-        if( move && (!stop_fetch) ) valid = 1'b1;
+        if( move ) valid = 1'b1;
     end
-
-    assign imem_addr = pc;
 
     // assign signals to the register struct
     always_comb begin

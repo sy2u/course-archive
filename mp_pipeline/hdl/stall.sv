@@ -11,18 +11,15 @@ import rv32i_types::*;
     input   logic           imem_resp,
     input   logic           dmem_resp,
 
-    output  logic           move,
-    output  logic           stop_fetch
+    output  logic           move
 );
 
-    stall_state  prev_state, curr_state, next_state;
+    stall_state curr_state, next_state;
 
     always_ff @( posedge clk ) begin
         if (rst) begin
-            prev_state <= moving;
             curr_state <= wait_imem;
         end else begin
-            prev_state <= curr_state;
             curr_state <= next_state;
         end
     end
@@ -73,26 +70,26 @@ import rv32i_types::*;
     end
 
     always_comb begin
-        stop_fetch = 1'b0;
+        // stop_fetch = 1'b0;
         unique case (curr_state)
             moving: begin
                 move = 1'b1;
                 // if( !imem_resp ) move = 1'b0;
-                if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
+                // if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
                 // if( prev == imem_dmem ) stop_fetch = 1'b1;
             end
             wait_imem: begin
                 move = 1'b0;
                 if( rst ) move = 1'b1;
-                if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
+                // if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
             end
             wait_dmem: begin
                 move = 1'b0;
-                if( dmem_resp ) move = 1'b1;
+                // if( dmem_resp ) move = 1'b1;
             end
             imem_dmem: begin
                 move = 1'b0;
-                if( imem_resp && dmem_resp ) move = 1'b1;
+                // if( imem_resp && dmem_resp ) move = 1'b1;
             end
             default: move = 1'b0;
         endcase

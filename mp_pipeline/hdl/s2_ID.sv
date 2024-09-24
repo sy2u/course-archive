@@ -35,17 +35,6 @@ import rv32i_types::*;
     logic   [31:0]  u_imm;
     logic   [4:0]   rd_s;
 
-    // assign  inst = imem_rdata;
-    // assign  funct3 = inst[14:12];
-    // assign  funct7 = inst[31:25];
-    // assign  opcode = inst[6:0];
-    // assign  i_imm  = {{21{inst[31]}}, inst[30:20]};
-    // assign  s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
-    // assign  u_imm  = {inst[31:12], 12'h000};
-    // assign  rs1_s  = inst[19:15];
-    // assign  rs2_s  = inst[24:20];
-    // assign  rd_s   = inst[11:7];
-
     logic   [31:0]  inst_store;
     always_ff @( posedge clk ) begin
         if( rst ) inst_store <= '0;
@@ -56,12 +45,12 @@ import rv32i_types::*;
         inst = '0;
         if(move && imem_resp) inst = imem_rdata;
         else if (move && (!imem_resp)) inst = inst_store;
-        funct3 = inst[14:12];
-        funct7 = inst[31:25];
-        opcode = inst[6:0];
-        i_imm  = {{21{inst[31]}}, inst[30:20]};
-        s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
-        u_imm  = {inst[31:12], 12'h000};
+            funct3 = inst[14:12];
+            funct7 = inst[31:25];
+            opcode = inst[6:0];
+            i_imm  = {{21{inst[31]}}, inst[30:20]};
+            s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
+            u_imm  = {inst[31:12], 12'h000};
         if(move && imem_resp) begin
             rs1_s  = inst[19:15];
             rs2_s  = inst[24:20];
