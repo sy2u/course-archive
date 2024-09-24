@@ -4,6 +4,7 @@
 module MEM
 import rv32i_types::*;
 (
+    input   logic           clk,
     input   logic           rst,
 
     input   logic           move,
@@ -32,16 +33,22 @@ import rv32i_types::*;
         dmem_addr[1:0] = 2'd0;
     end
 
+    always_ff @( posedge clk ) begin
+        if( rst ) dmem_req <= 1'b0;
+        else begin
+            if ( move && (mem_ctrl.mem_we||mem_ctrl.mem_re) ) dmem_req <= 1'b1;
+            else dmem_req <= 1'b0;
+        end
+    end
+
     // set dmem control signal
     always_comb begin
         dmem_wmask = '0;
         dmem_rmask = '0;
         dmem_wdata = '0;
-        dmem_req = 1'b0;
         // store: dmem write
         if( move ) begin
             if( mem_ctrl.mem_we )begin
-                dmem_req = 1'b1;
                 unique case (mem_ctrl.funct3)
                     store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
                     store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
@@ -57,7 +64,6 @@ import rv32i_types::*;
             end
             // load: dmem read
             if( mem_ctrl.mem_re )begin
-                dmem_req = 1'b1;
                 unique case (mem_ctrl.funct3)
                     load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
                     load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];

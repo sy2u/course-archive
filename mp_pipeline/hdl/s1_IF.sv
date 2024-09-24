@@ -9,6 +9,7 @@ import rv32i_types::*;
 
     input   logic               move,
     input   logic               stop_fetch,
+    input   logic               imem_resp,
     output  logic               imem_req,
 
     output  logic   [31:0]      imem_addr,
@@ -26,10 +27,17 @@ import rv32i_types::*;
         if (rst) begin
             pc <= 32'h1eceb000;
             order <= '0;
+            imem_req <= 1'b1;
+            imem_rmask <= '1;
         end else begin
-            if( move ) begin
+            if( imem_resp ) begin
                 pc <= pc_next;
                 order <= order_next;
+                imem_req <= 1'b1;
+                imem_rmask <= '1;
+            end else begin
+                imem_req <= 1'b0;
+                imem_rmask <= '0;
             end
         end
     end
@@ -37,15 +45,8 @@ import rv32i_types::*;
     always_comb begin
         pc_next = pc +'d4;
         order_next = order + 'd1;
-
         valid = 1'b0;
-        imem_rmask = '0;
-        imem_req = '0;
-        if( move && (!stop_fetch) ) begin
-            if(!rst) valid = 1'b1;
-            imem_rmask = '1;
-            imem_req = '1;
-        end
+        if( move && (!stop_fetch) ) valid = 1'b1;
     end
 
     assign imem_addr = pc;

@@ -4,8 +4,6 @@
 module WB
 import rv32i_types::*;
 (
-    input   logic           clk,
-    input   logic           rst,
     input   logic           move,
 
     input   logic   [31:0]  dmem_rdata,
@@ -60,6 +58,7 @@ import rv32i_types::*;
         br_en       = mem_wb_reg.br_en_s;
         u_imm       = mem_wb_reg.u_imm_s;
         alu_out     = mem_wb_reg.alu_out_s;
+        // valid
     end
 
     // reg file big mux

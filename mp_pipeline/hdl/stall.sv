@@ -77,13 +77,13 @@ import rv32i_types::*;
         unique case (curr_state)
             moving: begin
                 move = 1'b1;
-                if( !imem_resp ) move = 1'b0;
+                // if( !imem_resp ) move = 1'b0;
                 if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
                 // if( prev == imem_dmem ) stop_fetch = 1'b1;
             end
             wait_imem: begin
                 move = 1'b0;
-                if( rst || imem_resp ) move = 1'b1;
+                if( rst ) move = 1'b1;
                 if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
             end
             wait_dmem: begin

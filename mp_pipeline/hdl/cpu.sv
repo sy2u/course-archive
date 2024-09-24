@@ -50,7 +50,7 @@ import rv32i_types::*;
     logic   [4:0]   rs1_s, rs2_s, rd_sel;
     logic   [31:0]  rs1_v, rs2_v;
 
-    IF  stage_if( .clk(clk), .rst(rst), 
+    IF  stage_if( .clk(clk), .rst(rst), .imem_resp(imem_resp),
         .move(move), .imem_req(imem_req), .stop_fetch(stop_fetch),
         .imem_addr(imem_addr), .imem_rmask(imem_rmask), 
         .if_id_reg(if_id_reg_next) 
@@ -68,13 +68,13 @@ import rv32i_types::*;
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next) 
     );
 
-    MEM stage_mem( .rst(rst),
+    MEM stage_mem( .clk(clk), .rst(rst), 
         .move(move), .dmem_req(dmem_req),
         .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
         .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg_next)
     );
 
-    WB  stage_wb( .move(move), .clk(clk), .rst(rst),
+    WB  stage_wb( .move(move),
         .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp),
         .regf_we(regf_we), .rd_sel(rd_sel), .rd_v(rd_v), 
         .mem_wb_reg(mem_wb_reg)
