@@ -5,7 +5,6 @@ module MEM
 import rv32i_types::*;
 (
     input   logic           clk,
-    input   logic           rst,
 
     input   logic           move,
     output  logic           dmem_req,
@@ -34,13 +33,10 @@ import rv32i_types::*;
     end
 
     always_ff @( posedge clk ) begin
-        if( rst ) dmem_req <= 1'b0;
-        else begin
-            if ( move && (mem_ctrl.mem_we||mem_ctrl.mem_re) ) dmem_req <= 1'b1;
-            else dmem_req <= 1'b0;
-        end
+        if ( move && (mem_ctrl.mem_we||mem_ctrl.mem_re) ) dmem_req <= 1'b1;
+        else dmem_req <= 1'b0;
     end
-
+    
     // set dmem control signal
     always_comb begin
         dmem_wmask = '0;
@@ -97,9 +93,6 @@ import rv32i_types::*;
         mem_wb_reg.mem_wmask_s  = dmem_wmask;
         mem_wb_reg.mem_wdata_s  = dmem_wdata;
         mem_wb_reg.u_imm_s      = ex_mem_reg.u_imm_s;
-        if( rst ) begin
-            mem_wb_reg.valid_s  = '0;
-        end
     end
 
 

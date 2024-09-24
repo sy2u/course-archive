@@ -5,7 +5,6 @@ module ID
 import rv32i_types::*;
 (
     input   logic               clk,
-    input   logic               rst,
 
     input   logic               move,
 
@@ -23,8 +22,9 @@ import rv32i_types::*;
     mem_ctrl_t  mem_ctrl;
     wb_ctrl_t   wb_ctrl;
 
-    logic          valid;
-    logic   [4:0]  rs1_addr, rs2_addr;
+    logic           valid;
+    logic   [4:0]   rs1_addr, rs2_addr;
+    logic   [31:0]  inst_store;
 
     logic   [31:0]  inst;
     logic   [2:0]   funct3;
@@ -35,22 +35,23 @@ import rv32i_types::*;
     logic   [31:0]  u_imm;
     logic   [4:0]   rd_s;
 
-    logic   [31:0]  inst_store;
+
     always_ff @( posedge clk ) begin
-        if( rst ) inst_store <= '0;
-        else if( imem_resp ) inst_store <= imem_rdata;
+        // if( rst ) inst_store <= '0;
+        if( imem_resp ) inst_store <= imem_rdata;
     end
 
     always_comb begin
-        inst = '0;
         if(move && imem_resp) inst = imem_rdata;
-        else if (move && (!imem_resp)) inst = inst_store;
-            funct3 = inst[14:12];
-            funct7 = inst[31:25];
-            opcode = inst[6:0];
-            i_imm  = {{21{inst[31]}}, inst[30:20]};
-            s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
-            u_imm  = {inst[31:12], 12'h000};
+        else inst = inst_store;
+
+        funct3 = inst[14:12];
+        funct7 = inst[31:25];
+        opcode = inst[6:0];
+        i_imm  = {{21{inst[31]}}, inst[30:20]};
+        s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
+        u_imm  = {inst[31:12], 12'h000};
+
         if(move && imem_resp) begin
             rs1_s  = inst[19:15];
             rs2_s  = inst[24:20];
@@ -70,8 +71,8 @@ import rv32i_types::*;
         ex_ctrl.cmp_sel = invalid_cmp;
         ex_ctrl.cmpop = cmp_op_beq; // random picked, '0
         mem_ctrl.funct3 = funct3;
-        mem_ctrl.mem_re = 'x;
-        mem_ctrl.mem_we = 'x;
+        mem_ctrl.mem_re = '0;
+        mem_ctrl.mem_we = '0;
         wb_ctrl.regf_we = 1'b0;
         wb_ctrl.rd_m_sel = invalid_rd;
         rs1_addr = '0;
@@ -80,9 +81,6 @@ import rv32i_types::*;
             op_b_lui: begin
                 wb_ctrl.rd_m_sel = u_imm_m_rd;
                 wb_ctrl.regf_we = 1'b1;
-                // monitor
-                rs1_addr = '0;
-                rs2_addr = '0;
             end
             op_b_auipc: begin
                 ex_ctrl.aluop = alu_op_add;
@@ -90,9 +88,6 @@ import rv32i_types::*;
                 ex_ctrl.alu_m2_sel = u_imm_m;
                 wb_ctrl.rd_m_sel = alu_out_rd;
                 wb_ctrl.regf_we = 1'b1;
-                // monitor
-                rs1_addr = '0;
-                rs2_addr = '0;
             end
             op_b_store: begin
                 // mem_addr = rs1_v + s_imm;
@@ -126,7 +121,6 @@ import rv32i_types::*;
                 endcase
                 // monitor
                 rs1_addr = rs1_s;
-                rs2_addr = '0;
             end
             op_b_imm: begin
                 wb_ctrl.regf_we = 1'b1;
@@ -135,7 +129,6 @@ import rv32i_types::*;
                 ex_ctrl.alu_m2_sel = i_imm_m;
                 // monitor
                 rs1_addr = rs1_s;
-                rs2_addr = '0;
                 unique case (funct3)
                     arith_f3_slt: begin
                         ex_ctrl.cmpop = cmp_op_blt;

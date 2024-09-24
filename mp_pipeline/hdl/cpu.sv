@@ -56,19 +56,19 @@ import rv32i_types::*;
         .if_id_reg(if_id_reg_next) 
     );
 
-    ID  stage_id( .clk(clk), .rst(rst), 
+    ID  stage_id( .clk(clk),
         .move(move),
         .imem_resp(imem_resp), .imem_rdata(imem_rdata),
         .rs1_s(rs1_s), .rs2_s(rs2_s),
         .if_id_reg(if_id_reg), .id_ex_reg(id_ex_reg_next) 
     );
 
-    EX  stage_ex( .rst(rst), .move(move),
+    EX  stage_ex( .move(move),
         .rs1_v(rs1_v), .rs2_v(rs2_v), 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next) 
     );
 
-    MEM stage_mem( .clk(clk), .rst(rst), 
+    MEM stage_mem( .clk(clk),
         .move(move), .dmem_req(dmem_req),
         .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
         .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg_next)

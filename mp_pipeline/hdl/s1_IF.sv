@@ -45,8 +45,7 @@ import rv32i_types::*;
         imem_addr = pc;
         pc_next = pc +'d4;
         order_next = order + 'd1;
-        valid = 1'b0;
-        if( move ) valid = 1'b1;
+        if( move ) valid = 1'b1; else valid = 1'b0;
     end
 
     // assign signals to the register struct

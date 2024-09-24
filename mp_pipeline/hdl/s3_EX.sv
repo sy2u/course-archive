@@ -4,7 +4,6 @@
 module EX
 import rv32i_types::*;
 (   
-    input   logic               rst,
     input   logic               move,
 
     input   logic   [31:0]      rs1_v,
@@ -71,9 +70,6 @@ import rv32i_types::*;
             ex_mem_reg.rs1_s_s      = id_ex_reg.rs1_s_s;
             ex_mem_reg.rs2_s_s      = id_ex_reg.rs2_s_s;
             ex_mem_reg.rd_s_s       = id_ex_reg.rd_s_s; 
-        if (rst) begin
-            ex_mem_reg.valid_s       = '0;
-        end 
     end
 
 

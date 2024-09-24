@@ -27,41 +27,39 @@ import rv32i_types::*;
     always_comb begin
         unique case (curr_state)
             moving: begin
-                if( !imem_resp ) next_state = wait_imem;
-                // else if( dmem_req && (!imem_req) ) next_state = wait_dmem;
-                // else if( dmem_req && imem_req ) next_state = imem_dmem;
-                else next_state = moving;
+                if( (!dmem_req) && (!imem_req) )    next_state = moving;
+                else if( dmem_req && (!imem_req) )  next_state = wait_dmem;
+                else if( (!dmem_req) && imem_req )  next_state = wait_imem;
+                else                                next_state = imem_dmem;
             end
             wait_imem: begin
                 if( imem_resp ) begin
-                    if( (!dmem_req) && (!imem_req) ) next_state = moving;
-                    else if( dmem_req && (!imem_req) ) next_state = wait_dmem;
-                    else if( (!dmem_req) && imem_req ) next_state = wait_imem;
-                    else next_state = imem_dmem;
+                    if( (!dmem_req) && (!imem_req) )    next_state = moving;
+                    else if( dmem_req && (!imem_req) )  next_state = wait_dmem;
+                    else if( (!dmem_req) && imem_req )  next_state = wait_imem;
+                    else                                next_state = imem_dmem;
                 end 
                 else next_state = wait_imem;
             end
             wait_dmem: begin
                 if( dmem_resp ) begin
-                    if( (!dmem_req) && (!imem_req) ) next_state = moving;
-                    else if( dmem_req && (!imem_req) ) next_state = wait_dmem;
-                    else if( (!dmem_req) && imem_req ) next_state = wait_imem;
-                    else next_state = imem_dmem;
+                    if( (!dmem_req) && (!imem_req) )    next_state = moving;
+                    else if( dmem_req && (!imem_req) )  next_state = wait_dmem;
+                    else if( (!dmem_req) && imem_req )  next_state = wait_imem;
+                    else                                next_state = imem_dmem;
                 end 
                 else next_state = wait_dmem;
             end
             imem_dmem: begin
                 if( imem_resp && dmem_resp ) begin
-                    if( (!dmem_req) && (!imem_req) ) next_state = moving;
-                    else if( dmem_req && (!imem_req) ) next_state = wait_dmem;
-                    else if( (!dmem_req) && imem_req ) next_state = wait_imem;
-                    else next_state = imem_dmem;
+                    if( (!dmem_req) && (!imem_req) )    next_state = moving;
+                    else if( dmem_req && (!imem_req) )  next_state = wait_dmem;
+                    else if( (!dmem_req) && imem_req )  next_state = wait_imem;
+                    else                                next_state = imem_dmem;
                 end else if ( imem_resp ) begin
-                    if( imem_req ) next_state = imem_dmem;
-                    else next_state = wait_dmem;
+                    next_state = wait_dmem;
                 end else if ( dmem_resp ) begin
-                    if( dmem_req ) next_state = imem_dmem;
-                    else next_state = wait_imem;
+                    next_state = wait_imem;
                 end
                 else next_state = imem_dmem;
             end
@@ -70,26 +68,11 @@ import rv32i_types::*;
     end
 
     always_comb begin
-        // stop_fetch = 1'b0;
         unique case (curr_state)
-            moving: begin
-                move = 1'b1;
-                // if( !imem_resp ) move = 1'b0;
-                // if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
-                // if( prev == imem_dmem ) stop_fetch = 1'b1;
-            end
+            moving: move = 1'b1;
             wait_imem: begin
-                move = 1'b0;
                 if( rst ) move = 1'b1;
-                // if( prev_state==wait_imem && next_state==wait_dmem ) stop_fetch = 1'b1; 
-            end
-            wait_dmem: begin
-                move = 1'b0;
-                // if( dmem_resp ) move = 1'b1;
-            end
-            imem_dmem: begin
-                move = 1'b0;
-                // if( imem_resp && dmem_resp ) move = 1'b1;
+                else move = 1'b0;
             end
             default: move = 1'b0;
         endcase

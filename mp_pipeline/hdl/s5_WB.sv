@@ -28,15 +28,6 @@ import rv32i_types::*;
     logic   [3:0]   mem_rmask, mem_wmask;
     logic   [31:0]  mem_wdata;
 
-    always_comb begin
-        valid = 1'b0;
-        if( regf_we && wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} )begin
-            if( mem_wb_reg.valid_s && dmem_resp ) valid = 1'b1;
-        end else begin
-            if( mem_wb_reg.valid_s && move ) valid = 1'b1;
-        end
-    end
-
     // get value from prev reg
     always_comb begin
         wb_ctrl     = mem_wb_reg.wb_ctrl_s;
@@ -59,6 +50,14 @@ import rv32i_types::*;
         u_imm       = mem_wb_reg.u_imm_s;
         alu_out     = mem_wb_reg.alu_out_s;
         // valid
+        // valid = 1'b0;
+        // if( mem_wb_reg.valid_s ) begin
+        //     if( regf_we && wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} && dmem_resp ) valid = 1'b1;
+        //     else if( move ) valid = 1'b1;
+        // end
+        valid = 1'b0;
+        if( mem_wb_reg.valid_s )
+            valid = (wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} && dmem_resp) || (!(wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw}) && move);
     end
 
     // reg file big mux
