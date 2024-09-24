@@ -33,6 +33,7 @@ import rv32i_types::*;
         wb_ctrl     = mem_wb_reg.wb_ctrl_s;
         mem_addr    = mem_wb_reg.mem_addr_s;
         regf_we     = wb_ctrl.regf_we;
+        if( wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} ) regf_we = wb_ctrl.regf_we && dmem_resp;
         // rvfi monitor
         rs1_v       = mem_wb_reg.rs1_v_s;
         rs2_v       = mem_wb_reg.rs2_v_s;
@@ -59,7 +60,7 @@ import rv32i_types::*;
     always_comb begin
         rd_v = '0;
         rd_sel = '0;
-        if( regf_we )begin
+        if( wb_ctrl.regf_we )begin
             rd_sel = mem_wb_reg.rd_s_s;
             unique case (wb_ctrl.rd_m_sel)
                 u_imm_m_rd: rd_v = u_imm;
