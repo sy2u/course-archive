@@ -59,7 +59,7 @@ import rv32i_types::*;
                 endcase
             end
             // load: dmem read
-            if( mem_ctrl.mem_re )begin
+            else if( mem_ctrl.mem_re )begin
                 unique case (mem_ctrl.funct3)
                     load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
                     load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];

@@ -58,6 +58,7 @@ import rv32i_types::*;
     // reg file big mux
     always_comb begin
         rd_v = '0;
+        rd_sel = '0;
         if( regf_we )begin
             rd_sel = mem_wb_reg.rd_s_s;
             unique case (wb_ctrl.rd_m_sel)
@@ -71,8 +72,6 @@ import rv32i_types::*;
                 lw : rd_v = dmem_rdata;
                 default: rd_v = 'x;
             endcase
-        end else begin
-            rd_sel = '0; // don't care
         end
     end
 
