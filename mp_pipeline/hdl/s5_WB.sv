@@ -50,11 +50,6 @@ import rv32i_types::*;
         u_imm       = mem_wb_reg.u_imm_s;
         alu_out     = mem_wb_reg.alu_out_s;
         // valid
-        // valid = 1'b0;
-        // if( mem_wb_reg.valid_s ) begin
-        //     if( regf_we && wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} && dmem_resp ) valid = 1'b1;
-        //     else if( move ) valid = 1'b1;
-        // end
         valid = 1'b0;
         if( mem_wb_reg.valid_s )
             valid = (wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} && dmem_resp) || (!(wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw}) && move);
@@ -66,40 +61,14 @@ import rv32i_types::*;
         if( regf_we )begin
             rd_sel = mem_wb_reg.rd_s_s;
             unique case (wb_ctrl.rd_m_sel)
-                u_imm_m_rd: begin
-                    rd_v = u_imm;
-                end
-                alu_out_rd: begin
-                    rd_v = alu_out;
-                end
-                ext_br: begin
-                    rd_v = {31'd0, br_en}; 
-                end
-                lb : begin
-                    if( dmem_resp ) begin
-                        rd_v = {{24{dmem_rdata[7 +8 *mem_addr[1:0]]}}, dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
-                    end
-                end
-                lbu: begin
-                    if( dmem_resp ) begin
-                        rd_v = {{24{1'b0}}                          , dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
-                    end
-                end
-                lh : begin
-                    if( dmem_resp ) begin
-                        rd_v = {{16{dmem_rdata[15+16*mem_addr[1]  ]}}, dmem_rdata[16*mem_addr[1]   +: 16]};
-                    end
-                end
-                lhu: begin
-                    if( dmem_resp ) begin
-                        rd_v = {{16{1'b0}}                          , dmem_rdata[16*mem_addr[1]   +: 16]};
-                    end
-                end
-                lw : begin
-                    if( dmem_resp ) begin
-                        rd_v = dmem_rdata;
-                    end
-                end
+                u_imm_m_rd: rd_v = u_imm;
+                alu_out_rd: rd_v = alu_out;
+                ext_br: rd_v = {31'd0, br_en}; 
+                lb : rd_v = {{24{dmem_rdata[7 +8 *mem_addr[1:0]]}}, dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
+                lbu: rd_v = {{24{1'b0}}                          , dmem_rdata[8 *mem_addr[1:0] +: 8 ]};
+                lh : rd_v = {{16{dmem_rdata[15+16*mem_addr[1]  ]}}, dmem_rdata[16*mem_addr[1]   +: 16]};
+                lhu: rd_v = {{16{1'b0}}                          , dmem_rdata[16*mem_addr[1]   +: 16]};
+                lw : rd_v = dmem_rdata;
                 default: rd_v = 'x;
             endcase
         end else begin
