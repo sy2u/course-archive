@@ -7,12 +7,10 @@ import rv32i_types::*;
     input   logic               clk,
     input   logic               rst,
 
-    input   logic               ifid_stall,
-    input   logic               exwb_stall,
+    input   logic               move,
 
     input   logic               imem_resp,
     input   logic   [31:0]      imem_rdata,
-    output  logic               imem_stall,
 
     output  logic   [4:0]       rs1_s,
     output  logic   [4:0]       rs2_s,
@@ -57,22 +55,12 @@ import rv32i_types::*;
             inst <= '0;
             valid <= '0;
         end else begin
-            if (imem_resp) begin
+            if( imem_resp ) begin
                 inst <= imem_rdata;
                 valid <= '1;
             end else begin
                 valid <= '0;
             end
-        end
-        // end else if (exwb_stall) begin
-        //     inst <= 32'h13; // insert nop
-        // end
-    end
-
-    always_comb begin
-        imem_stall = 1'b0;
-        if( (!rst) && (!imem_resp) ) begin
-            imem_stall = 1'b1;
         end
     end
 

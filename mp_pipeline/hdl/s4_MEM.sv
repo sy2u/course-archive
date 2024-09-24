@@ -5,7 +5,9 @@ module MEM
 import rv32i_types::*;
 (
     input   logic           rst,
-    input   logic           stall,
+
+    input   logic           move,
+    output  logic           dmem_req,
     
     output  logic   [31:0]  dmem_addr,
     output  logic   [3:0]   dmem_rmask,
@@ -19,6 +21,7 @@ import rv32i_types::*;
     mem_ctrl_t      mem_ctrl;
     logic   [31:0]  rs2_v;
     logic   [31:0]  mem_addr;
+    logic           valid;
 
     // get value from prev reg
     always_comb begin
@@ -34,15 +37,15 @@ import rv32i_types::*;
         dmem_wmask = '0;
         dmem_rmask = '0;
         dmem_wdata = '0;
-        // load: dmem read
-        if( !stall ) begin
+        dmem_req = 1'b0;
+        // store: dmem write
+        if( move ) begin
             if( mem_ctrl.mem_we )begin
+                // dmem_req = 1'b1;
                 unique case (mem_ctrl.funct3)
                     store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
-                    store_f3_sh: 
-                        dmem_wmask = 4'b0011 << mem_addr[1:0];
-                    store_f3_sw: 
-                        dmem_wmask = 4'b1111;
+                    store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
+                    store_f3_sw: dmem_wmask = 4'b1111;
                     default    : dmem_wmask = '0;
                 endcase
                 unique case (mem_ctrl.funct3)
@@ -52,8 +55,9 @@ import rv32i_types::*;
                     default    : dmem_wdata = 'x;
                 endcase
             end
-            // store: dmem write
+            // load: dmem read
             if( mem_ctrl.mem_re )begin
+                dmem_req = 1'b1;
                 unique case (mem_ctrl.funct3)
                     load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
                     load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];
@@ -66,11 +70,13 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
+        valid = 1'b0;
+        if( ex_mem_reg.valid_s && move ) valid = 1'b1;
+        mem_wb_reg.valid_s      = valid;
         mem_wb_reg.inst_s       = ex_mem_reg.inst_s;
         mem_wb_reg.pc_s         = ex_mem_reg.pc_s;
         mem_wb_reg.pc_next_s    = ex_mem_reg.pc_next_s;
         mem_wb_reg.order_s      = ex_mem_reg.order_s;
-        mem_wb_reg.valid_s      = ex_mem_reg.valid_s;
         mem_wb_reg.wb_ctrl_s    = ex_mem_reg.wb_ctrl_s; 
         mem_wb_reg.rd_s_s       = ex_mem_reg.rd_s_s;
         mem_wb_reg.br_en_s      = ex_mem_reg.br_en_s;

@@ -208,7 +208,7 @@ package rv32i_types;
 // Stall FSM State //
 /////////////////////
     typedef enum logic [1:0] {
-        move = 2'b00,
+        moving = 2'b00,
         wait_imem = 2'b01,
         wait_dmem = 2'b10,
         imem_dmem = 2'b11

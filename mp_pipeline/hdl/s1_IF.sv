@@ -7,7 +7,9 @@ import rv32i_types::*;
     input   logic               clk,
     input   logic               rst,
 
-    input   logic               stall,
+    input   logic               move,
+    input   logic               dmem_req,
+    output  logic               imem_req,
 
     output  logic   [31:0]      imem_addr,
     output  logic   [3:0]       imem_rmask,
@@ -25,7 +27,7 @@ import rv32i_types::*;
             pc <= 32'h1eceb000;
             order <= '0;
         end else begin
-            if( !stall ) begin
+            if( move ) begin
                 pc <= pc_next;
                 order <= order_next;
             end
@@ -34,14 +36,16 @@ import rv32i_types::*;
 
     always_comb begin
         order_next = order + 'd1;
-        imem_rmask = '1;
+        imem_rmask = '0;
+        imem_req = '0;
 
         if (rst) begin
             pc_next = pc;
         end else begin
             pc_next = pc +'d4;
-            if( stall ) begin
-                imem_rmask = '0;
+            if( move ) begin
+                imem_rmask = '1;
+                if( !dmem_req ) imem_req = '1;
             end
         end
     end
