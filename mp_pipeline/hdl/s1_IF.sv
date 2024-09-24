@@ -41,7 +41,7 @@ import rv32i_types::*;
         valid = 1'b0;
         imem_rmask = '0;
         imem_req = '0;
-        if( move ) begin
+        if( move && (!stop_fetch) ) begin
             if(!rst) valid = 1'b1;
             imem_rmask = '1;
             imem_req = '1;

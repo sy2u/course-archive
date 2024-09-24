@@ -49,12 +49,13 @@ import rv32i_types::*;
     logic   [31:0]  inst_store;
     always_ff @( posedge clk ) begin
         if( rst ) inst_store <= '0;
-        else if( move && imem_resp ) inst_store <= inst;
+        else if( imem_resp ) inst_store <= imem_rdata;
     end
 
     always_comb begin
         inst = '0;
         if(move && imem_resp) inst = imem_rdata;
+        else if (move && (!imem_resp)) inst = inst_store;
         funct3 = inst[14:12];
         funct7 = inst[31:25];
         opcode = inst[6:0];
