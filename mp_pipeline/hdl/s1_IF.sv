@@ -8,7 +8,7 @@ import rv32i_types::*;
     input   logic               rst,
 
     input   logic               move,
-    input   logic               dmem_req,
+    input   logic               stop_fetch,
     output  logic               imem_req,
 
     output  logic   [31:0]      imem_addr,
@@ -45,7 +45,7 @@ import rv32i_types::*;
             pc_next = pc +'d4;
             if( move ) begin
                 imem_rmask = '1;
-                if( !dmem_req ) imem_req = '1;
+                if( !stop_fetch ) imem_req = '1;
             end
         end
     end

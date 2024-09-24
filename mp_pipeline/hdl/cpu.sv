@@ -21,12 +21,12 @@ import rv32i_types::*;
 
     // Hazard Control
     logic           imem_req, dmem_req;
-    logic           move;
+    logic           move, stop_fetch;
 
     stall stall( .clk(clk), .rst(rst), 
         .imem_req(imem_req), .dmem_req(dmem_req), 
         .imem_resp(imem_resp), .dmem_resp(dmem_resp),
-        .move(move)
+        .move(move), .stop_fetch(stop_fetch)
     );
 
     // Update Stage Register
@@ -51,7 +51,7 @@ import rv32i_types::*;
     logic   [31:0]  rs1_v, rs2_v;
 
     IF  stage_if( .clk(clk), .rst(rst), 
-        .move(move), .imem_req(imem_req), .dmem_req(dmem_req),
+        .move(move), .imem_req(imem_req), .stop_fetch(stop_fetch),
         .imem_addr(imem_addr), .imem_rmask(imem_rmask), 
         .if_id_reg(if_id_reg_next) 
     );
