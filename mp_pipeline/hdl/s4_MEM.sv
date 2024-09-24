@@ -41,7 +41,7 @@ import rv32i_types::*;
         // store: dmem write
         if( move ) begin
             if( mem_ctrl.mem_we )begin
-                // dmem_req = 1'b1;
+                dmem_req = 1'b1;
                 unique case (mem_ctrl.funct3)
                     store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
                     store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];

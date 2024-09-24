@@ -63,7 +63,7 @@ import rv32i_types::*;
         .if_id_reg(if_id_reg), .id_ex_reg(id_ex_reg_next) 
     );
 
-    EX  stage_ex( .rst(rst), 
+    EX  stage_ex( .rst(rst), .move(move),
         .rs1_v(rs1_v), .rs2_v(rs2_v), 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next) 
     );

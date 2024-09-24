@@ -35,26 +35,20 @@ import rv32i_types::*;
     end
 
     always_comb begin
+        pc_next = pc +'d4;
         order_next = order + 'd1;
-        imem_rmask = '1;
-        imem_req = '1;
-        valid = 1'b0;
 
-        if (rst) begin
-            pc_next = pc;
-        end else begin
-            imem_req = '0;
-            imem_rmask = '0;
-            pc_next = pc +'d4;
-            if( move ) begin
-                valid = 1'b1;
-                imem_rmask = '1;
-                if( !stop_fetch ) imem_req = '1;
-            end
+        valid = 1'b0;
+        imem_rmask = '0;
+        imem_req = '0;
+        if( move ) begin
+            if(!rst) valid = 1'b1;
+            imem_rmask = '1;
+            imem_req = '1;
         end
     end
 
-    assign imem_addr = pc_next;
+    assign imem_addr = pc;
 
     // assign signals to the register struct
     always_comb begin

@@ -5,6 +5,7 @@ module EX
 import rv32i_types::*;
 (   
     input   logic               rst,
+    input   logic               move,
 
     input   logic   [31:0]      rs1_v,
     input   logic   [31:0]      rs2_v,
@@ -57,11 +58,12 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
+            ex_mem_reg.valid_s      = '0;
+            if( move && id_ex_reg.valid_s ) ex_mem_reg.valid_s = '1;
             ex_mem_reg.inst_s       = id_ex_reg.inst_s;
             ex_mem_reg.pc_s         = id_ex_reg.pc_s;
             ex_mem_reg.pc_next_s    = id_ex_reg.pc_next_s;
             ex_mem_reg.order_s      = id_ex_reg.order_s;
-            ex_mem_reg.valid_s      = id_ex_reg.valid_s;
             ex_mem_reg.mem_ctrl_s   = id_ex_reg.mem_ctrl_s;
             ex_mem_reg.wb_ctrl_s    = id_ex_reg.wb_ctrl_s;
             ex_mem_reg.u_imm_s      = u_imm;

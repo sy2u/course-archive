@@ -32,38 +32,48 @@ import rv32i_types::*;
     logic   [6:0]   opcode;
     logic   [31:0]  i_imm;
     logic   [31:0]  s_imm;
-    // logic   [31:0]  b_imm;
     logic   [31:0]  u_imm;
-    // logic   [31:0]  j_imm;
     logic   [4:0]   rd_s;
 
-    assign funct3 = inst[14:12];
-    assign funct7 = inst[31:25];
-    assign opcode = inst[6:0];
-    assign i_imm  = {{21{inst[31]}}, inst[30:20]};
-    assign s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
-    // assign b_imm  = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
-    assign u_imm  = {inst[31:12], 12'h000};
-    // assign j_imm  = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
-    assign rs1_s  = inst[19:15];
-    assign rs2_s  = inst[24:20];
-    assign rd_s   = inst[11:7];
+    // assign  inst = imem_rdata;
+    // assign  funct3 = inst[14:12];
+    // assign  funct7 = inst[31:25];
+    // assign  opcode = inst[6:0];
+    // assign  i_imm  = {{21{inst[31]}}, inst[30:20]};
+    // assign  s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
+    // assign  u_imm  = {inst[31:12], 12'h000};
+    // assign  rs1_s  = inst[19:15];
+    // assign  rs2_s  = inst[24:20];
+    // assign  rd_s   = inst[11:7];
 
-    // read instruction memory data
-    always_ff @(posedge clk) begin
-        if (rst) begin
-            inst <= '0;
+    logic   [31:0]  inst_store;
+    always_ff @( posedge clk ) begin
+        if( rst ) inst_store <= '0;
+        else if( move && imem_resp ) inst_store <= inst;
+    end
+
+    always_comb begin
+        inst = '0;
+        if(move && imem_resp) inst = imem_rdata;
+        funct3 = inst[14:12];
+        funct7 = inst[31:25];
+        opcode = inst[6:0];
+        i_imm  = {{21{inst[31]}}, inst[30:20]};
+        s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
+        u_imm  = {inst[31:12], 12'h000};
+        if(move && imem_resp) begin
+            rs1_s  = inst[19:15];
+            rs2_s  = inst[24:20];
+            rd_s   = inst[11:7];
         end else begin
-            if( imem_resp ) begin
-                inst <= imem_rdata;
-            end
+            rs1_s  = inst_store[19:15];
+            rs2_s  = inst_store[24:20];
+            rd_s   = inst_store[11:7];
         end
     end
 
     // control ROM
     always_comb begin
-        // inst = '0;
-        // if( move && imem_resp ) inst = imem_rdata;
         ex_ctrl.alu_m1_sel = invalid_alu_m1;
         ex_ctrl.alu_m2_sel = invalid_alu_m2;
         ex_ctrl.aluop = alu_op_add; // random picked, '0
@@ -209,11 +219,13 @@ import rv32i_types::*;
 
     // assign signals to the register struct
     always_comb begin
+            id_ex_reg.valid_s   = '0;
+            if( move && if_id_reg.valid_s ) id_ex_reg.valid_s = 1;
             id_ex_reg.inst_s    = inst;
             id_ex_reg.pc_s      = if_id_reg.pc_s;
             id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
+            // if( if_id_reg.pc_next_s == 32'h1eceb000 ) id_ex_reg.pc_next_s = 32'h1eceb004;
             id_ex_reg.order_s   = if_id_reg.order_s;
-            id_ex_reg.valid_s   = if_id_reg.valid_s;
             id_ex_reg.ex_ctrl_s = ex_ctrl;
             id_ex_reg.mem_ctrl_s= mem_ctrl;
             id_ex_reg.wb_ctrl_s = wb_ctrl;
@@ -223,9 +235,6 @@ import rv32i_types::*;
             id_ex_reg.rs1_s_s   = rs1_addr;
             id_ex_reg.rs2_s_s   = rs2_addr;
             id_ex_reg.rd_s_s    = rd_s;
-        if (rst) begin
-            id_ex_reg.valid_s   = '0;
-        end
     end
 
 endmodule
