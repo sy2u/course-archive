@@ -74,7 +74,7 @@ import rv32i_types::*;
         .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg_next)
     );
 
-    WB  stage_wb( .move(move),
+    WB  stage_wb( .move(move), .clk(clk), .rst(rst),
         .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp),
         .regf_we(regf_we), .rd_sel(rd_sel), .rd_v(rd_v), 
         .mem_wb_reg(mem_wb_reg)

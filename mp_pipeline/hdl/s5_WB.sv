@@ -4,6 +4,8 @@
 module WB
 import rv32i_types::*;
 (
+    input   logic           clk,
+    input   logic           rst,
     input   logic           move,
 
     input   logic   [31:0]  dmem_rdata,

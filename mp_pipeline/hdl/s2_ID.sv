@@ -53,19 +53,17 @@ import rv32i_types::*;
     always_ff @(posedge clk) begin
         if (rst) begin
             inst <= '0;
-            valid <= '0;
         end else begin
             if( imem_resp ) begin
                 inst <= imem_rdata;
-                valid <= '1;
-            end else begin
-                valid <= '0;
             end
         end
     end
 
     // control ROM
     always_comb begin
+        // inst = '0;
+        // if( move && imem_resp ) inst = imem_rdata;
         ex_ctrl.alu_m1_sel = invalid_alu_m1;
         ex_ctrl.alu_m2_sel = invalid_alu_m2;
         ex_ctrl.aluop = alu_op_add; // random picked, '0
@@ -215,7 +213,7 @@ import rv32i_types::*;
             id_ex_reg.pc_s      = if_id_reg.pc_s;
             id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
             id_ex_reg.order_s   = if_id_reg.order_s;
-            id_ex_reg.valid_s   = valid;
+            id_ex_reg.valid_s   = if_id_reg.valid_s;
             id_ex_reg.ex_ctrl_s = ex_ctrl;
             id_ex_reg.mem_ctrl_s= mem_ctrl;
             id_ex_reg.wb_ctrl_s = wb_ctrl;
