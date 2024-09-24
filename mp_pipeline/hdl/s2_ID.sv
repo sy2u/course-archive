@@ -52,15 +52,9 @@ import rv32i_types::*;
         s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
         u_imm  = {inst[31:12], 12'h000};
 
-        if(move && imem_resp) begin
-            rs1_s  = inst[19:15];
-            rs2_s  = inst[24:20];
-            rd_s   = inst[11:7];
-        end else begin
-            rs1_s  = inst_store[19:15];
-            rs2_s  = inst_store[24:20];
-            rd_s   = inst_store[11:7];
-        end
+        rs1_s  = inst_store[19:15];
+        rs2_s  = inst_store[24:20];
+        rd_s   = inst_store[11:7];
     end
 
     // control ROM
@@ -98,8 +92,8 @@ import rv32i_types::*;
                 mem_ctrl.funct3 = funct3;
                 mem_ctrl.mem_we = 1'b1;
                 // monitor
-                rs1_addr = rs1_s;
-                rs2_addr = rs2_s;
+                rs1_addr = inst[19:15];
+                rs2_addr = inst[24:20];
             end
             op_b_load: begin
                 // mem_addr = rs1_v + i_imm;
@@ -120,7 +114,7 @@ import rv32i_types::*;
                     default: wb_ctrl.rd_m_sel = invalid_rd;
                 endcase
                 // monitor
-                rs1_addr = rs1_s;
+                rs1_addr = inst[19:15];
             end
             op_b_imm: begin
                 wb_ctrl.regf_we = 1'b1;
@@ -128,7 +122,7 @@ import rv32i_types::*;
                 ex_ctrl.alu_m1_sel = rs1_out;
                 ex_ctrl.alu_m2_sel = i_imm_m;
                 // monitor
-                rs1_addr = rs1_s;
+                rs1_addr = inst[19:15];
                 unique case (funct3)
                     arith_f3_slt: begin
                         ex_ctrl.cmpop = cmp_op_blt;
@@ -158,8 +152,8 @@ import rv32i_types::*;
                 ex_ctrl.alu_m1_sel = rs1_out;
                 ex_ctrl.alu_m2_sel = rs2_out;
                 // monitor
-                rs1_addr = rs1_s;
-                rs2_addr = rs2_s;
+                rs1_addr = inst[19:15];
+                rs2_addr = inst[24:20];
                 unique case (funct3)
                     arith_f3_slt: begin
                         ex_ctrl.cmpop = cmp_op_blt;
@@ -217,7 +211,7 @@ import rv32i_types::*;
             id_ex_reg.i_imm_s   = i_imm;
             id_ex_reg.rs1_s_s   = rs1_addr;
             id_ex_reg.rs2_s_s   = rs2_addr;
-            id_ex_reg.rd_s_s    = rd_s;
+            id_ex_reg.rd_s_s    = inst[11:7];;
     end
 
 endmodule
