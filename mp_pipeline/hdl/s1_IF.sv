@@ -8,7 +8,6 @@ import rv32i_types::*;
     input   logic               rst,
 
     input   logic               move,
-    input   logic               imem_resp,
     output  logic               imem_req,
 
     output  logic   [31:0]      imem_addr,
@@ -26,17 +25,10 @@ import rv32i_types::*;
         if (rst) begin
             pc <= 32'h1eceb000;
             order <= '0;
-            imem_req <= 1'b1;
-            imem_rmask <= '1;
         end else begin
-            if( imem_resp ) begin
+            if( move ) begin
                 pc <= pc_next;
                 order <= order_next;
-                imem_req <= 1'b1;
-                imem_rmask <= '1;
-            end else begin
-                imem_req <= 1'b0;
-                imem_rmask <= '0;
             end
         end
     end
@@ -45,7 +37,15 @@ import rv32i_types::*;
         imem_addr = pc;
         pc_next = pc +'d4;
         order_next = order + 'd1;
-        if( move ) valid = 1'b1; else valid = 1'b0;
+        if( move ) begin
+            valid = 1'b1; 
+            imem_req = 1'b1;
+            imem_rmask = '1;
+        end else begin
+            valid = 1'b0;
+            imem_req = 1'b0;
+            imem_rmask = '0;
+        end
     end
 
     // assign signals to the register struct

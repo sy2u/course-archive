@@ -207,11 +207,11 @@ package rv32i_types;
 /////////////////////
 // Stall FSM State //
 /////////////////////
-    typedef enum logic [1:0] {
-        moving = 2'b00,
-        wait_imem = 2'b01,
-        wait_dmem = 2'b10,
-        imem_dmem = 2'b11
+    typedef enum logic [2:0] {
+        idle        = 3'b100,
+        wait_imem   = 3'b001,
+        wait_dmem   = 3'b010,
+        imem_dmem   = 3'b011
     } stall_state;
 
 ////////////////////////////
@@ -263,6 +263,12 @@ package rv32i_types;
             logic [4:0]   rd;
             rv32i_opcode  opcode;
         } j_type;
+
+        struct packed {
+            logic [31:12] imm;
+            logic [4:0]   rd;
+            rv32i_opcode  opcode;
+        } u_type;
 
     } instr_t;
 

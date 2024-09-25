@@ -4,8 +4,6 @@
 module MEM
 import rv32i_types::*;
 (
-    input   logic           clk,
-
     input   logic           move,
     output  logic           dmem_req,
     
@@ -32,16 +30,12 @@ import rv32i_types::*;
         dmem_addr[1:0] = 2'd0;
     end
 
-    always_ff @( posedge clk ) begin
-        if ( move && (mem_ctrl.mem_we||mem_ctrl.mem_re) ) dmem_req <= 1'b1;
-        else dmem_req <= 1'b0;
-    end
-    
     // set dmem control signal
     always_comb begin
         dmem_wmask = '0;
         dmem_rmask = '0;
         dmem_wdata = '0;
+        dmem_req =  valid && move && (mem_ctrl.mem_we||mem_ctrl.mem_re);
         // store: dmem write
         if( move ) begin
             if( mem_ctrl.mem_we )begin
