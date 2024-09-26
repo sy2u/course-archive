@@ -18,8 +18,6 @@ _start:
     sh x2, 2(x8)
     lb x5, 1(x8)
     sb x9, 3(x8)
-    addi x1, x0, 4
-    nop
     sb x2, 2047(x8)
     sb x9, 0(x30)
     sb x1, 1(x30)
@@ -31,10 +29,6 @@ _start:
     sb x2, 66(x30)
     lw x7, 0(x8) # cache miss
     lb x9, 1(x8)
-    nop
-    nop
-    nop
-    add x3, x2, x9
     lb x10, 1(x8)
     lb x11, 1(x8)
     lh x9, 2(x8)
