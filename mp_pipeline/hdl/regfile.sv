@@ -23,13 +23,13 @@ import rv32i_types::*;
         end
     end
 
-    always_ff @(posedge clk) begin
+    always_comb begin
         if (rst) begin
-            rs1_v <= 'x;
-            rs2_v <= 'x;
+            rs1_v = 'x;
+            rs2_v = 'x;
         end else begin
-            rs1_v <= (rs1_s != 5'd0) ? data[rs1_s] : '0;
-            rs2_v <= (rs2_s != 5'd0) ? data[rs2_s] : '0;
+            rs1_v = (rs1_s != 5'd0) ? data[rs1_s] : '0;
+            rs2_v = (rs2_s != 5'd0) ? data[rs2_s] : '0;
         end
     end
 

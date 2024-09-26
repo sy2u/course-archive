@@ -17,56 +17,26 @@ import rv32i_types::*;
 );
 
     mem_ctrl_t      mem_ctrl;
-    logic   [31:0]  rs2_v;
-    logic   [31:0]  mem_addr;
     logic           valid;
 
-    // get value from prev reg
     always_comb begin
-        rs2_v = ex_mem_reg.rs2_v_s;
         mem_ctrl = ex_mem_reg.mem_ctrl_s;
-        mem_addr = ex_mem_reg.alu_out_s;
-        dmem_addr = ex_mem_reg.alu_out_s;
-        dmem_addr[1:0] = 2'd0;
-    end
+        dmem_req =  valid && (mem_ctrl.mem_we||mem_ctrl.mem_re);
+        dmem_addr = ex_mem_reg.dmem_addr_s;
 
-    // set dmem control signal
-    always_comb begin
         dmem_wmask = '0;
         dmem_rmask = '0;
         dmem_wdata = '0;
-        dmem_req =  valid && move && (mem_ctrl.mem_we||mem_ctrl.mem_re);
-        // store: dmem write
-        if( move ) begin
-            if( mem_ctrl.mem_we )begin
-                unique case (mem_ctrl.funct3)
-                    store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
-                    store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
-                    store_f3_sw: dmem_wmask = 4'b1111;
-                    default    : dmem_wmask = '0;
-                endcase
-                unique case (mem_ctrl.funct3)
-                    store_f3_sb: dmem_wdata[8 * mem_addr[1:0] +: 8 ] = rs2_v[7 :0];
-                    store_f3_sh: dmem_wdata[16* mem_addr[1]   +: 16] = rs2_v[15:0];
-                    store_f3_sw: dmem_wdata = rs2_v;
-                    default    : dmem_wdata = 'x;
-                endcase
-            end
-            // load: dmem read
-            else if( mem_ctrl.mem_re )begin
-                unique case (mem_ctrl.funct3)
-                    load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
-                    load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];
-                    load_f3_lw             : dmem_rmask = 4'b1111;
-                    default                : dmem_rmask = '0;
-                endcase
-            end
+        if( dmem_req ) begin
+            dmem_wmask = ex_mem_reg.dmem_wmask_s;
+            dmem_rmask = ex_mem_reg.dmem_rmask_s;
+            dmem_wdata = ex_mem_reg.dmem_wdata_s;
         end
     end
 
     // assign signals to the register struct
     always_comb begin
-        valid = 1'b0;
+        valid = 1'b0; // make sure valid is 0 before ex_mem stats arrive
         if( ex_mem_reg.valid_s && move ) valid = 1'b1;
         mem_wb_reg.valid_s      = valid;
         mem_wb_reg.inst_s       = ex_mem_reg.inst_s;
@@ -81,8 +51,8 @@ import rv32i_types::*;
         mem_wb_reg.rs2_v_s      = ex_mem_reg.rs2_v_s;
         mem_wb_reg.rs1_s_s      = ex_mem_reg.rs1_s_s;
         mem_wb_reg.rs2_s_s      = ex_mem_reg.rs2_s_s;
-        mem_wb_reg.dmem_addr_s  = dmem_addr;// 32-bit aligned
-        mem_wb_reg.mem_addr_s   = mem_addr; // real address
+        mem_wb_reg.dmem_addr_s  = dmem_addr;             // 32-bit aligned
+        mem_wb_reg.mem_addr_s   = ex_mem_reg.mem_addr_s; // real address
         mem_wb_reg.mem_rmask_s  = dmem_rmask;
         mem_wb_reg.mem_wmask_s  = dmem_wmask;
         mem_wb_reg.mem_wdata_s  = dmem_wdata;

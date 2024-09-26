@@ -62,7 +62,6 @@ def generate_instruction():
         'add', 'sub', 'sll', 'srl', 'sra', 'and', 'or', 'xor', 
         'slt', 'sltu', 'addi', 'slli', 'srli', 'srai', 'andi', 
         'ori', 'xori', 'slti', 'sltiu', 'lui', 'auipc', 
-        # 'lb','lh', 'lw', 'lbu', 'lhu', 'sb', 'sh', 'sw'
     ])
     
     if instr_type in ['add', 'sub', 'sll', 'srl', 'sra', 'and', 'or', 'xor', 'slt', 'sltu']:

@@ -174,6 +174,11 @@ package rv32i_types;
         logic   [31:0]      alu_out_s;
         logic   [31:0]      rs2_v_s;
         logic   [4:0]       rd_s_s;
+        logic   [31:0]      dmem_wdata_s;
+        logic   [3:0]       dmem_rmask_s;
+        logic   [3:0]       dmem_wmask_s;
+        logic   [31:0]      mem_addr_s;
+        logic   [31:0]      dmem_addr_s;
         // control
         mem_ctrl_t          mem_ctrl_s;
         wb_ctrl_t           wb_ctrl_s;

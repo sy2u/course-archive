@@ -11,9 +11,6 @@ import rv32i_types::*;
     input   logic               imem_resp,
     input   logic   [31:0]      imem_rdata,
 
-    output  logic   [4:0]       rs1_s,
-    output  logic   [4:0]       rs2_s,
-
     input   if_id_stage_reg_t   if_id_reg,
     output  id_ex_stage_reg_t   id_ex_reg
 );
@@ -24,6 +21,7 @@ import rv32i_types::*;
 
     logic           valid;
     logic   [4:0]   rs1_addr, rs2_addr;
+
     logic   [31:0]  inst_store;
 
     logic   [31:0]  inst;
@@ -34,16 +32,16 @@ import rv32i_types::*;
     logic   [31:0]  s_imm;
     logic   [31:0]  u_imm;
     logic   [4:0]   rd_s;
+    logic   [4:0]   rs1_s, rs2_s;
 
 
     always_ff @( posedge clk ) begin
-        // if( rst ) inst_store <= '0;
         if( imem_resp ) inst_store <= imem_rdata;
     end
 
+    // control ROM
     always_comb begin
-        if(move && imem_resp) inst = imem_rdata;
-        else inst = inst_store;
+        if(move && imem_resp) inst = imem_rdata; else inst = inst_store;
 
         funct3 = inst[14:12];
         funct7 = inst[31:25];
@@ -51,14 +49,10 @@ import rv32i_types::*;
         i_imm  = {{21{inst[31]}}, inst[30:20]};
         s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
         u_imm  = {inst[31:12], 12'h000};
+        rs1_s  = inst[19:15];
+        rs2_s  = inst[24:20];
+        rd_s   = inst[11:7];
 
-        rs1_s  = inst_store[19:15];
-        rs2_s  = inst_store[24:20];
-        rd_s   = inst_store[11:7];
-    end
-
-    // control ROM
-    always_comb begin
         ex_ctrl.alu_m1_sel = invalid_alu_m1;
         ex_ctrl.alu_m2_sel = invalid_alu_m2;
         ex_ctrl.aluop = alu_op_add; // random picked, '0
@@ -92,8 +86,8 @@ import rv32i_types::*;
                 mem_ctrl.funct3 = funct3;
                 mem_ctrl.mem_we = 1'b1;
                 // monitor
-                rs1_addr = inst[19:15];
-                rs2_addr = inst[24:20];
+                rs1_addr = rs1_s;
+                rs2_addr = rs2_s;
             end
             op_b_load: begin
                 // mem_addr = rs1_v + i_imm;
@@ -114,7 +108,7 @@ import rv32i_types::*;
                     default: wb_ctrl.rd_m_sel = invalid_rd;
                 endcase
                 // monitor
-                rs1_addr = inst[19:15];
+                rs1_addr = rs1_s;
             end
             op_b_imm: begin
                 wb_ctrl.regf_we = 1'b1;
@@ -152,8 +146,8 @@ import rv32i_types::*;
                 ex_ctrl.alu_m1_sel = rs1_out;
                 ex_ctrl.alu_m2_sel = rs2_out;
                 // monitor
-                rs1_addr = inst[19:15];
-                rs2_addr = inst[24:20];
+                rs1_addr = rs1_s;
+                rs2_addr = rs2_s;
                 unique case (funct3)
                     arith_f3_slt: begin
                         ex_ctrl.cmpop = cmp_op_blt;
@@ -201,7 +195,6 @@ import rv32i_types::*;
             id_ex_reg.inst_s    = inst;
             id_ex_reg.pc_s      = if_id_reg.pc_s;
             id_ex_reg.pc_next_s = if_id_reg.pc_next_s;
-            // if( if_id_reg.pc_next_s == 32'h1eceb000 ) id_ex_reg.pc_next_s = 32'h1eceb004;
             id_ex_reg.order_s   = if_id_reg.order_s;
             id_ex_reg.ex_ctrl_s = ex_ctrl;
             id_ex_reg.mem_ctrl_s= mem_ctrl;
@@ -211,7 +204,7 @@ import rv32i_types::*;
             id_ex_reg.i_imm_s   = i_imm;
             id_ex_reg.rs1_s_s   = rs1_addr;
             id_ex_reg.rs2_s_s   = rs2_addr;
-            id_ex_reg.rd_s_s    = inst[11:7];;
+            id_ex_reg.rd_s_s    = rd_s;
     end
 
 endmodule
