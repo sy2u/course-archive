@@ -27,6 +27,7 @@ import rv32i_types::*;
     logic   [31:0]  pc, pc_next;
     logic   [3:0]   mem_rmask, mem_wmask;
     logic   [31:0]  mem_wdata;
+    logic   [4:0]   rd_s_monitor;
 
     // get value from prev reg
     always_comb begin
@@ -53,6 +54,8 @@ import rv32i_types::*;
         valid = 1'b0;
         if( mem_wb_reg.valid_s )
             valid = (wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} && dmem_resp) || (!(wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw}) && move);
+        // rd
+        if( regf_we ) rd_s_monitor = rd_sel; else rd_s_monitor = '0;
     end
     
     // reg file big mux

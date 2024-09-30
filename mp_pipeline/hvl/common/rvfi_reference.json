@@ -6,7 +6,7 @@
     "rs2_addr[0]"  : "dut.stage_wb.rs2_s",
     "rs1_rdata[0]" : "dut.stage_wb.rs1_v",
     "rs2_rdata[0]" : "dut.stage_wb.rs2_v",
-    "rd_addr[0]"   : "dut.stage_wb.rd_sel",
+    "rd_addr[0]"   : "dut.stage_wb.rd_s_monitor",
     "rd_wdata[0]"  : "dut.stage_wb.rd_v",
     "pc_rdata[0]"  : "dut.stage_wb.pc",
     "pc_wdata[0]"  : "dut.stage_wb.pc_next",
