@@ -45,11 +45,12 @@ import rv32i_types::*;
     end
 
     // Hazard Control
+    logic   [31:0]      forward_mem_v, forward_wb_v;
     forward_sel_t       forwardA, forwardB;
 
     forward forward( 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg), 
-        .forwardA(forwardA), .forwardB(forwardB));
+        .forwardA(forwardA), .forwardB(forwardB), .mem_v(forward_mem_v), .wb_v(forward_wb_v));
 
     // Connect Hardware
     logic           regf_we;
@@ -72,7 +73,8 @@ import rv32i_types::*;
     EX  stage_ex( .move(move),
         .rs1_s(rs1_s), .rs2_s(rs2_s), .reg_rs1_v(rs1_v), .reg_rs2_v(rs2_v), 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next),
-        .ex_mem_curr(ex_mem_reg), .mem_wb_curr(mem_wb_reg), .forwardA(forwardA), .forwardB(forwardB)
+        .ex_mem_curr(ex_mem_reg), .mem_wb_curr(mem_wb_reg), 
+        .forwardA(forwardA), .forwardB(forwardB), .forward_mem_v(forward_mem_v), .forward_wb_v(forward_wb_v)
     );
 
     MEM stage_mem(

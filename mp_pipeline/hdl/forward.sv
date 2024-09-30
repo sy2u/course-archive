@@ -6,7 +6,9 @@ import rv32i_types::*;
     input   mem_wb_stage_reg_t  mem_wb_reg,
 
     output  forward_sel_t       forwardA,
-    output  forward_sel_t       forwardB
+    output  forward_sel_t       forwardB,
+    output  logic   [31:0]      mem_v,
+    output  logic   [31:0]      wb_v
 );
 
 always_comb begin
@@ -18,6 +20,21 @@ always_comb begin
         if( ex_mem_reg.rd_s_s == id_ex_reg.rs2_s_s ) forwardB = mem_ex;
         if( mem_wb_reg.rd_s_s == id_ex_reg.rs2_s_s ) forwardB = wb_ex;
     end
+end
+
+always_comb begin
+    unique case (ex_mem_reg.wb_ctrl_s.rd_m_sel)
+        u_imm_m_rd: mem_v = ex_mem_reg.u_imm_s;
+        alu_out_rd: mem_v = ex_mem_reg.alu_out_s;
+        ext_br:     mem_v = {31'd0, ex_mem_reg.br_en_s}; 
+        default:    mem_v = 'x;
+    endcase
+    unique case (mem_wb_reg.wb_ctrl_s.rd_m_sel)
+        u_imm_m_rd: wb_v = mem_wb_reg.u_imm_s;
+        alu_out_rd: wb_v = mem_wb_reg.alu_out_s;
+        ext_br:     wb_v = {31'd0, mem_wb_reg.br_en_s}; 
+        default:    wb_v = 'x;
+    endcase
 end
 
 endmodule

@@ -18,7 +18,9 @@ import rv32i_types::*;
     input   ex_mem_stage_reg_t  ex_mem_curr,
     input   mem_wb_stage_reg_t  mem_wb_curr,
     input   forward_sel_t       forwardA,
-    input   forward_sel_t       forwardB
+    input   forward_sel_t       forwardB,
+    input   logic   [31:0]      forward_wb_v,
+    input   logic   [31:0]      forward_mem_v
 );
 
     ex_ctrl_t       ex_ctrl;
@@ -41,28 +43,14 @@ import rv32i_types::*;
     always_comb begin
         unique case (forwardA)
             none:   rs1_v = reg_rs1_v;
-            mem_ex: begin
-                unique case (ex_mem_curr.wb_ctrl_s.rd_m_sel)
-                    u_imm_m_rd: rs1_v = ex_mem_curr.u_imm_s;
-                    alu_out_rd: rs1_v = ex_mem_curr.alu_out_s;
-                    ext_br:     rs1_v = {31'd0, ex_mem_curr.br_en_s}; 
-                    default:    rs1_v = 'x;
-                endcase
-            end
-            wb_ex:  rs1_v = mem_wb_curr.rs1_v_s; 
+            mem_ex: rs1_v = forward_mem_v;
+            wb_ex:  rs1_v = forward_wb_v;
             default: rs1_v = reg_rs1_v;
         endcase
         unique case (forwardB)
             none:   rs2_v = reg_rs2_v;
-            mem_ex: begin
-                unique case (ex_mem_curr.wb_ctrl_s.rd_m_sel)
-                    u_imm_m_rd: rs2_v = ex_mem_curr.u_imm_s;
-                    alu_out_rd: rs2_v = ex_mem_curr.alu_out_s;
-                    ext_br:     rs2_v = {31'd0, ex_mem_curr.br_en_s}; 
-                    default:    rs2_v = 'x;
-                endcase
-            end
-            wb_ex:  rs2_v = mem_wb_curr.rs2_v_s; 
+            mem_ex: rs2_v = forward_mem_v;
+            wb_ex:  rs2_v = forward_wb_v;
             default: rs2_v = reg_rs2_v;
         endcase  
     end
