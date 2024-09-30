@@ -3,12 +3,14 @@
 module regfile
 import rv32i_types::*;
 (
-    input   logic           clk,
-    input   logic           rst,
-    input   logic           regf_we,
-    input   logic   [31:0]  rd_v,
-    input   logic   [4:0]   rs1_s, rs2_s, rd_s,
-    output  logic   [31:0]  rs1_v, rs2_v
+    input   logic               clk,
+    input   logic               rst,
+    input   logic               regf_we,
+    input   logic   [31:0]      rd_v,
+    input   logic   [4:0]       rs1_s, rs2_s, rd_s,
+    output  logic   [31:0]      rs1_v, rs2_v,
+
+    input   decode_fw_sel_t     decode_forward
 );
 
     logic   [31:0]  data [32];
@@ -30,6 +32,9 @@ import rv32i_types::*;
         end else begin
             rs1_v = (rs1_s != 5'd0) ? data[rs1_s] : '0;
             rs2_v = (rs2_s != 5'd0) ? data[rs2_s] : '0;
+            // forwarding
+            if( decode_forward == rs1_f )           rs1_v = rd_v;
+            else if ( decode_forward == rs2_f )     rs2_v = rd_v;
         end
     end
 

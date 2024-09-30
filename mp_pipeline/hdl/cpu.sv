@@ -46,7 +46,7 @@ import rv32i_types::*;
 
     // Hazard Control
     logic   [31:0]      forward_mem_v, forward_wb_v;
-    forward_sel_t       forwardA, forwardB;
+    normal_fw_sel_t     forwardA, forwardB;
 
     forward forward( 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg), 

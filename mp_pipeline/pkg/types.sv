@@ -7,7 +7,13 @@ package rv32i_types;
         none        =   2'b00,
         mem_ex      =   2'b01,
         wb_ex       =   2'b10
-    } forward_sel_t;
+    } normal_fw_sel_t;
+
+    typedef enum logic [1:0] {
+        none_d      =   2'b00,
+        rs1_f       =   2'b01,
+        rs2_f       =   2'b10
+    } decode_fw_sel_t;
 
 //////////////////////////////////////////////////////
 // Merge what is in mp_verif/pkg/types.sv over here //

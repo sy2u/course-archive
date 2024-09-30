@@ -17,8 +17,8 @@ import rv32i_types::*;
     // forwarding inputs
     input   ex_mem_stage_reg_t  ex_mem_curr,
     input   mem_wb_stage_reg_t  mem_wb_curr,
-    input   forward_sel_t       forwardA,
-    input   forward_sel_t       forwardB,
+    input   normal_fw_sel_t     forwardA,
+    input   normal_fw_sel_t     forwardB,
     input   logic   [31:0]      forward_wb_v,
     input   logic   [31:0]      forward_mem_v
 );
