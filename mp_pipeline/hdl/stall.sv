@@ -27,33 +27,28 @@ import rv32i_types::*;
     always_comb begin
         unique case (curr_state)
             idle: begin
-                if( (!dmem_req) && (!imem_req) )        next_state = idle;
-                else if( dmem_req && (!imem_req) )      next_state = wait_dmem;
-                else if( (!dmem_req) && imem_req )      next_state = wait_imem;
-                else                                    next_state = imem_dmem;
+                if( (!dmem_req) && imem_req )           next_state = wait_imem;
+                else                                    next_state = idle;
             end
             wait_imem: begin
                 if( imem_resp ) begin
-                    if( (!dmem_req) && (!imem_req) )    next_state = idle;
-                    else if( dmem_req && (!imem_req) )  next_state = wait_dmem;
+                    if( dmem_req && (!imem_req) )       next_state = wait_dmem;
                     else if( (!dmem_req) && imem_req )  next_state = wait_imem;
                     else                                next_state = imem_dmem;
                 end 
-                else next_state = wait_imem;
+                else                                    next_state = wait_imem;
             end
             wait_dmem: begin
                 if( dmem_resp ) begin
-                    if( (!dmem_req) && (!imem_req) )    next_state = idle;
-                    else if( dmem_req && (!imem_req) )  next_state = wait_dmem;
+                    if( dmem_req && (!imem_req) )       next_state = wait_dmem;
                     else if( (!dmem_req) && imem_req )  next_state = wait_imem;
                     else                                next_state = imem_dmem;
                 end 
-                else next_state = wait_dmem;
+                else                                    next_state = wait_dmem;
             end
             imem_dmem: begin
                 if( imem_resp && dmem_resp ) begin
-                    if( (!dmem_req) && (!imem_req) )    next_state = idle;
-                    else if( dmem_req && (!imem_req) )  next_state = wait_dmem;
+                    if( dmem_req && (!imem_req) )       next_state = wait_dmem;
                     else if( (!dmem_req) && imem_req )  next_state = wait_imem;
                     else                                next_state = imem_dmem;
                 end 
@@ -61,12 +56,11 @@ import rv32i_types::*;
                 else if ( dmem_resp )                   next_state = wait_imem;
                 else                                    next_state = imem_dmem;
             end
-            default: next_state = curr_state;
+            default:                                    next_state = curr_state;
         endcase
     end
 
     always_comb begin
-        move = 1'b0;
         unique case (curr_state)
             idle        : if(!rst)                  move = 1'b1;
             wait_imem   : if(imem_resp)             move = 1'b1;
