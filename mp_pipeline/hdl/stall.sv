@@ -27,8 +27,13 @@ import rv32i_types::*;
     always_comb begin
         unique case (curr_state)
             idle: begin
+<<<<<<< HEAD
                 if( (!dmem_req) && imem_req )           next_state = wait_imem;
                 else                                    next_state = idle;
+=======
+                if( !rst )                              next_state = wait_imem;
+                else                                    next_state = imem_dmem;
+>>>>>>> 7115558 (restore functionality)
             end
             wait_imem: begin
                 if( imem_resp ) begin
