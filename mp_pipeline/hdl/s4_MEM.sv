@@ -21,7 +21,7 @@ import rv32i_types::*;
 
     always_comb begin
         mem_ctrl = ex_mem_reg.mem_ctrl_s;
-        dmem_req = valid && (mem_ctrl.mem_we||mem_ctrl.mem_re);
+        dmem_req =  valid && (mem_ctrl.mem_we||mem_ctrl.mem_re);
         dmem_addr = ex_mem_reg.dmem_addr_s;
 
         dmem_wmask = '0;
