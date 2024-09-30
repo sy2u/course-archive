@@ -47,10 +47,12 @@ import rv32i_types::*;
     // Hazard Control
     logic   [31:0]      forward_mem_v, forward_wb_v;
     normal_fw_sel_t     forwardA, forwardB;
+    decode_fw_sel_t     fowarDe;
 
     forward forward( 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg), 
-        .forwardA(forwardA), .forwardB(forwardB), .mem_v(forward_mem_v), .wb_v(forward_wb_v));
+        .forwardA(forwardA), .forwardB(forwardB), .fowarDe(fowarDe),
+        .mem_v(forward_mem_v), .wb_v(forward_wb_v));
 
     // Connect Hardware
     logic           regf_we;
@@ -94,7 +96,8 @@ import rv32i_types::*;
         .regf_we(regf_we),
         .rd_v(rd_v),
         .rs1_s(rs1_s), .rs2_s(rs2_s), .rd_s(rd_sel),
-        .rs1_v(rs1_v), .rs2_v(rs2_v)
+        .rs1_v(rs1_v), .rs2_v(rs2_v),
+        .fowarDe(fowarDe)
     );
 
 endmodule : cpu

@@ -16,8 +16,8 @@ import rv32i_types::*;
     always_comb begin
         fowarDe = none_d;
         if( mem_wb_reg.wb_ctrl_s.regf_we && (mem_wb_reg.rd_s_s!=0) )begin
-            if( ex_mem_reg.rd_s_s == id_ex_reg.rs1_s_s ) fowarDe = rs1_f;
-            if( ex_mem_reg.rd_s_s == id_ex_reg.rs2_s_s ) fowarDe = rs2_f;
+            if( mem_wb_reg.rd_s_s == id_ex_reg.rs1_s_s ) fowarDe = rs1_f;
+            if( mem_wb_reg.rd_s_s == id_ex_reg.rs2_s_s ) fowarDe = rs2_f;
         end
     end
 
@@ -26,6 +26,7 @@ import rv32i_types::*;
         forwardA = none;
         forwardB = none;
         if( ex_mem_reg.wb_ctrl_s.regf_we && (ex_mem_reg.rd_s_s!=0) )begin
+            // ex_mem_reg stats have higher priority
             if( ex_mem_reg.rd_s_s == id_ex_reg.rs1_s_s ) forwardA = mem_ex;
             else if( mem_wb_reg.rd_s_s == id_ex_reg.rs1_s_s ) forwardA = wb_ex;
             if( ex_mem_reg.rd_s_s == id_ex_reg.rs2_s_s ) forwardB = mem_ex;

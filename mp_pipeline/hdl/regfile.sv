@@ -10,7 +10,7 @@ import rv32i_types::*;
     input   logic   [4:0]       rs1_s, rs2_s, rd_s,
     output  logic   [31:0]      rs1_v, rs2_v,
 
-    input   decode_fw_sel_t     decode_forward
+    input   decode_fw_sel_t     fowarDe
 );
 
     logic   [31:0]  data [32];
@@ -33,8 +33,8 @@ import rv32i_types::*;
             rs1_v = (rs1_s != 5'd0) ? data[rs1_s] : '0;
             rs2_v = (rs2_s != 5'd0) ? data[rs2_s] : '0;
             // forwarding
-            if( decode_forward == rs1_f )           rs1_v = rd_v;
-            else if ( decode_forward == rs2_f )     rs2_v = rd_v;
+            if( fowarDe == rs1_f )           rs1_v = rd_v;
+            else if ( fowarDe == rs2_f )     rs2_v = rd_v;
         end
     end
 

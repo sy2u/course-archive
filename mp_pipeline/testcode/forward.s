@@ -2,6 +2,8 @@
 .globl _start
 _start:
     # Decode
+    # Note: without implementing, this hazard also didn't occur
+    addi x1, x0, 4
     addi x1, x1, 1
     nop
     nop
