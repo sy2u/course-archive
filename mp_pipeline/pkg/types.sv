@@ -1,5 +1,14 @@
 package rv32i_types;
 
+////////////////
+// Forwarding //
+////////////////
+    typedef enum logic [1:0] {
+        none        =   2'b00,
+        mem_ex      =   2'b01,
+        wb_ex       =   2'b10
+    } forward_sel_t;
+
 //////////////////////////////////////////////////////
 // Merge what is in mp_verif/pkg/types.sv over here //
 //////////////////////////////////////////////////////

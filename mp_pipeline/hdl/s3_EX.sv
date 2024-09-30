@@ -8,11 +8,17 @@ import rv32i_types::*;
 
     output  logic   [4:0]       rs1_s,
     output  logic   [4:0]       rs2_s,
-    input   logic   [31:0]      rs1_v,
-    input   logic   [31:0]      rs2_v,
+    input   logic   [31:0]      reg_rs1_v,
+    input   logic   [31:0]      reg_rs2_v,
 
     input   id_ex_stage_reg_t   id_ex_reg,
-    output  ex_mem_stage_reg_t  ex_mem_reg
+    output  ex_mem_stage_reg_t  ex_mem_reg,
+
+    // forwarding inputs
+    input   ex_mem_stage_reg_t  ex_mem_curr,
+    input   mem_wb_stage_reg_t  mem_wb_curr,
+    input   forward_sel_t       forwardA,
+    input   forward_sel_t       forwardB
 );
 
     ex_ctrl_t       ex_ctrl;
@@ -30,6 +36,38 @@ import rv32i_types::*;
     assign  rs1_s = id_ex_reg.rs1_s_s;
     assign  rs2_s = id_ex_reg.rs2_s_s;
 
+    // Forwarding
+    logic   [31:0]  rs1_v, rs2_v;
+    always_comb begin
+        unique case (forwardA)
+            none:   rs1_v = reg_rs1_v;
+            mem_ex: begin
+                unique case (ex_mem_curr.wb_ctrl_s.rd_m_sel)
+                    u_imm_m_rd: rs1_v = ex_mem_curr.u_imm_s;
+                    alu_out_rd: rs1_v = ex_mem_curr.alu_out_s;
+                    ext_br:     rs1_v = {31'd0, ex_mem_curr.br_en_s}; 
+                    default:    rs1_v = 'x;
+                endcase
+            end
+            wb_ex:  rs1_v = mem_wb_curr.rs1_v_s; 
+            default: rs1_v = reg_rs1_v;
+        endcase
+        unique case (forwardB)
+            none:   rs2_v = reg_rs2_v;
+            mem_ex: begin
+                unique case (ex_mem_curr.wb_ctrl_s.rd_m_sel)
+                    u_imm_m_rd: rs2_v = ex_mem_curr.u_imm_s;
+                    alu_out_rd: rs2_v = ex_mem_curr.alu_out_s;
+                    ext_br:     rs2_v = {31'd0, ex_mem_curr.br_en_s}; 
+                    default:    rs2_v = 'x;
+                endcase
+            end
+            wb_ex:  rs2_v = mem_wb_curr.rs2_v_s; 
+            default: rs2_v = reg_rs2_v;
+        endcase  
+    end
+
+    // Basic Components
     always_comb begin
         // alu_mux
         unique case (ex_ctrl.alu_m1_sel)
