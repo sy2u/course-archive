@@ -78,20 +78,19 @@ import rv32i_types::*;
         .rs1_s(id_rs1), .rs2_s(id_rs2), .forward_stall(forward_stall)
     );
 
-    EX  stage_ex( .move(move),
+    EX  stage_ex( .move(move), .dmem_req(dmem_req),
         .rs1_s(rs1_s), .rs2_s(rs2_s), .reg_rs1_v(rs1_v), .reg_rs2_v(rs2_v), 
+        .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next),
         .forwardA(forwardA), .forwardB(forwardB), .forward_mem_v(forward_mem_v), .forward_wb_v(forward_wb_v)
     );
 
-    MEM stage_mem(
-        .move(move), .dmem_req(dmem_req),
-        .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
+    MEM stage_mem( .clk(clk),
+        .move(move), .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp),
         .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg_next)
     );
 
     WB  stage_wb( .move(move),
-        .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp),
         .regf_we(regf_we), .rd_sel(rd_sel), .rd_v(rd_v), 
         .mem_wb_reg(mem_wb_reg)
     );

@@ -6,9 +6,6 @@ import rv32i_types::*;
 (
     input   logic           move,
 
-    input   logic   [31:0]  dmem_rdata,
-    input   logic           dmem_resp,
-
     output  logic           regf_we,
     output  logic   [4:0]   rd_sel,
     output  logic   [31:0]  rd_v,
@@ -28,12 +25,16 @@ import rv32i_types::*;
     logic   [3:0]   mem_rmask, mem_wmask;
     logic   [31:0]  mem_wdata;
     logic   [4:0]   rd_s_monitor;
+    logic   [31:0]  dmem_rdata;
 
     // get value from prev reg
     always_comb begin
         wb_ctrl     = mem_wb_reg.wb_ctrl_s;
         mem_addr    = mem_wb_reg.mem_addr_s;
-        if( wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} ) regf_we = wb_ctrl.regf_we && dmem_resp; else regf_we = wb_ctrl.regf_we;
+        dmem_rdata =  mem_wb_reg.dmem_rdata_s;
+        br_en       = mem_wb_reg.br_en_s;
+        u_imm       = mem_wb_reg.u_imm_s;
+        alu_out     = mem_wb_reg.alu_out_s;
         // rvfi monitor
         rs1_v       = mem_wb_reg.rs1_v_s;
         rs2_v       = mem_wb_reg.rs2_v_s;
@@ -47,19 +48,16 @@ import rv32i_types::*;
         inst        = mem_wb_reg.inst_s;
         order       = mem_wb_reg.order_s;
         dmem_addr   = mem_wb_reg.dmem_addr_s;
-        br_en       = mem_wb_reg.br_en_s;
-        u_imm       = mem_wb_reg.u_imm_s;
-        alu_out     = mem_wb_reg.alu_out_s;
         // valid
         valid = 1'b0;
-        if( mem_wb_reg.valid_s )
-            valid = (wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw} && dmem_resp) || (!(wb_ctrl.rd_m_sel inside {lb,lbu,lh,lhu,lw}) && move);
+        if( mem_wb_reg.valid_s )    valid = move;
         // rd
         if( regf_we ) rd_s_monitor = rd_sel; else rd_s_monitor = '0;
     end
     
     // reg file big mux
     always_comb begin
+        regf_we = wb_ctrl.regf_we;
         rd_v = '0;
         rd_sel = mem_wb_reg.rd_s_s;
         unique case (wb_ctrl.rd_m_sel)

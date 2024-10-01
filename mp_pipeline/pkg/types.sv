@@ -200,6 +200,15 @@ package rv32i_types;
     } ex_mem_stage_reg_t;
 
     typedef struct packed {
+        // data for reg
+        logic               br_en_s;
+        logic   [31:0]      u_imm_s;
+        logic   [31:0]      alu_out_s;
+        logic   [4:0]       rd_s_s;
+        logic   [31:0]      dmem_addr_s;
+        logic   [31:0]      mem_addr_s;
+        wb_ctrl_t           wb_ctrl_s;
+        logic   [31:0]      dmem_rdata_s;
         // data: monitor
         logic   [31:0]      inst_s;
         logic   [31:0]      pc_s;
@@ -213,14 +222,6 @@ package rv32i_types;
         logic   [3:0]       mem_rmask_s;
         logic   [3:0]       mem_wmask_s;
         logic   [31:0]      mem_wdata_s;
-        // data for reg
-        logic               br_en_s;
-        logic   [31:0]      u_imm_s;
-        logic   [31:0]      alu_out_s;
-        logic   [4:0]       rd_s_s;
-        logic   [31:0]      dmem_addr_s;
-        logic   [31:0]      mem_addr_s;
-        wb_ctrl_t           wb_ctrl_s;
     } mem_wb_stage_reg_t;
 
 

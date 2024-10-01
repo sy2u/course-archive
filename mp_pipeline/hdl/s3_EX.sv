@@ -11,6 +11,12 @@ import rv32i_types::*;
     input   logic   [31:0]      reg_rs1_v,
     input   logic   [31:0]      reg_rs2_v,
 
+    output  logic               dmem_req,
+    output  logic   [31:0]      dmem_addr,
+    output  logic   [3:0]       dmem_rmask,
+    output  logic   [3:0]       dmem_wmask,
+    output  logic   [31:0]      dmem_wdata,
+
     input   id_ex_stage_reg_t   id_ex_reg,
     output  ex_mem_stage_reg_t  ex_mem_reg,
 
@@ -19,6 +25,9 @@ import rv32i_types::*;
     input   normal_fw_sel_t     forwardB,
     input   logic   [31:0]      forward_wb_v,
     input   logic   [31:0]      forward_mem_v
+
+    // branch
+    // output  logic   [31:0]      pc_next
 );
 
     ex_ctrl_t       ex_ctrl;
@@ -82,11 +91,11 @@ import rv32i_types::*;
 
     // pull dmem control signal one stage forward, otherwise can't meet timing req
     mem_ctrl_t      mem_ctrl;
-    logic   [31:0]  dmem_wdata;
-    logic   [3:0]   dmem_rmask, dmem_wmask;
-    logic   [31:0]  mem_addr, dmem_addr;
+    logic   [31:0]  mem_addr;
+    
     always_comb begin
         mem_ctrl = id_ex_reg.mem_ctrl_s;
+        dmem_req =  ex_mem_reg.valid_s && (mem_ctrl.mem_we||mem_ctrl.mem_re);
         mem_addr = alu_out;
         dmem_addr = alu_out;
         dmem_addr[1:0] = 2'd0;
@@ -94,28 +103,30 @@ import rv32i_types::*;
         dmem_rmask = '0;
         dmem_wdata = '0;
         // store: dmem write
-        if( mem_ctrl.mem_we )begin
-            unique case (mem_ctrl.funct3)
-                store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
-                store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
-                store_f3_sw: dmem_wmask = 4'b1111;
-                default    : dmem_wmask = '0;
-            endcase
-            unique case (mem_ctrl.funct3)
-                store_f3_sb: dmem_wdata[8 * mem_addr[1:0] +: 8 ] = rs2_v[7 :0];
-                store_f3_sh: dmem_wdata[16* mem_addr[1]   +: 16] = rs2_v[15:0];
-                store_f3_sw: dmem_wdata = rs2_v;
-                default    : dmem_wdata = 'x;
-            endcase
-        end
-        // load: dmem read
-        else if( mem_ctrl.mem_re )begin
-            unique case (mem_ctrl.funct3)
-                load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
-                load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];
-                load_f3_lw             : dmem_rmask = 4'b1111;
-                default                : dmem_rmask = '0;
-            endcase
+        if( dmem_req ) begin
+            if( mem_ctrl.mem_we )begin
+                unique case (mem_ctrl.funct3)
+                    store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
+                    store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
+                    store_f3_sw: dmem_wmask = 4'b1111;
+                    default    : dmem_wmask = '0;
+                endcase
+                unique case (mem_ctrl.funct3)
+                    store_f3_sb: dmem_wdata[8 * mem_addr[1:0] +: 8 ] = rs2_v[7 :0];
+                    store_f3_sh: dmem_wdata[16* mem_addr[1]   +: 16] = rs2_v[15:0];
+                    store_f3_sw: dmem_wdata = rs2_v;
+                    default    : dmem_wdata = 'x;
+                endcase
+            end
+            // load: dmem read
+            else if( mem_ctrl.mem_re )begin
+                unique case (mem_ctrl.funct3)
+                    load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
+                    load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];
+                    load_f3_lw             : dmem_rmask = 4'b1111;
+                    default                : dmem_rmask = '0;
+                endcase
+            end
         end
     end
 
