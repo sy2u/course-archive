@@ -8,8 +8,8 @@ _start:
     sw   x1, 0(x10)
     lw   x3, 0(x10)
     addi x2, x3, 1
-    # lw   x4, 0(x10)
-    # add  x5, x4, x2 # Bug Here
+    lw   x4, 0(x10)
+    add  x5, x4, x2 
     # Decode
     # Note: without implementing, this hazard also didn't occur (?)
     addi x1, x0, 0

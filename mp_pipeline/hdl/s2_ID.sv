@@ -24,7 +24,6 @@ import rv32i_types::*;
     mem_ctrl_t  mem_ctrl;
     wb_ctrl_t   wb_ctrl;
 
-    logic           valid;
     logic   [4:0]   rs1_addr, rs2_addr;
 
     logic   [31:0]  inst_store;

@@ -229,6 +229,7 @@ package rv32i_types;
 /////////////////////
     typedef enum logic [2:0] {
         idle        = 3'b100,
+        moving      = 3'b000,
         wait_imem   = 3'b001,
         wait_dmem   = 3'b010,
         imem_dmem   = 3'b011
