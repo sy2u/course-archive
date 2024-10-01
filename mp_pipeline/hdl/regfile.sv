@@ -33,8 +33,8 @@ import rv32i_types::*;
             rs1_v = (rs1_s != 5'd0) ? data[rs1_s] : '0;
             rs2_v = (rs2_s != 5'd0) ? data[rs2_s] : '0;
             // forwarding
-            if( fowarDe == rs1_f )           rs1_v = rd_v;
-            else if ( fowarDe == rs2_f )     rs2_v = rd_v;
+            if( fowarDe == rs1_f )           rs1_v = (rs1_s != 5'd0) ? rd_v : '0;
+            else if ( fowarDe == rs2_f )     rs2_v = (rs2_s != 5'd0) ? rd_v : '0;
         end
     end
 

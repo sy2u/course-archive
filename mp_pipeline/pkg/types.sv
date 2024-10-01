@@ -125,11 +125,11 @@ package rv32i_types;
 // Control Words //
 //////////////////
     typedef struct packed {
-        alu_m1_sel_t    alu_m1_sel;
-        alu_m2_sel_t    alu_m2_sel;
-        alu_ops_t       aluop;
-        cmp_m_sel_t     cmp_sel;
-        cmp_ops_t       cmpop;
+        alu_m1_sel_t        alu_m1_sel;
+        alu_m2_sel_t        alu_m2_sel;
+        alu_ops_t           aluop;
+        cmp_m_sel_t         cmp_sel;
+        cmp_ops_t           cmpop;
     } ex_ctrl_t;
 
     typedef struct packed {

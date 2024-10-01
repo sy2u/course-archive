@@ -36,11 +36,19 @@ def generate_i_shamt_type(instr):
     shamt = generate_shamt()
     return f"{instr} {rd}, {rs1}, {shamt}"
 
+def generate_aligned_imm():
+    return random.randint(-512, 511)  # Immediate value for I-type instructions (-2048 to 2047)
+
 # I-type instruction format (load)
 def generate_i_load_type(instr):
     rd = generate_register()
     rs1 = generate_register()
-    imm = generate_imm()
+    if instr in ['lh', 'lhu']:
+        imm = generate_aligned_imm() * 2
+    elif instr == 'lw':
+        imm = generate_aligned_imm() * 4
+    else:
+        imm = generate_imm()
     return f"{instr} {rd}, {imm}({rs1})"
 
 # U-type instruction format
@@ -53,7 +61,12 @@ def generate_u_type(instr):
 def generate_s_type(instr):
     rs1 = generate_register()
     rs2 = generate_register()
-    imm = generate_imm()
+    if instr == 'sh':
+        imm = generate_aligned_imm() * 2
+    elif instr == 'sw':
+        imm = generate_aligned_imm() * 4
+    else:
+        imm = generate_imm()
     return f"{instr} {rs2}, {imm}({rs1})"
 
 # Generate a random instruction based on the instruction format
@@ -62,6 +75,7 @@ def generate_instruction():
         'add', 'sub', 'sll', 'srl', 'sra', 'and', 'or', 'xor', 
         'slt', 'sltu', 'addi', 'slli', 'srli', 'srai', 'andi', 
         'ori', 'xori', 'slti', 'sltiu', 'lui', 'auipc', 
+        # 'sb', 'sh', 'sw', 'lb', 'lh', 'lw', 'lbu', 'lhu'
     ])
     
     if instr_type in ['add', 'sub', 'sll', 'srl', 'sra', 'and', 'or', 'xor', 'slt', 'sltu']:
@@ -82,7 +96,7 @@ def generate_asm_program(num_instructions):
     program = []
     for _ in range(num_instructions):
         program.append(generate_instruction())
-        program.extend(['nop'] * 5)  # Adding 5 nops between instructions
+        # program.extend(['nop'] * 5)  # Adding 5 nops between instructions
     # Append the magic instruction to end the simulation
     program.append("slti x0, x0, -256")
     return '\n'.join(program)

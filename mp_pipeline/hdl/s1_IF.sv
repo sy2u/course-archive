@@ -13,7 +13,10 @@ import rv32i_types::*;
     output  logic   [31:0]      imem_addr,
     output  logic   [3:0]       imem_rmask,
 
-    output  if_id_stage_reg_t   if_id_reg
+    output  if_id_stage_reg_t   if_id_reg,
+
+    // forwarding, stop fecth when load data hazard occur
+    input   logic               forward_stall
 );
 
     logic        valid;
@@ -26,7 +29,7 @@ import rv32i_types::*;
             pc <= 32'h1eceb000;
             order <= '0;
         end else begin
-            if( move ) begin
+            if( move && (!forward_stall) ) begin
                 pc <= pc_next;
                 order <= order_next;
             end
@@ -37,7 +40,7 @@ import rv32i_types::*;
         imem_addr = pc;
         pc_next = pc +'d4;
         order_next = order + 'd1;
-        if( move ) begin
+        if( move && (!forward_stall) ) begin
             valid = 1'b1; 
             imem_req = 1'b1;
             imem_rmask = '1;

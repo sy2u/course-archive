@@ -12,7 +12,12 @@ import rv32i_types::*;
     input   logic   [31:0]      imem_rdata,
 
     input   if_id_stage_reg_t   if_id_reg,
-    output  id_ex_stage_reg_t   id_ex_reg
+    output  id_ex_stage_reg_t   id_ex_reg,
+
+    // forwarding
+    output  logic   [4:0]       rs1_s,
+    output  logic   [4:0]       rs2_s,
+    input   logic               forward_stall
 );
 
     ex_ctrl_t   ex_ctrl;
@@ -32,7 +37,7 @@ import rv32i_types::*;
     logic   [31:0]  s_imm;
     logic   [31:0]  u_imm;
     logic   [4:0]   rd_s;
-    logic   [4:0]   rs1_s, rs2_s;
+    // logic   [4:0]   rs1_s, rs2_s;
 
 
     always_ff @( posedge clk ) begin
@@ -41,7 +46,8 @@ import rv32i_types::*;
 
     // control ROM
     always_comb begin
-        if(move && imem_resp) inst = imem_rdata; else inst = inst_store;
+        if(move && imem_resp)   inst = imem_rdata; 
+        else                    inst = inst_store;
 
         funct3 = inst[14:12];
         funct7 = inst[31:25];
@@ -205,6 +211,9 @@ import rv32i_types::*;
             id_ex_reg.rs1_s_s   = rs1_addr;
             id_ex_reg.rs2_s_s   = rs2_addr;
             id_ex_reg.rd_s_s    = rd_s;
+
+            // nop for data hazard
+            if( forward_stall ) id_ex_reg = '0;
     end
 
 endmodule

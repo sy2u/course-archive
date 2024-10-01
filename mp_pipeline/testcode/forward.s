@@ -1,9 +1,18 @@
 .section .text
 .globl _start
 _start:
+    # Load Hazard
+    lui  x10, 0x1ecec
+    addi x1, x0, 326
+    addi x2, x0, 20
+    sw   x1, 0(x10)
+    lw   x3, 0(x10)
+    addi x2, x3, 1
+    # lw   x4, 0(x10)
+    # add  x5, x4, x2 # Bug Here
     # Decode
-    # Note: without implementing, this hazard also didn't occur
-    addi x1, x0, 4
+    # Note: without implementing, this hazard also didn't occur (?)
+    addi x1, x0, 0
     addi x1, x1, 1
     nop
     nop
