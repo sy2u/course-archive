@@ -200,6 +200,7 @@ import rv32i_types::*;
                 ex_ctrl.cmp_sel = rs2_out_cmp;
                 rs1_addr = rs1_s;
                 rs2_addr = rs2_s;
+                rd_s = '0;
             end
             default: begin
             end

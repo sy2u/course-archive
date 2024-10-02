@@ -37,7 +37,7 @@ import rv32i_types::*;
 
     // Hazard Control
     logic               forward_stall;
-    logic   [31:0]      forward_mem_v, forward_wb_v;
+    logic   [31:0]      forward_mem_v;
     logic   [4:0]       id_rs1, id_rs2;
     normal_fw_sel_t     forwardA, forwardB;
     decode_fw_sel_t     fowarDe;
@@ -64,7 +64,7 @@ import rv32i_types::*;
     forward forward( 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg), 
         .forwardA(forwardA), .forwardB(forwardB), .regf_we(regf_we), .fowarDe(fowarDe),
-        .mem_v(forward_mem_v), .wb_v(forward_wb_v),
+        .mem_v(forward_mem_v),
         .id_rs1(id_rs1), .id_rs2(id_rs2), .forward_stall(forward_stall));
 
 
@@ -83,7 +83,7 @@ import rv32i_types::*;
         .rs1_s(rs1_s), .rs2_s(rs2_s), .reg_rs1_v(rs1_v), .reg_rs2_v(rs2_v), 
         .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next),
-        .forwardA(forwardA), .forwardB(forwardB), .forward_mem_v(forward_mem_v), .forward_wb_v(forward_wb_v),
+        .forwardA(forwardA), .forwardB(forwardB), .forward_mem_v(forward_mem_v), .forward_wb_v(rd_v),
         .pc_next(target_pc), .flush(flush)
     );
 
