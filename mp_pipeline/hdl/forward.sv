@@ -38,13 +38,13 @@ import rv32i_types::*;
         forwardA = none;
         forwardB = none;
         // ex_mem_reg data have higher priority
-        if  ( ex_mem_reg.wb_ctrl_s.regf_we && (ex_mem_reg.rd_s_s!=0) ) begin
-            if( ex_mem_reg.rd_s_s==id_ex_reg.rs1_s_s )  forwardA = mem_ex;
-            if( ex_mem_reg.rd_s_s==id_ex_reg.rs2_s_s )  forwardB = mem_ex;
-        end
-        else if ( mem_wb_reg.wb_ctrl_s.regf_we && (mem_wb_reg.rd_s_s!=0) ) begin
+        if ( mem_wb_reg.wb_ctrl_s.regf_we && (mem_wb_reg.rd_s_s!=0) ) begin
             if( mem_wb_reg.rd_s_s==id_ex_reg.rs1_s_s )  forwardA = wb_ex;
             if( mem_wb_reg.rd_s_s==id_ex_reg.rs2_s_s )  forwardB = wb_ex;
+        end
+        if ( ex_mem_reg.wb_ctrl_s.regf_we && (ex_mem_reg.rd_s_s!=0) ) begin
+            if( ex_mem_reg.rd_s_s==id_ex_reg.rs1_s_s )  forwardA = mem_ex;
+            if( ex_mem_reg.rd_s_s==id_ex_reg.rs2_s_s )  forwardB = mem_ex;
         end
     end
 

@@ -11,7 +11,7 @@ module top_tb;
     assign reg_v = dut.regfile.data;
 
     mem_itf_w_mask #(.CHANNELS(2)) mem_itf(.*);
-    n_port_pipeline_memory_32_w_mask #(.CHANNELS(2), .MAGIC(0)) mem(.itf(mem_itf)); // enable stall
+    n_port_pipeline_memory_32_w_mask #(.CHANNELS(2), .MAGIC(1)) mem(.itf(mem_itf)); // enable stall
     // random_tb random_tb(.itf(mem_itf), .reg_data(reg_v));
 
     mon_itf mon_itf(.*);
