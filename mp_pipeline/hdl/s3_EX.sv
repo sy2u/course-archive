@@ -24,31 +24,63 @@ import rv32i_types::*;
     input   normal_fw_sel_t     forwardA,
     input   normal_fw_sel_t     forwardB,
     input   logic   [31:0]      forward_wb_v,
-    input   logic   [31:0]      forward_mem_v
+    input   logic   [31:0]      forward_mem_v,
 
     // branch
-    // output  logic   [31:0]      pc_next
+    output  logic   [31:0]      pc_next,
+    output  logic               flush
 );
 
     ex_ctrl_t       ex_ctrl;
     logic           br_en;
     logic   [31:0]  cmp_b;
     logic   [31:0]  alu_a, alu_b, alu_out;
-    logic   [31:0]  u_imm, i_imm, s_imm, pc;
+    logic   [31:0]  u_imm, i_imm, s_imm, b_imm, j_imm, pc, inst;
+    logic   [31:0]  rs1_v, rs2_v;
 
     // get value from prev reg
     assign  ex_ctrl = id_ex_reg.ex_ctrl_s;
     assign  u_imm = id_ex_reg.u_imm_s;
     assign  i_imm = id_ex_reg.i_imm_s;
     assign  s_imm = id_ex_reg.s_imm_s;
-    assign  pc = id_ex_reg.pc_s;
+    assign  b_imm = id_ex_reg.b_imm_s;
+    assign  j_imm = id_ex_reg.j_imm_s;
+    assign  pc    = id_ex_reg.pc_s;
     assign  rs1_s = id_ex_reg.rs1_s_s;
     assign  rs2_s = id_ex_reg.rs2_s_s;
+    assign  inst  = id_ex_reg.inst_s;
 
     // Branch
+    logic   [6:0]   opcode;
+    always_comb begin
+        pc_next = id_ex_reg.pc_next_s;
+        opcode = inst[6:0];
+        flush = 1'b0;
+        unique case( opcode )
+            op_b_jal: begin
+                if( pc_next != (pc + j_imm) ) begin
+                    flush = 1'b1;
+                    pc_next = pc + j_imm;
+                end
+            end
+            op_b_jalr: begin
+                if( pc_next != ((rs1_v + i_imm) & 32'hfffffffe) ) begin
+                    flush = 1'b1;
+                    pc_next = (rs1_v + i_imm) & 32'hfffffffe;
+                end
+            end
+            op_b_br: begin
+                if( br_en ) begin
+                    if( pc_next != pc + b_imm )
+                    flush = 1'b1;
+                    pc_next = pc + b_imm;
+                end
+            end
+            default: begin end
+        endcase
+    end
 
     // Forwarding
-    logic   [31:0]  rs1_v, rs2_v;
     always_comb begin
         unique case (forwardA)
             none:   rs1_v = reg_rs1_v;
@@ -137,9 +169,9 @@ import rv32i_types::*;
             ex_mem_reg.valid_s      = '0;
             if( move && id_ex_reg.valid_s ) ex_mem_reg.valid_s = '1;
             ex_mem_reg.inst_s       = id_ex_reg.inst_s;
-            ex_mem_reg.pc_s         = id_ex_reg.pc_s;
-            ex_mem_reg.pc_next_s    = id_ex_reg.pc_next_s;
             ex_mem_reg.order_s      = id_ex_reg.order_s;
+            ex_mem_reg.pc_s         = id_ex_reg.pc_s;
+            ex_mem_reg.pc_next_s    = pc_next;
             ex_mem_reg.mem_ctrl_s   = mem_ctrl;
             ex_mem_reg.wb_ctrl_s    = id_ex_reg.wb_ctrl_s;
             ex_mem_reg.u_imm_s      = u_imm;

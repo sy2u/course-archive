@@ -18,7 +18,11 @@ import rv32i_types::*;
     output  if_id_stage_reg_t   if_id_reg,
 
     // forwarding, stop fecth when load data hazard occur
-    input   logic               forward_stall
+    input   logic               forward_stall,
+
+    // branch
+    input   logic   [31:0]      target_pc,
+    input   logic               flush
 );
 
     logic        valid;
@@ -27,8 +31,7 @@ import rv32i_types::*;
     logic [31:0] inst_store;
 
     assign  imem_addr = pc_next;
-    assign  order_next = order + 'd1;
-    
+
     // update pc
     always_ff @( posedge clk ) begin
         // pc and order control
@@ -48,12 +51,20 @@ import rv32i_types::*;
     always_comb begin
         if( rst ) begin
             pc_next = pc; 
+            order_next = order + 'd1;
             valid = 1'b0; 
             imem_req = 1'b1;
             imem_rmask = '1;
         end
         else begin
-            pc_next = pc +'d4;
+            if( flush ) begin
+                order_next = order - 'd1;
+                pc_next = target_pc;
+            end else begin
+                order_next = order + 'd1;
+                pc_next = pc +'d4;
+            end
+
             if( move && (!forward_stall) ) begin
                 valid = 1'b1; 
                 imem_req = 1'b1;
@@ -75,6 +86,9 @@ import rv32i_types::*;
         if_id_reg.pc_next_s = pc_next;
         if_id_reg.valid_s = valid;
         if_id_reg.order_s = order;
+
+        // nop for flush
+        if( flush ) if_id_reg = '0;
     end
 
 

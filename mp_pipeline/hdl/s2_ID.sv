@@ -12,7 +12,10 @@ import rv32i_types::*;
     // forwarding
     output  logic   [4:0]       rs1_s,
     output  logic   [4:0]       rs2_s,
-    input   logic               forward_stall
+    input   logic               forward_stall,
+
+    // branch
+    input   logic               flush
 );
 
     ex_ctrl_t   ex_ctrl;
@@ -21,8 +24,6 @@ import rv32i_types::*;
 
     logic   [4:0]   rs1_addr, rs2_addr;
 
-    logic   [31:0]  inst_store;
-
     logic   [31:0]  inst;
     logic   [2:0]   funct3;
     logic   [6:0]   funct7;
@@ -30,6 +31,8 @@ import rv32i_types::*;
     logic   [31:0]  i_imm;
     logic   [31:0]  s_imm;
     logic   [31:0]  u_imm;
+    logic   [31:0]  j_imm;
+    logic   [31:0]  b_imm;
     logic   [4:0]   rd_s;
 
     // control ROM
@@ -42,6 +45,8 @@ import rv32i_types::*;
         i_imm  = {{21{inst[31]}}, inst[30:20]};
         s_imm  = {{21{inst[31]}}, inst[30:25], inst[11:7]};
         u_imm  = {inst[31:12], 12'h000};
+        b_imm  = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
+        j_imm  = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
         rs1_s  = inst[19:15];
         rs2_s  = inst[24:20];
         rd_s   = inst[11:7];
@@ -177,22 +182,24 @@ import rv32i_types::*;
                 wb_ctrl.rd_m_sel = pc_incre;
                 wb_ctrl.regf_we = 1'b1;
                 // pc_next = pc + j_imm;
-                ex_ctrl.aluop = alu_op_add;
-                ex_ctrl.alu_m1_sel = pc_out;
-                ex_ctrl.alu_m2_sel = u_imm_m;
+                // ex_ctrl.aluop = alu_op_add;
+                // ex_ctrl.alu_m1_sel = pc_out;
+                // ex_ctrl.alu_m2_sel = j_imm_m;
             end
             op_b_jalr: begin
                 wb_ctrl.rd_m_sel = pc_incre;
                 wb_ctrl.regf_we = 1'b1;
+                rs1_addr = rs1_s;
                 // pc_next = (rs1_v + i_imm) & 32'hfffffffe;
-                // TODO: AND with fffe in EX stage
-                ex_ctrl.aluop = alu_op_add;
-                ex_ctrl.alu_m1_sel = rs1_out;
-                ex_ctrl.alu_m2_sel = i_imm_m;
+                // ex_ctrl.aluop = alu_op_add;
+                // ex_ctrl.alu_m1_sel = rs1_out;
+                // ex_ctrl.alu_m2_sel = i_imm_m;
             end
             op_b_br: begin
                 ex_ctrl.cmpop = cmp_ops_t'(funct3);
                 ex_ctrl.cmp_sel = rs2_out_cmp;
+                rs1_addr = rs1_s;
+                rs2_addr = rs2_s;
             end
             default: begin
             end
@@ -213,12 +220,15 @@ import rv32i_types::*;
             id_ex_reg.u_imm_s   = u_imm;
             id_ex_reg.s_imm_s   = s_imm;
             id_ex_reg.i_imm_s   = i_imm;
+            id_ex_reg.j_imm_s   = j_imm;
+            id_ex_reg.b_imm_s   = b_imm;
             id_ex_reg.rs1_s_s   = rs1_addr;
             id_ex_reg.rs2_s_s   = rs2_addr;
             id_ex_reg.rd_s_s    = rd_s;
 
-            // nop for data hazard
-            if( forward_stall ) id_ex_reg = '0;
+            // nop for data hazard / branch flush
+            if( forward_stall || flush ) id_ex_reg = '0;
+
     end
 
 endmodule

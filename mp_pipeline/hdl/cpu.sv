@@ -42,6 +42,10 @@ import rv32i_types::*;
     normal_fw_sel_t     forwardA, forwardB;
     decode_fw_sel_t     fowarDe;
 
+    // Branch
+    logic   [31:0]      target_pc;
+    logic               flush;
+
     // Connect Register File
     logic           regf_we;
     logic   [31:0]  rd_v;
@@ -67,10 +71,10 @@ import rv32i_types::*;
     IF  stage_if( .clk(clk), .rst(rst), .move(move),
         .imem_req(imem_req), .imem_resp(imem_resp), .imem_rdata(imem_rdata), .imem_addr(imem_addr), .imem_rmask(imem_rmask), 
         .if_id_reg(if_id_reg_next),
-        .forward_stall(forward_stall)
+        .forward_stall(forward_stall), .target_pc(target_pc), .flush(flush)
     );
 
-    ID  stage_id( .move(move),
+    ID  stage_id( .move(move), .flush(flush),
         .if_id_reg(if_id_reg), .id_ex_reg(id_ex_reg_next),
         .rs1_s(id_rs1), .rs2_s(id_rs2), .forward_stall(forward_stall)
     );
@@ -79,11 +83,12 @@ import rv32i_types::*;
         .rs1_s(rs1_s), .rs2_s(rs2_s), .reg_rs1_v(rs1_v), .reg_rs2_v(rs2_v), 
         .dmem_addr(dmem_addr), .dmem_rmask(dmem_rmask), .dmem_wmask(dmem_wmask), .dmem_wdata(dmem_wdata), 
         .id_ex_reg(id_ex_reg), .ex_mem_reg(ex_mem_reg_next),
-        .forwardA(forwardA), .forwardB(forwardB), .forward_mem_v(forward_mem_v), .forward_wb_v(forward_wb_v)
+        .forwardA(forwardA), .forwardB(forwardB), .forward_mem_v(forward_mem_v), .forward_wb_v(forward_wb_v),
+        .pc_next(target_pc), .flush(flush)
     );
 
-    MEM stage_mem( .clk(clk),
-        .move(move), .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp),
+    MEM stage_mem( .clk(clk), .move(move),
+        .dmem_rdata(dmem_rdata), .dmem_resp(dmem_resp),
         .ex_mem_reg(ex_mem_reg), .mem_wb_reg(mem_wb_reg_next)
     );
 
