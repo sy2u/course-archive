@@ -152,6 +152,7 @@ package rv32i_types;
         logic   [31:0]      pc_next_s;
         logic               valid_s;
         logic   [63:0]      order_s;
+        logic   [31:0]      inst_s;
     } if_id_stage_reg_t;
 
     typedef struct packed {

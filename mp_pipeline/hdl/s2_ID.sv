@@ -4,12 +4,7 @@
 module ID
 import rv32i_types::*;
 (
-    input   logic               clk,
-
     input   logic               move,
-
-    input   logic               imem_resp,
-    input   logic   [31:0]      imem_rdata,
 
     input   if_id_stage_reg_t   if_id_reg,
     output  id_ex_stage_reg_t   id_ex_reg,
@@ -36,17 +31,10 @@ import rv32i_types::*;
     logic   [31:0]  s_imm;
     logic   [31:0]  u_imm;
     logic   [4:0]   rd_s;
-    // logic   [4:0]   rs1_s, rs2_s;
-
-
-    always_ff @( posedge clk ) begin
-        if( imem_resp ) inst_store <= imem_rdata;
-    end
 
     // control ROM
     always_comb begin
-        if(move && imem_resp)   inst = imem_rdata; 
-        else                    inst = inst_store;
+        inst = if_id_reg.inst_s;
 
         funct3 = inst[14:12];
         funct7 = inst[31:25];

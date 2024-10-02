@@ -1,7 +1,23 @@
-module random_tb
-import rv32i_types::*;
+//-----------------------------------------------------------------------------
+// Title                 : random_tb
+// Project               : ECE 411 mp_verif
+//-----------------------------------------------------------------------------
+// File                  : random_tb.sv
+// Author                : ECE 411 Course Staff
+//-----------------------------------------------------------------------------
+// IMPORTANT: If you don't change the random seed, every time you do a `make run`
+// you will run the /same/ random test. SystemVerilog calls this "random stability",
+// and it's to ensure you can reproduce errors as you try to fix the DUT. Make sure
+// to change the random seed or run more instructions if you want more extensive
+// coverage.
+//------------------------------------------------------------------------------
+module random_tb 
+import rv32i_types::*; #(
+    parameter CHANNELS = 2
+)
 (
-    mem_itf_w_mask.mem itf
+    mem_itf_w_mask.mem itf,
+    input logic [31:0] reg_data[32]
 );
 
     `include "../../hvl/vcs/randinst.svh"
@@ -12,6 +28,10 @@ import rv32i_types::*;
     task init_register_state();
         for (int i = 0; i < 32; ++i) begin
             @(posedge itf.clk iff |itf.rmask[0]);
+            itf.rdata[0] <= 'x;
+            itf.resp[0] <= 1'b0;
+            repeat (2) @(posedge itf.clk);
+
             gen.randomize() with {
                 instr.j_type.opcode == op_b_lui;
                 instr.j_type.rd == i[4:0];
@@ -20,7 +40,15 @@ import rv32i_types::*;
             // Your code here: package these memory interactions into a task.
             itf.rdata[0] <= gen.instr.word;
             itf.resp[0] <= 1'b1;
-            @(posedge itf.clk) itf.resp[0] <= 1'b0;
+
+            repeat (2) begin
+                @(posedge itf.clk iff |itf.rmask[0]);
+
+                itf.rdata[0] <= 32'b0000000000000000000000000010011;
+                itf.resp[0] <= 1'b1;
+            end
+
+            // @(posedge itf.clk) itf.resp[0] = 1'b0; // Instruction memory never stalls for now.
         end
     endtask : init_register_state
 
@@ -28,56 +56,61 @@ import rv32i_types::*;
     // writes and always reads out a random, valid instruction.
     task run_random_instrs();
         repeat (5000) begin
-            @(posedge itf.clk iff (|itf.rmask[0] || |itf.wmask[0]));
+            @(posedge itf.clk iff |itf.rmask[0]);
+            itf.rdata[0] <= 'x;
+            itf.resp[0] <= 1'b0;
+            repeat (2) @(posedge itf.clk);
 
             // Always read out a valid instruction.
-            if (|itf.rmask[0]) begin
-                gen.randomize() with {
-                    if(instr.s_type.opcode == op_b_store) {
-                        if(instr.s_type.funct3 == store_f3_sw){
-                            (dut.regfile.data[instr.s_type.rs1] + instr.s_type.imm_s_bot) % 4 == 0;
-                        }
-                        if(instr.s_type.funct3 == store_f3_sh){
-                            (dut.regfile.data[instr.s_type.rs1] + instr.s_type.imm_s_bot) % 2 == 0;
-                        }
-                    }
-                    if(instr.i_type.opcode == op_b_load) {
-                        if(instr.i_type.funct3 == load_f3_lw){
-                            (dut.regfile.data[instr.i_type.rs1] + instr.i_type.i_imm) % 4 == 0;
-                        }
-                        if(instr.i_type.funct3 inside {load_f3_lh, load_f3_lhu}){
-                            (dut.regfile.data[instr.i_type.rs1] + instr.i_type.i_imm) % 2 == 0;
-                        }
-                    }
-                };
-                itf.rdata[0] <= gen.instr.word;
-            end
+            gen.update_regs(reg_data);
+            gen.randomize();
+            itf.rdata[0] <= gen.instr.word;
 
-            // If it's a write, do nothing and just respond.
             itf.resp[0] <= 1'b1;
-            @(posedge itf.clk) itf.resp[0] <= 1'b0;
+
+            // We have to insert 5 nops because otherwise
+            // the testbench won't be able to read the correct regfile
+            // to generate instruction that doesn't trap
+            repeat (5) begin
+                @(posedge itf.clk iff |itf.rmask[0]);
+                itf.rdata[0] <= 'x;
+                itf.resp[0] <= 1'b0;
+                repeat (2) @(posedge itf.clk);
+                itf.rdata[0] <= 32'b0000000000000000000000000010011;
+                itf.resp[0] <= 1'b1;
+            end
         end
     endtask : run_random_instrs
 
+    always_ff @(posedge itf.clk) begin
+        if (|itf.rmask[1] || |itf.wmask[1]) begin
+            itf.rdata[1] <= $urandom();
+            itf.resp[1] <= 1'b1;
+        end else begin
+            itf.rdata[1] <= 'x;
+            itf.resp[1] <= 1'b0;
+        end
+    end
+
     always @(posedge itf.clk iff !itf.rst) begin
-        if ($isunknown(itf.rmask[0]) || $isunknown(itf.wmask[0])) begin
-            $error("Memory Error: mask containes 1'bx");
-            itf.error <= 1'b1;
-        end
-        if ((|itf.rmask[0]) && (|itf.wmask[0])) begin
-            $error("Memory Error: Simultaneous memory read and write");
-            itf.error <= 1'b1;
-        end
-        if ((|itf.rmask[0]) || (|itf.wmask[0])) begin
-            if ($isunknown(itf.addr[0])) begin
-                $error("Memory Error: Address contained 'x");
+        for (int unsigned channel = 0; channel < CHANNELS; channel++) begin
+            if ($isunknown(itf.rmask[channel]) || $isunknown(itf.wmask[channel])) begin
+                $error("Memory Error: mask containes 'x");
                 itf.error <= 1'b1;
             end
-            // Only check for 16-bit alignment since instructions are
-            // allowed to be at 16-bit boundaries due to JALR.
-            if (itf.addr[0][0] != 1'b0) begin
-                $error("Memory Error: Address is not 16-bit aligned");
+            if ((|itf.rmask[channel]) && (|itf.wmask[channel])) begin
+                $error("Memory Error: simultaneous memory read and write");
                 itf.error <= 1'b1;
+            end
+            if ((|itf.rmask[channel]) || (|itf.wmask[channel])) begin
+                if ($isunknown(itf.addr[channel])) begin
+                    $error("Memory Error: address contained 'x");
+                    itf.error <= 1'b1;
+                end
+                if (itf.addr[channel][1:0] != 2'b00) begin
+                    $error("Memory Error: address is not 32-bit aligned");
+                    itf.error <= 1'b1;
+                end
             end
         end
     end
@@ -86,7 +119,7 @@ import rv32i_types::*;
     initial begin
 
         // Wait for reset.
-        @(posedge itf.clk iff itf.rst == 1'b0);
+        @(posedge itf.clk iff itf.rst == 1'b1);
 
         // Get some useful state into the processor by loading in a bunch of state.
         init_register_state();

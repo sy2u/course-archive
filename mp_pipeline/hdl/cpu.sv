@@ -64,16 +64,13 @@ import rv32i_types::*;
         .id_rs1(id_rs1), .id_rs2(id_rs2), .forward_stall(forward_stall));
 
 
-    IF  stage_if( .clk(clk), .rst(rst),
-        .move(move), .imem_req(imem_req), 
-        .imem_addr(imem_addr), .imem_rmask(imem_rmask), 
+    IF  stage_if( .clk(clk), .rst(rst), .move(move),
+        .imem_req(imem_req), .imem_resp(imem_resp), .imem_rdata(imem_rdata), .imem_addr(imem_addr), .imem_rmask(imem_rmask), 
         .if_id_reg(if_id_reg_next),
         .forward_stall(forward_stall)
     );
 
-    ID  stage_id( .clk(clk),
-        .move(move),
-        .imem_resp(imem_resp), .imem_rdata(imem_rdata),
+    ID  stage_id( .move(move),
         .if_id_reg(if_id_reg), .id_ex_reg(id_ex_reg_next),
         .rs1_s(id_rs1), .rs2_s(id_rs2), .forward_stall(forward_stall)
     );
