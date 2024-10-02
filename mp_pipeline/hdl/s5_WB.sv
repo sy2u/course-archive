@@ -69,6 +69,7 @@ import rv32i_types::*;
             lh : rd_v = {{16{dmem_rdata[15+16*mem_addr[1]  ]}}, dmem_rdata[16*mem_addr[1]   +: 16]};
             lhu: rd_v = {{16{1'b0}}                          , dmem_rdata[16*mem_addr[1]   +: 16]};
             lw : rd_v = dmem_rdata;
+            pc_incre: rd_v = pc + 'd4;
             default: rd_v = 'x;
         endcase
     end

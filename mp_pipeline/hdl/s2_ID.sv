@@ -184,10 +184,28 @@ import rv32i_types::*;
                     end
                 endcase
             end
-            // CP1/2: NO Jump or Branch
-            // op_b_jal:
-            // op_b_jalr:
-            // op_b_br:
+            // CP3 Only: Branch
+            op_b_jal: begin
+                wb_ctrl.rd_m_sel = pc_incre;
+                wb_ctrl.regf_we = 1'b1;
+                // pc_next = pc + j_imm;
+                ex_ctrl.aluop = alu_op_add;
+                ex_ctrl.alu_m1_sel = pc_out;
+                ex_ctrl.alu_m2_sel = u_imm_m;
+            end
+            op_b_jalr: begin
+                wb_ctrl.rd_m_sel = pc_incre;
+                wb_ctrl.regf_we = 1'b1;
+                // pc_next = (rs1_v + i_imm) & 32'hfffffffe;
+                // TODO: AND with fffe in EX stage
+                ex_ctrl.aluop = alu_op_add;
+                ex_ctrl.alu_m1_sel = rs1_out;
+                ex_ctrl.alu_m2_sel = i_imm_m;
+            end
+            op_b_br: begin
+                ex_ctrl.cmpop = cmp_ops_t'(funct3);
+                ex_ctrl.cmp_sel = rs2_out_cmp;
+            end
             default: begin
             end
         endcase

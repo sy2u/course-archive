@@ -118,7 +118,8 @@ package rv32i_types;
         lh          = 4'b0101,
         lhu         = 4'b0110,
         lw          = 4'b0111,
-        invalid_rd  = 4'b1000
+        invalid_rd  = 4'b1000,
+        pc_incre    = 4'b1001
     } rd_m_sel_t;
 
 ////////////////////

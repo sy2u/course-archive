@@ -45,6 +45,8 @@ import rv32i_types::*;
     assign  rs1_s = id_ex_reg.rs1_s_s;
     assign  rs2_s = id_ex_reg.rs2_s_s;
 
+    // Branch
+
     // Forwarding
     logic   [31:0]  rs1_v, rs2_v;
     always_comb begin
