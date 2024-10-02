@@ -137,30 +137,33 @@ import rv32i_types::*;
         dmem_rmask = '0;
         dmem_wdata = '0;
         // store: dmem write
-        if( dmem_req ) begin
-            if( mem_ctrl.mem_we )begin
-                unique case (mem_ctrl.funct3)
-                    store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
-                    store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
-                    store_f3_sw: dmem_wmask = 4'b1111;
-                    default    : dmem_wmask = '0;
-                endcase
-                unique case (mem_ctrl.funct3)
-                    store_f3_sb: dmem_wdata[8 * mem_addr[1:0] +: 8 ] = rs2_v[7 :0];
-                    store_f3_sh: dmem_wdata[16* mem_addr[1]   +: 16] = rs2_v[15:0];
-                    store_f3_sw: dmem_wdata = rs2_v;
-                    default    : dmem_wdata = 'x;
-                endcase
-            end
-            // load: dmem read
-            else if( mem_ctrl.mem_re )begin
-                unique case (mem_ctrl.funct3)
-                    load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
-                    load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];
-                    load_f3_lw             : dmem_rmask = 4'b1111;
-                    default                : dmem_rmask = '0;
-                endcase
-            end
+        if( mem_ctrl.mem_we )begin
+            unique case (mem_ctrl.funct3)
+                store_f3_sb: dmem_wmask = 4'b0001 << mem_addr[1:0];
+                store_f3_sh: dmem_wmask = 4'b0011 << mem_addr[1:0];
+                store_f3_sw: dmem_wmask = 4'b1111;
+                default    : dmem_wmask = '0;
+            endcase
+            unique case (mem_ctrl.funct3)
+                store_f3_sb: dmem_wdata[8 * mem_addr[1:0] +: 8 ] = rs2_v[7 :0];
+                store_f3_sh: dmem_wdata[16* mem_addr[1]   +: 16] = rs2_v[15:0];
+                store_f3_sw: dmem_wdata = rs2_v;
+                default    : dmem_wdata = 'x;
+            endcase
+        end
+        // load: dmem read
+        else if( mem_ctrl.mem_re )begin
+            unique case (mem_ctrl.funct3)
+                load_f3_lb, load_f3_lbu: dmem_rmask = 4'b0001 << mem_addr[1:0];
+                load_f3_lh, load_f3_lhu: dmem_rmask = 4'b0011 << mem_addr[1:0];
+                load_f3_lw             : dmem_rmask = 4'b1111;
+                default                : dmem_rmask = '0;
+            endcase
+        end
+        
+        if( !dmem_req ) begin
+            dmem_wmask = '0;
+            dmem_rmask = '0;
         end
     end
 
