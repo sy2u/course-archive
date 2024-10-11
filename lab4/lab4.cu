@@ -11,7 +11,7 @@
   } while (0)
 
 //@@ Define any useful program-wide constants here
-#define TILE_WIDTH  4
+#define TILE_WIDTH  8
 #define MASK_WIDTH  3
 
 //@@ Define constant memory for device kernel here
@@ -62,7 +62,6 @@ __global__ void conv3d(float *input, float *output, const int z_size,
     
   }
 }
-
 
 int main(int argc, char *argv[]) {
   wbArg_t args;
