@@ -66,6 +66,9 @@ int main(int argc, char **argv) {
 
   // The number of input elements in the input is numInputElements
   // The number of output elements in the input is numOutputElements
+  // wbLog(TRACE, "input length: ",numInputElements);
+  // wbLog(TRACE, "computed length: ",ceil(numInputElements/BLOCK_SIZE));
+  // wbLog(TRACE, "output length: ",numOutputElements);
 
   //@@ Allocate GPU memory
   cudaMalloc((void**)&deviceInput, sizeof(float)*numInputElements);
