@@ -5,7 +5,7 @@ module lru_array #(
     input   logic                   clk0,
     input   logic                   rst0,
     input   logic                   csb0,
-    input   logic                   web0,   // write_enable bar, so 0 means enable
+    input   logic                   web0,   // active low
     input   logic   [S_INDEX-1:0]   addr0,
     input   logic   [WIDTH-1:0]     din0,
     output  logic   [WIDTH-1:0]     dout0,
@@ -70,11 +70,11 @@ module lru_array #(
         dout1 = internal_array[addr1_reg];  // no one cares, it's write port
         // transparent LRU
         // addr0 - next_set, addr1 - curr_set
-        if( addr0 == addr1 ) begin
-            dout0 = din1;
-        end else if( addr0 == addr1_reg ) begin
-            dout0 = din1_reg;
-        end
+        // if( addr0 == addr1 ) begin
+        //     dout0 = din1;
+        // end else if( addr0 == addr1_reg ) begin
+        //     dout0 = din1_reg;
+        // end
     end
 
 endmodule : lru_array
