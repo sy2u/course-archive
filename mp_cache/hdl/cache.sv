@@ -1,4 +1,6 @@
-module cache (
+module cache 
+import cache_types::*;
+(
     input   logic           clk,
     input   logic           rst,
 
@@ -19,48 +21,175 @@ module cache (
     input   logic           dfp_resp
 );
 
+            logic               valid_array_re  [4];
+            logic   [255:0]     data_array_re   [4];
+            logic   [255:0]     data_array_wr   [4];
+            logic   [23:0]      tag_array_re    [4];
+            logic   [23:0]      tag_array_wr    [4];
+            logic   [31:0]      data_array_wmask[4];
+            logic               web0            [4];
+
+//////////////////////////////////////////////////////////
+///                    DECODE STAGE                    ///
+//////////////////////////////////////////////////////////
+
+    logic               csb0;
+    logic   [3:0]       next_set;
+    logic   [23:0]      next_tag;
+    logic   [2:0]       next_offset;
+
+    always_comb begin
+        next_set = ufp_addr[8:5];
+        next_tag = {1'b0, ufp_addr[31:9]};
+        next_offset = ufp_addr[4:2];
+
+        csb0 = 1'b1;
+        if( (ufp_rmask!=0) || (ufp_wmask!=0) ) csb0 = 1'b0;
+    end
+
+
+//////////////////////////////////////////////////////////
+///                   STAGE TRANSITION                 ///
+//////////////////////////////////////////////////////////
+
+    stage_reg_t         stage_reg;
+    logic       [2:0]   lru_out;
+
+    always_ff @( posedge clk ) begin
+        if( ufp_rmask ) begin
+            stage_reg.curr_addr <= ufp_addr;
+            stage_reg.curr_tag <= next_tag;
+            stage_reg.curr_set <= next_set;
+            stage_reg.curr_offset <= next_offset;
+            stage_reg.curr_lru <= lru_out;
+        end
+    end
+
+//////////////////////////////////////////////////////////
+///                    PROCESS STAGE                   ///
+//////////////////////////////////////////////////////////
+    
+    logic               csb1;
+    logic               hit;
+    logic   [31:0]      curr_addr;
+    logic   [23:0]      curr_tag;
+    logic   [3:0]       curr_set;
+    logic   [2:0]       curr_offset;
+    logic   [1:0]       evict_idx;
+
+    always_comb begin
+        curr_addr = stage_reg.curr_addr;
+        curr_tag = stage_reg.curr_tag;
+        curr_set = stage_reg.curr_set;
+        curr_offset = stage_reg.curr_offset;
+    end
+            
+    // hit detection
+    always_comb begin
+        ufp_resp = '0;
+        ufp_rdata = 'x;
+        hit = '0;
+        csb1 = '1;
+        for( int i = 0; i < 4; i++ ) begin
+            if( valid_array_re[i] ) begin
+                if( curr_tag == tag_array_re[i] ) begin
+                    hit = '1;
+                    ufp_resp = '1;
+                    ufp_rdata = data_array_re[i][32*curr_offset+:32];
+                    csb1 = '0;      // update lru array
+                end
+            end
+        end
+    end
+
+    // miss - access dfp and write back
+    always_comb begin
+        for( int i = 0; i < 4; i++ ) begin
+            web0[i] = '1;
+            tag_array_wr[i] = 'x;
+            data_array_wr[i] = 'x;
+        end
+        dfp_addr = 'x;
+        dfp_read = '0;
+        dfp_write = '0;
+        dfp_wdata = 'x;
+        
+        if( !hit ) begin
+            // miss control
+            dfp_addr = curr_addr;
+            dfp_read = '1;
+            if( dfp_resp ) begin
+                // write back to cache arrays
+                web0[evict_idx] = '0;
+                tag_array_wr[evict_idx] = curr_tag;
+                data_array_wr[evict_idx] = dfp_rdata;
+                data_array_wmask[evict_idx] = '1;       // replace the entire cache line
+            end
+        end
+    end
+
+
+//////////////////////////////////////////////////////////
+///                    CACHE MEMORY                    ///
+//////////////////////////////////////////////////////////
+
     generate for (genvar i = 0; i < 4; i++) begin : arrays
         mp_cache_data_array data_array (
-            .clk0       (),
-            .csb0       (),
-            .web0       (),
-            .wmask0     (),
-            .addr0      (),
-            .din0       (),
-            .dout0      ()
+            .clk0       (clk),
+            .csb0       (csb0),
+            .web0       (web0[i]),
+            .wmask0     (data_array_wmask[i]),
+            .addr0      (next_set),
+            .din0       (data_array_wr[i]),
+            .dout0      (data_array_re[i])
         );
         mp_cache_tag_array tag_array (
-            .clk0       (),
-            .csb0       (),
-            .web0       (),
-            .addr0      (),
-            .din0       (),
-            .dout0      ()
+            .clk0       (clk),
+            .csb0       (csb0),
+            .web0       (web0[i]),
+            .addr0      (next_set),
+            .din0       (tag_array_wr[i]),
+            .dout0      (tag_array_re[i])
         );
         valid_array valid_array (
-            .clk0       (),
-            .rst0       (),
-            .csb0       (),
-            .web0       (),
-            .addr0      (),
-            .din0       (),
-            .dout0      ()
+            .clk0       (clk),
+            .rst0       (rst),
+            .csb0       (csb0),
+            .web0       (web0[i]),
+            .addr0      (next_set),
+            .din0       (1'b1),
+            .dout0      (valid_array_re[i])
         );
     end endgenerate
 
+//////////////////////////////////////////////////////////
+///                    LRU CONTROL                     ///
+//////////////////////////////////////////////////////////
+
+    logic   [2:0]   lru_dou1;
+    logic   [2:0]   curr_lru, next_lru;
+
+    assign curr_lru = stage_reg.curr_lru;
+
+    lru_ctrl lru_ctrl (
+        .curr_lru(curr_lru),
+        .next_lru(next_lru),
+        .evict_idx(evict_idx)
+    );
+
     lru_array lru_array (
-        .clk0       (),
-        .rst0       (),
-        .csb0       (),
-        .web0       (),
-        .addr0      (),
-        .din0       (),
-        .dout0      (),
-        .csb1       (),
-        .web1       (),
-        .addr1      (),
-        .din1       (),
-        .dout1      ()
+        .clk0       (clk),
+        .rst0       (rst),
+        .csb0       (csb0), 
+        .web0       (1'b1),     // read current lru
+        .addr0      (next_set),
+        .din0       ('0),
+        .dout0      (lru_out),
+        .csb1       (csb1),
+        .web1       (1'b0),     // update next lru
+        .addr1      (curr_set),
+        .din1       (next_lru),
+        .dout1      (lru_dou1)
     );
 
 endmodule
