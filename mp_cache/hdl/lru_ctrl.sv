@@ -26,20 +26,20 @@ import cache_types::*;
         next_lru = curr_lru;
         unique case (access_way)
             2'b00: begin
-                next_lru[0] = 1'b0;
+                next_lru[2] = 1'b0;
                 next_lru[1] = 1'b0;
             end
             2'b01: begin
-                next_lru[0] = 1'b0;
+                next_lru[2] = 1'b0;
                 next_lru[1] = 1'b1;
             end
             2'b10: begin
-                next_lru[0] = 1'b1;
-                next_lru[2] = 1'b0;
+                next_lru[2] = 1'b1;
+                next_lru[0] = 1'b0;
             end
             2'b11: begin
-                next_lru[0] = 1'b1;
                 next_lru[2] = 1'b1;
+                next_lru[0] = 1'b1;
             end
             default:;
         endcase
