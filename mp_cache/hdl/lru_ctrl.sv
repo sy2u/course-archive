@@ -10,19 +10,6 @@ import cache_types::*;
 );
 
     always_comb begin
-        // if( evict ) begin
-        //     unique case (curr_lru)
-        //         3'b000:     next_lru = 3'b101;
-        //         3'b001:     next_lru = 3'b100;
-        //         3'b010:     next_lru = 3'b111;
-        //         3'b011:     next_lru = 3'b110;
-        //         3'b100:     next_lru = 3'b010;
-        //         3'b101:     next_lru = 3'b011;
-        //         3'b110:     next_lru = 3'b000;
-        //         3'b111:     next_lru = 3'b001;
-        //         default:    next_lru = 'x;
-        //     endcase
-        // end else begin
         next_lru = curr_lru;
         unique case (access_way)
             2'b00: begin
@@ -43,7 +30,6 @@ import cache_types::*;
             end
             default:;
         endcase
-        // end
     end
 
     always_comb begin
