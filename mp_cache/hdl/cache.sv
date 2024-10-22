@@ -36,18 +36,17 @@ import cache_types::*;
     req_t               new_req;
     logic               update_array, queued;
     logic   [3:0]       set_in;
-    logic   [22:0]      next_tag;
-    logic   [2:0]       next_offset;
+    logic   [22:0]      tag_in;
+    logic   [2:0]       offset_in;
 
     always_comb begin
         new_req = none;
         if(ufp_rmask != '0) new_req = read;
         if(ufp_wmask != '0) new_req = write;
-        queued = '0;
-        if((new_req!=none) && update_array) queued = '1;
+        queued = (new_req!=none) && update_array;
         set_in = ufp_addr[8:5];
-        next_tag = ufp_addr[31:9];
-        next_offset = ufp_addr[4:2];
+        tag_in = ufp_addr[31:9];
+        offset_in = ufp_addr[4:2];
     end
 
 //////////////////////////////////////////////////////////
@@ -70,9 +69,9 @@ import cache_types::*;
             curr_wdata      <= ufp_wdata;
             curr_req        <= new_req;
             curr_addr       <= ufp_addr;
-            curr_tag        <= next_tag;
+            curr_tag        <= tag_in;
             curr_set        <= set_in;
-            curr_offset     <= next_offset;
+            curr_offset     <= offset_in;
             curr_queued     <= queued;
         end
     end
