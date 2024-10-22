@@ -83,7 +83,7 @@ import cache_types::*;
 //////////////////////////////////////////////////////////
 
     process_state_t     curr_state, next_state;
-    logic               hit;
+    logic               hit, evict;
     logic   [1:0]       evict_way, access_way;
 
     // state transition
@@ -98,8 +98,10 @@ import cache_types::*;
     always_comb begin
         next_state = curr_state;
         unique case (curr_state)
-            compare:    if      ((curr_req!=none) && (!hit))    next_state = readmem;
+            compare:    if      ( evict )                       next_state = writemem;
+                        else if ((curr_req!=none) && (~hit))    next_state = readmem;
                         else if ((curr_req==write) && hit)      next_state = sramstall;
+            writemem:   if      ( dfp_resp )                    next_state = readmem;
             readmem:    if      ( dfp_resp )                    next_state = writeback;
             writeback:  if      ((curr_req==read) && hit)       next_state = compare;
                         else if ((curr_req==write) && hit)      next_state = sramstall;
@@ -123,6 +125,7 @@ import cache_types::*;
         ufp_resp = '0;
         ufp_rdata = 'x;
         dfp_read = '0;
+        evict = '0;
         unique case (curr_state)
             compare: begin
                 if( hit ) begin
@@ -138,14 +141,24 @@ import cache_types::*;
                         data_array_wmask[access_way] = 32'(curr_ufp_wmask << curr_addr[4:0]);
                     end
                 end else begin
-                    if( curr_req != none ) begin
-                        dfp_addr = curr_addr;
+                    if( tag_array_re[evict_way][23] & valid_array_re[evict_way] ) begin
+                        evict = '1;
+                        dfp_write = '1;
+                        dfp_addr = {tag_array_re[evict_way][22:0],curr_set,5'd0};
+                        dfp_wdata = data_array_re[evict_way];
+                    end else if( curr_req != none ) begin
+                        dfp_addr = {curr_addr[31:5], 5'd0};;
                         dfp_read = '1;
                     end
                 end
             end
+            writemem: begin
+                dfp_write = '1;
+                dfp_addr = {tag_array_re[evict_way][22:0],curr_set,5'd0};
+                dfp_wdata = data_array_re[evict_way];
+            end
             readmem: begin
-                dfp_addr = curr_addr;
+                dfp_addr = {curr_addr[31:5], 5'd0};
                 dfp_read = '1;
                 if( dfp_resp ) begin
                     update_array = '1;
@@ -183,7 +196,7 @@ import cache_types::*;
                 if( valid_array_re[i] ) begin
                     if( curr_tag == tag_array_re[i][22:0] ) begin
                         hit = '1;
-                        access_way = 2'(unsigned'(i));        
+                        access_way = 2'(unsigned'(i));   
                     end
                 end
             end
@@ -206,8 +219,8 @@ import cache_types::*;
         end
     end
 
-    assign csb1 = !ufp_resp;
-    assign csb0 = !((new_req!=none)|update_array|curr_queued);
+    assign csb1 = ~ufp_resp;
+    assign csb0 = ~((new_req!=none)|update_array|curr_queued);
 
     generate for (genvar i = 0; i < 4; i++) begin : arrays
         mp_cache_data_array data_array (
