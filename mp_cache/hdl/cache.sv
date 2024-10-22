@@ -33,17 +33,20 @@ import cache_types::*;
 ///                    DECODE STAGE                    ///
 //////////////////////////////////////////////////////////
 
-    logic               csb0;
-    logic               new_req, update_array;
-    logic   [3:0]       next_set;
-    logic   [23:0]      next_tag;
+    req_t               new_req;
+    logic               update_array, queued;
+    logic   [3:0]       set_in;
+    logic   [22:0]      next_tag;
     logic   [2:0]       next_offset;
 
-    assign new_req = ((ufp_rmask|ufp_wmask)!=0);
-
     always_comb begin
-        next_set = ufp_addr[8:5];
-        next_tag = {1'b0, ufp_addr[31:9]};
+        new_req = none;
+        if(ufp_rmask != '0) new_req = read;
+        if(ufp_wmask != '0) new_req = write;
+        queued = '0;
+        if((new_req!=none) && update_array) queued = '1;
+        set_in = ufp_addr[8:5];
+        next_tag = ufp_addr[31:9];
         next_offset = ufp_addr[4:2];
     end
 
@@ -51,39 +54,42 @@ import cache_types::*;
 ///                   STAGE TRANSITION                 ///
 //////////////////////////////////////////////////////////
 
-    logic               curr_req;
+    req_t               curr_req;
+    logic               curr_queued;
     logic   [31:0]      curr_addr, curr_wdata;
-    logic   [23:0]      curr_tag;
-    logic   [3:0]       curr_set, curr_ufp_rmask;
+    logic   [22:0]      curr_tag;
+    logic   [3:0]       curr_set, curr_ufp_wmask;
     logic   [2:0]       curr_offset;
     
     always_ff @( posedge clk ) begin
         if( rst ) begin
-            curr_ufp_rmask  <= '0;
-            curr_req        <= '0;
-        end else if( ufp_resp | new_req ) begin
-            curr_ufp_rmask  <= ufp_rmask;
+            curr_req        <= none;
+            curr_ufp_wmask  <= '0;
+        end else if( ufp_resp | (new_req!=none) ) begin
+            curr_ufp_wmask  <= ufp_wmask;
+            curr_wdata      <= ufp_wdata;
             curr_req        <= new_req;
             curr_addr       <= ufp_addr;
             curr_tag        <= next_tag;
-            curr_set        <= next_set;
+            curr_set        <= set_in;
             curr_offset     <= next_offset;
-            curr_wdata      <= ufp_wdata;
+            curr_queued     <= queued;
         end
     end
+
 
 //////////////////////////////////////////////////////////
 ///                    PROCESS STAGE                   ///
 //////////////////////////////////////////////////////////
 
     process_state_t     curr_state, next_state;
-    logic               hit, csb1;
+    logic               hit;
     logic   [1:0]       evict_way, access_way;
 
     // state transition
     always_ff @( posedge clk ) begin
         if( rst ) begin
-            curr_state <= compare;
+            curr_state <= sramstall;
         end else begin
             curr_state <= next_state;
         end
@@ -92,9 +98,12 @@ import cache_types::*;
     always_comb begin
         next_state = curr_state;
         unique case (curr_state)
-            compare: if( curr_req && (!hit) )   next_state = readmem;
-            readmem: if( dfp_resp )             next_state = write;
-            write:   if( hit )                  next_state = compare;
+            compare:    if      ((curr_req!=none) && (!hit))    next_state = readmem;
+                        else if ((curr_req==write) && hit)      next_state = sramstall;
+            readmem:    if      ( dfp_resp )                    next_state = writeback;
+            writeback:  if      ((curr_req==read) && hit)       next_state = compare;
+                        else if ((curr_req==write) && hit)      next_state = sramstall;
+            sramstall:                                          next_state = compare;
             default:;
         endcase
     end
@@ -116,11 +125,20 @@ import cache_types::*;
         dfp_read = '0;
         unique case (curr_state)
             compare: begin
-                if( curr_req ) begin
-                    if( hit ) begin
+                if( hit ) begin
+                    if( curr_req == read ) begin
                         ufp_resp = '1; 
                         ufp_rdata = data_array_re[access_way][32*curr_offset+:32];
-                    end else begin
+                    end else if ( curr_req == write ) begin
+                        ufp_resp = '1;
+                        update_array = '1;
+                        web0[access_way] = '0;
+                        tag_array_wr[access_way] = {1'b1,curr_tag};
+                        data_array_wr[access_way][32*curr_offset+:32] = curr_wdata;
+                        data_array_wmask[access_way] = 32'(curr_ufp_wmask << curr_addr[4:0]);
+                    end
+                end else begin
+                    if( curr_req != none ) begin
                         dfp_addr = curr_addr;
                         dfp_read = '1;
                     end
@@ -132,15 +150,24 @@ import cache_types::*;
                 if( dfp_resp ) begin
                     update_array = '1;
                     web0[evict_way] = '0;
-                    tag_array_wr[evict_way] = curr_tag;
+                    tag_array_wr[evict_way] = {1'b0,curr_tag};
                     data_array_wr[evict_way] = dfp_rdata;
                     data_array_wmask[evict_way] = '1;       // replace the entire cache line
                 end
             end
-            write: begin
+            writeback: begin
                 if( hit ) begin
-                    ufp_resp = '1; 
-                    ufp_rdata = data_array_re[access_way][32*curr_offset+:32];
+                    if( curr_req == read ) begin
+                        ufp_resp = '1; 
+                        ufp_rdata = data_array_re[access_way][32*curr_offset+:32];
+                    end else if (curr_req == write) begin
+                        ufp_resp = '1;
+                        update_array = '1;
+                        web0[access_way] = '0;
+                        tag_array_wr[access_way] = {1'b1,curr_tag};
+                        data_array_wr[access_way][32*curr_offset+:32] = curr_wdata;
+                        data_array_wmask[access_way] = 32'(curr_ufp_wmask << curr_addr[4:0]);
+                    end
                 end
             end
             default:;
@@ -151,10 +178,10 @@ import cache_types::*;
     always_comb begin
         hit = '0;
         access_way = 'x;
-        if( curr_req ) begin
+        if( curr_req != none ) begin
             for( int i = 0; i < 4; i++ ) begin
                 if( valid_array_re[i] ) begin
-                    if( curr_tag == tag_array_re[i] ) begin
+                    if( curr_tag == tag_array_re[i][22:0] ) begin
                         hit = '1;
                         access_way = 2'(unsigned'(i));        
                     end
@@ -169,17 +196,18 @@ import cache_types::*;
 //////////////////////////////////////////////////////////
 
     logic   [3:0]   addr;
+    logic           csb0, csb1;
 
     always_comb begin
-        if( update_array ) begin
+        if( update_array | curr_queued ) begin
             addr = curr_set;
         end else begin
-            addr = next_set;
+            addr = set_in;
         end
     end
 
-    assign csb1 = !ufp_resp;  // active low, update lru when new hit occurs
-    assign csb0 = !(new_req|update_array); // active low
+    assign csb1 = !ufp_resp;
+    assign csb0 = !((new_req!=none)|update_array|curr_queued);
 
     generate for (genvar i = 0; i < 4; i++) begin : arrays
         mp_cache_data_array data_array (
@@ -227,9 +255,9 @@ import cache_types::*;
     lru_array lru_array (
         .clk0       (clk),
         .rst0       (rst),
-        .csb0       (!new_req), 
+        .csb0       (new_req==none), 
         .web0       (1'b1),     // read current lru
-        .addr0      (next_set),
+        .addr0      (set_in),
         .din0       ('0),
         .dout0      (curr_lru),
         .csb1       (csb1),

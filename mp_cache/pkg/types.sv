@@ -11,10 +11,17 @@ package cache_types;
     // } stage_reg_t;
 
     typedef enum logic [1:0] {
-        compare = 2'b00,
-        readmem = 2'b01,
-        write   = 2'b10
+        compare     = 2'b00,
+        readmem     = 2'b01,
+        writeback   = 2'b10,
+        sramstall   = 2'b11
     } process_state_t;
+
+    typedef enum logic [1:0] {
+        none    = 2'b00,
+        read    = 2'b01,
+        write   = 2'b10
+    } req_t;
 
     // typedef enum logic [1:0] {
     //     way_A = 2'b00,
