@@ -28,6 +28,10 @@ module lru_array #(
 
             logic   [WIDTH-1:0]     internal_array [NUM_SETS];
 
+
+    logic   csb1_reg;
+
+
     always_ff @(posedge clk0) begin
         if (rst0) begin
             web0_reg  <= 1'b1;
@@ -36,6 +40,7 @@ module lru_array #(
             web1_reg  <= 1'b1;
             addr1_reg <= 'x;
             din1_reg  <= 'x;
+            csb1_reg <= '0;
         end else begin
             if (!csb0) begin
                 web0_reg  <= web0;
@@ -47,6 +52,7 @@ module lru_array #(
                 addr1_reg <= addr1;
                 din1_reg  <= din1;
             end
+            csb1_reg <= csb1;
         end
     end
 
@@ -70,11 +76,9 @@ module lru_array #(
         dout1 = internal_array[addr1_reg];  // no one cares, it's write port
         // transparent LRU
         // addr0 - next_set, addr1 - curr_set
-        // if( addr0 == addr1 ) begin
-        //     dout0 = din1;
-        // end else if( addr0 == addr1_reg ) begin
-        //     dout0 = din1_reg;
-        // end
+        if( (!csb1_reg) && (addr0_reg == addr1_reg) ) begin
+            dout0 = din1_reg;
+        end
     end
 
 endmodule : lru_array

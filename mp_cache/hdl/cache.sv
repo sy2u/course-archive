@@ -34,20 +34,20 @@ import cache_types::*;
 //////////////////////////////////////////////////////////
 
     logic               csb0;
-    logic               read_data, update_array;
+    logic               new_req, update_array;
     logic   [3:0]       next_set;
     logic   [23:0]      next_tag;
     logic   [2:0]       next_offset;
 
-    assign csb0 = (!read_data) && (!update_array); // active low
+    assign csb0 = !(new_req || update_array); // active low
 
     always_comb begin
+        new_req = '0;
+
+        if( ufp_rmask || ufp_wmask ) new_req = '1;
         next_set = ufp_addr[8:5];
         next_tag = {1'b0, ufp_addr[31:9]};
         next_offset = ufp_addr[4:2];
-
-        read_data = '0;
-        if( (ufp_rmask!=0) || (ufp_wmask!=0) ) read_data = '1;
     end
 
 
@@ -55,54 +55,56 @@ import cache_types::*;
 ///                   STAGE TRANSITION                 ///
 //////////////////////////////////////////////////////////
 
-    stage_reg_t         stage_reg;
+    logic               curr_req;
+    logic   [31:0]      curr_addr;
+    logic   [23:0]      curr_tag;
+    logic   [3:0]       curr_set, curr_ufp_rmask;
+    logic   [2:0]       curr_offset;
     
     always_ff @( posedge clk ) begin
-        if( ufp_rmask ) begin
-            stage_reg.curr_addr <= ufp_addr;
-            stage_reg.curr_tag <= next_tag;
-            stage_reg.curr_set <= next_set;
-            stage_reg.curr_offset <= next_offset;
+        if( rst ) begin
+            curr_ufp_rmask <= '0;
+            curr_req <= '0;
+        end else if( ufp_resp || ufp_rmask ) begin
+            curr_addr <= ufp_addr;
+            curr_tag <= next_tag;
+            curr_set <= next_set;
+            curr_offset <= next_offset;
+            curr_ufp_rmask <= ufp_rmask;
+            curr_req <= new_req;
         end
     end
 
 //////////////////////////////////////////////////////////
 ///                    PROCESS STAGE                   ///
 //////////////////////////////////////////////////////////
-    
+
+    process_state_t     curr_state, next_state;
     logic               hit, csb1;
-    logic   [31:0]      curr_addr;
-    logic   [23:0]      curr_tag;
-    logic   [3:0]       curr_set;
-    logic   [2:0]       curr_offset;
-    logic   [1:0]       evict_idx;
+    logic   [1:0]       evict_way, access_way;
 
-    assign csb1 = !hit;  // active low, update lru when hit occurs
+    assign csb1 = !ufp_resp;  // active low, update lru when new hit occurs
 
-    always_comb begin
-        curr_addr = stage_reg.curr_addr;
-        curr_tag = stage_reg.curr_tag;
-        curr_set = stage_reg.curr_set;
-        curr_offset = stage_reg.curr_offset;
-    end
-            
-    // hit detection
-    always_comb begin
-        ufp_resp = '0;
-        ufp_rdata = 'x;
-        hit = '0;
-        for( int i = 0; i < 4; i++ ) begin
-            if( valid_array_re[i] ) begin
-                if( curr_tag == tag_array_re[i] ) begin
-                    hit = '1;
-                    ufp_resp = '1;
-                    ufp_rdata = data_array_re[i][32*curr_offset+:32];
-                end
-            end
+    // state transition
+    always_ff @( posedge clk ) begin
+        if( rst ) begin
+            curr_state <= compare;
+        end else begin
+            curr_state <= next_state;
         end
     end
 
-    // miss - access dfp and write back
+    always_comb begin
+        next_state = curr_state;
+        unique case (curr_state)
+            compare: if( curr_req && (!hit) ) next_state = readmem;
+            readmem: if( dfp_resp ) next_state = write;
+            write:   if( hit ) next_state = compare;
+            default:;
+        endcase
+    end
+
+    // signal control
     always_comb begin
         for( int i = 0; i < 4; i++ ) begin
             web0[i] = '1;
@@ -110,23 +112,57 @@ import cache_types::*;
             data_array_wr[i] = 'x;
         end
         dfp_addr = 'x;
-        dfp_read = '0;
         dfp_write = '0;
         dfp_wdata = 'x;
         update_array = '0;
-        
-        if( !hit ) begin
-            // miss control
-            dfp_addr = curr_addr;
-            dfp_read = '1;
-            if( dfp_resp ) begin
-                dfp_read = '0;
-                // write back to cache arrays
-                update_array = '1;
-                web0[evict_idx] = '0;
-                tag_array_wr[evict_idx] = curr_tag;
-                data_array_wr[evict_idx] = dfp_rdata;
-                data_array_wmask[evict_idx] = '1;       // replace the entire cache line
+        ufp_resp = '0;
+        ufp_rdata = 'x;
+        dfp_read = '0;
+        unique case (curr_state)
+            compare: begin
+                if( curr_req ) begin
+                    if( hit ) begin
+                        ufp_resp = '1; 
+                        ufp_rdata = data_array_re[access_way][32*curr_offset+:32];
+                    end else begin
+                        dfp_addr = curr_addr;
+                        dfp_read = '1;
+                    end
+                end
+            end
+            readmem: begin
+                dfp_addr = curr_addr;
+                dfp_read = '1;
+                if( dfp_resp ) begin
+                    update_array = '1;
+                    web0[evict_way] = '0;
+                    tag_array_wr[evict_way] = curr_tag;
+                    data_array_wr[evict_way] = dfp_rdata;
+                    data_array_wmask[evict_way] = '1;       // replace the entire cache line
+                end
+            end
+            write: begin
+                if( hit ) begin
+                    ufp_resp = '1; 
+                    ufp_rdata = data_array_re[access_way][32*curr_offset+:32];
+                end
+            end
+            default:;
+        endcase
+    end
+            
+    // hit detection
+    always_comb begin
+        hit = '0;
+        access_way = 'x;
+        if( curr_req ) begin
+            for( int i = 0; i < 4; i++ ) begin
+                if( valid_array_re[i] ) begin
+                    if( curr_tag == tag_array_re[i] ) begin
+                        hit = '1;
+                        access_way = 2'(i);        
+                    end
+                end
             end
         end
     end
@@ -182,11 +218,11 @@ import cache_types::*;
     logic   [2:0]   lru_dout1;
     logic   [2:0]   curr_lru, next_lru;
 
-
     lru_ctrl lru_ctrl (
         .curr_lru(curr_lru),
         .next_lru(next_lru),
-        .evict_idx(evict_idx)
+        .access_way(access_way),
+        .evict_way(evict_way)
     );
 
     lru_array lru_array (
