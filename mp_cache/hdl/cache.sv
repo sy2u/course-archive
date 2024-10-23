@@ -279,7 +279,7 @@ import cache_types::*;
     lru_array lru_array (
         .clk0       (clk),
         .rst0       (rst),
-        .csb0       (new_req==none), 
+        .csb0       (stall), 
         .web0       (1'b1),     // read current lru
         .addr0      (set_in),
         .din0       ('0),
