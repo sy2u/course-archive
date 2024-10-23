@@ -5,7 +5,8 @@ package cache_types;
         readmem     = 3'b001,
         writeback   = 3'b010,
         sramstall   = 3'b011,
-        writemem    = 3'b100
+        writemem    = 3'b100,
+        idle        = 3'b101
     } process_state_t;
 
     typedef enum logic [1:0] {
