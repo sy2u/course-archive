@@ -134,11 +134,10 @@ import cache_types::*;
                     stall = '1;
                     if( hit ) begin
                         stall = '0;
+                        ufp_resp = '1; 
                         if( curr_req == read ) begin
-                            ufp_resp = '1; 
                             ufp_rdata = data_array_re[access_way][32*curr_offset+:32];
                         end else if ( curr_req == write ) begin
-                            ufp_resp = '1;
                             update_array = '1;
                             web0[access_way] = '0;
                             tag_array_wr[access_way] = {1'b1,curr_tag};
@@ -223,7 +222,7 @@ import cache_types::*;
     logic           csb0, csb1;
 
     always_comb begin
-        if( update_array | curr_queued ) begin
+        if( update_array | (curr_queued&(~ufp_resp)) ) begin
             addr = curr_set;
         end else begin
             addr = set_in;
