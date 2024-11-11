@@ -5,8 +5,6 @@
 #define TILE_WIDTH 16
 #define BLOCK_SIZE 256
 
-#define ceil(x, y) (((x) + (y) - 1) / (y))
-
 __global__ void matrix_unrolling_kernel(const float *input, float *output,
                                         const int Batch, const int Channel,
                                         const int Height, const int Width,
