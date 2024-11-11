@@ -5,6 +5,8 @@
 #define TILE_WIDTH 16
 #define BLOCK_SIZE 256
 
+#define ceil(x, y) (((x) + (y) - 1) / (y))
+
 __global__ void matrix_unrolling_kernel(const float *input, float *output,
                                         const int Batch, const int Channel,
                                         const int Height, const int Width,
@@ -23,19 +25,42 @@ __global__ void matrix_unrolling_kernel(const float *input, float *output,
     */
     const int Height_out = Height - K + 1;
     const int Width_out = Width - K + 1;
-    (void)Height_out; // silence declared but never referenced warning. remove this line when you start working
-    (void)Width_out; // silence declared but never referenced warning. remove this line when you start working
+    // (void)Height_out; // silence declared but never referenced warning. remove this line when you start working
+    // (void)Width_out; // silence declared but never referenced warning. remove this line when you start working
 
     // We have some nice #defs for you below to simplify indexing. Feel free to use them, or create your own.
     // An example use of these macros:
     // float a = in_4d(0,0,0,0)
 
     #define in_4d(i3, i2, i1, i0) input[(i3) * (Channel * Height * Width) + (i2) * (Height * Width) + (i1) * (Width) + i0]
-
-    // TODO: Insert your input matrix unrolling kernel code here
     
+    // TODO: Insert your input matrix unrolling kernel code here
+    // int Height_unrolled = K * K * Channel;
+    int Width_unrolled = Batch * Height_out * Width_out;
+
+    #define out_3d(i2, i1, i0) output[(i2) * (Height_out * Width_out) + (i1) * (Width_unrolled) + i0]
+
+    // int H_grid = (Height_out + TILE_WIDTH - 1) / TILE_WIDTH;
+    int W_grid = (Width_out + TILE_WIDTH - 1) / TILE_WIDTH;
+
+    int b = blockIdx.z;
+    int c = blockIdx.x;
+    int h = (blockIdx.y / W_grid) * TILE_WIDTH + threadIdx.y;
+    int w = (blockIdx.y % W_grid) * TILE_WIDTH + threadIdx.x;
+
+    if( h < Height_out && w < Width_out ){
+        int w_base = c * (K*K);
+        for( int p = 0; p < K; p++ ){
+            for( int q = 0; q < K; q++ ){
+                int h_unroll = w_base + p * K + q;
+                int w_unroll = h * Width_out + w;
+                out_3d(b, h_unroll, w_unroll) = in_4d(b ,c, h+p, w+q);
+            }
+        }
+    } 
 
     #undef in_4d
+    #undef out_3d
 }
 
 // Tiled matrix multiplication kernel. Computes C = AB
@@ -95,20 +120,26 @@ __global__ void matrix_permute_kernel(const float *input, float *output, int Map
     }
 }
 
+
 __host__ void GPUInterface::conv_forward_gpu_prolog(const float *host_output, const float *host_input, const float *host_mask, float **device_output_ptr, float **device_input_ptr, float **device_mask_ptr, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
 {
     // TODO: Allocate memory and copy over the relevant data structures to the GPU
-
     // We pass double pointers for you to initialize the relevant device pointers,
-    //  which are passed to the other two functions.
+    // which are passed to the other two functions.
+    cudaMalloc(device_input_ptr, sizeof(float)*Batch*Channel*Height*Width);
+    cudaMalloc(device_mask_ptr, sizeof(float)*K*K*Channel*Map_out);
+    cudaMalloc(device_output_ptr, sizeof(float)*Batch*(Height-K+1)*(Width-K+1)*Map_out);
+
+    cudaMemcpy(*device_input_ptr, host_input, sizeof(float)*Batch*Channel*Height*Width, cudaMemcpyHostToDevice);
+    cudaMemcpy(*device_mask_ptr, host_mask,  sizeof(float)*K*K*Channel*Map_out, cudaMemcpyHostToDevice);
 
     // Useful snippet for error checking
-    // cudaError_t error = cudaGetLastError();
-    // if(error != cudaSuccess)
-    // {
-    //     std::cout<<"CUDA error: "<<cudaGetErrorString(error)<<std::endl;
-    //     exit(-1);
-    // }
+    cudaError_t error = cudaGetLastError();
+    if(error != cudaSuccess)
+    {
+        std::cout<<"CUDA error: "<<cudaGetErrorString(error)<<std::endl;
+        exit(-1);
+    }
 
 }
 
@@ -126,8 +157,15 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_output, const float *
     cudaMalloc((void**)&matmul_output, (Batch * Map_out * Height_out * Width_out) * sizeof(float));
 
     // TODO: Set the kernel dimensions and call the matrix unrolling kernel.
+    dim3 Grid_unroll(Channel, (Height_out+TILE_WIDTH-1)/TILE_WIDTH * (Width_out+TILE_WIDTH-1)/TILE_WIDTH, Batch);
+    dim3 Block_unroll(TILE_WIDTH, TILE_WIDTH, 1);
+    matrix_unrolling_kernel<<<Grid_unroll,Block_unroll>>>(device_input,unrolled_matrix, Batch, Channel, Height, Width, K);
 
     // TODO: Set the kernel dimensions and call the matmul kernel
+    dim3 Grid_matmul((Width_unrolled+TILE_WIDTH-1)/TILE_WIDTH, (Map_out+TILE_WIDTH-1)/TILE_WIDTH, 1);
+    dim3 Block_matmul(TILE_WIDTH, TILE_WIDTH, 1);
+    matrixMultiplyShared<<<Grid_matmul,Block_matmul>>>(device_mask, unrolled_matrix, matmul_output, 
+        Map_out, Height_unrolled, Height_unrolled, Width_unrolled, Map_out, Width_unrolled);
 
     // Permute the result of matrix multiplication
     const int out_image_size = Height_out * Width_out;
@@ -144,8 +182,14 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_output, const float *
 __host__ void GPUInterface::conv_forward_gpu_epilog(float *host_output, float *device_output, float *device_input, float *device_mask, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
 {
     // TODO: Copy the output back to host
+    const int Height_out = Height - K + 1;
+    const int Width_out = Width - K + 1;
+    cudaMemcpy(host_output, device_output, sizeof(float)*Height_out*Width_out*Map_out*Batch, cudaMemcpyDeviceToHost);
 
     // TODO: Free device memory
+    cudaFree(device_input);
+    cudaFree(device_mask);
+    cudaFree(device_output);
 
 }
 
