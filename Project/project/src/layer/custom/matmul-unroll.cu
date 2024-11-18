@@ -39,7 +39,7 @@ __global__ void matrix_unrolling_kernel(const float *input, float *output,
     #define out_3d(i2, i1, i0) output[(i2) * (Height_out * Width_out) + (i1) * (Width_unrolled) + i0]
 
     // int H_grid = (Height_out + TILE_WIDTH - 1) / TILE_WIDTH;
-    int W_grid = (Width_out + TILE_WIDTH - 1) / TILE_WIDTH;
+    size_t W_grid = (Width_out + TILE_WIDTH - 1) / TILE_WIDTH;
 
     int b = blockIdx.z;
     int c = blockIdx.x;
@@ -50,8 +50,8 @@ __global__ void matrix_unrolling_kernel(const float *input, float *output,
         int w_base = c * (K*K);
         for( int p = 0; p < K; p++ ){
             for( int q = 0; q < K; q++ ){
-                int h_unroll = w_base + p * K + q;
-                int w_unroll = h * Width_out + w;
+                size_t h_unroll = w_base + p * K + q;
+                size_t w_unroll = h * Width_out + w;
                 out_3d(b, h_unroll, w_unroll) = in_4d(b ,c, h+p, w+q);
             }
         }
@@ -124,12 +124,12 @@ __host__ void GPUInterface::conv_forward_gpu_prolog(const float *host_output, co
     // TODO: Allocate memory and copy over the relevant data structures to the GPU
     // We pass double pointers for you to initialize the relevant device pointers,
     // which are passed to the other two functions.
-    cudaMalloc(device_input_ptr, sizeof(float)*Batch*Channel*Height*Width);
-    cudaMalloc(device_mask_ptr, sizeof(float)*K*K*Channel*Map_out);
-    cudaMalloc(device_output_ptr, sizeof(float)*Batch*(Height-K+1)*(Width-K+1)*Map_out);
+    cudaMalloc(device_input_ptr, (size_t) sizeof(float)*Batch*Channel*Height*Width);
+    cudaMalloc(device_mask_ptr, (size_t) sizeof(float)*K*K*Channel*Map_out);
+    cudaMalloc(device_output_ptr, (size_t) sizeof(float)*Batch*(Height-K+1)*(Width-K+1)*Map_out);
 
-    cudaMemcpy(*device_input_ptr, host_input, sizeof(float)*Batch*Channel*Height*Width, cudaMemcpyHostToDevice);
-    cudaMemcpy(*device_mask_ptr, host_mask,  sizeof(float)*K*K*Channel*Map_out, cudaMemcpyHostToDevice);
+    cudaMemcpy(*device_input_ptr, host_input, (size_t) sizeof(float)*Batch*Channel*Height*Width, cudaMemcpyHostToDevice);
+    cudaMemcpy(*device_mask_ptr, host_mask,  (size_t) sizeof(float)*K*K*Channel*Map_out, cudaMemcpyHostToDevice);
 
     // Useful snippet for error checking
     cudaError_t error = cudaGetLastError();
@@ -146,21 +146,21 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_output, const float *
 {
     const int Height_out = Height - K + 1;
     const int Width_out = Width - K + 1;
-    const int Height_unrolled = Channel * K * K;
-    const int Width_unrolled = Batch * Height_out * Width_out;
+    const size_t Height_unrolled = Channel * K * K;
+    const size_t Width_unrolled = Batch * Height_out * Width_out;
 
     float *unrolled_matrix;  // Pointer to device memory for storing the unrolled matrix
     float *matmul_output;    // Pointer to device memory for storing the result of matrix multiplication
     cudaMalloc((void**)&unrolled_matrix, (size_t) Batch * Channel * K * K * Height_out * Width_out * sizeof(float));
-    cudaMalloc((void**)&matmul_output, (Batch * Map_out * Height_out * Width_out) * sizeof(float));
+    cudaMalloc((void**)&matmul_output, (size_t) (Batch * Map_out * Height_out * Width_out) * sizeof(float));
 
     // TODO: Set the kernel dimensions and call the matrix unrolling kernel.
-    dim3 Grid_unroll(Channel, (Height_out+TILE_WIDTH-1)/TILE_WIDTH * (Width_out+TILE_WIDTH-1)/TILE_WIDTH, Batch);
+    dim3 Grid_unroll(Channel, (size_t) (Height_out+TILE_WIDTH-1)/TILE_WIDTH * (Width_out+TILE_WIDTH-1)/TILE_WIDTH, Batch);
     dim3 Block_unroll(TILE_WIDTH, TILE_WIDTH, 1);
     matrix_unrolling_kernel<<<Grid_unroll,Block_unroll>>>(device_input,unrolled_matrix, Batch, Channel, Height, Width, K);
 
     // TODO: Set the kernel dimensions and call the matmul kernel
-    dim3 Grid_matmul((Width_unrolled+TILE_WIDTH-1)/TILE_WIDTH, (Map_out+TILE_WIDTH-1)/TILE_WIDTH, 1);
+    dim3 Grid_matmul((size_t)(Width_unrolled+TILE_WIDTH-1)/TILE_WIDTH, (size_t)(Map_out+TILE_WIDTH-1)/TILE_WIDTH, 1);
     dim3 Block_matmul(TILE_WIDTH, TILE_WIDTH, 1);
     matrixMultiplyShared<<<Grid_matmul,Block_matmul>>>(device_mask, unrolled_matrix, matmul_output, 
         Map_out, Height_unrolled, Height_unrolled, Width_unrolled, Map_out, Width_unrolled);
@@ -182,7 +182,7 @@ __host__ void GPUInterface::conv_forward_gpu_epilog(float *host_output, float *d
     // TODO: Copy the output back to host
     const int Height_out = Height - K + 1;
     const int Width_out = Width - K + 1;
-    cudaMemcpy(host_output, device_output, sizeof(float)*Height_out*Width_out*Map_out*Batch, cudaMemcpyDeviceToHost);
+    cudaMemcpy(host_output, device_output, (size_t) sizeof(float)*Height_out*Width_out*Map_out*Batch, cudaMemcpyDeviceToHost);
 
     // TODO: Free device memory
     cudaFree(device_input);
