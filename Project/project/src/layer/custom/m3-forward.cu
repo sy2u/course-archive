@@ -40,31 +40,23 @@ __global__ void kernel_fusion(const float *input, float *output, const float * m
 
     size_t Kernel_size = K * K;
     size_t Height_unrolled = Channel * Kernel_size;
-    size_t Width_unrolled = Batch * Height_out * Width_out;
+    size_t Width_unrolled = Height_out * Width_out;
 
     // Modified from MatrixMultiplyShared
-    // A: Mask -            numRow=Map_out,         numCol=Height_unrolled
-    // B: Unrolled Matrix - numRow=Height_unrolled, numCol=Width_unrolled
-    // C: Output -          numRow=Map_out,         numCol=Width_unrolled
-    
     int ty = threadIdx.y, tx = threadIdx.x;
-    size_t numARows = Map_out;
-    size_t numAColumns = Height_unrolled;
-    size_t numBRows = Height_unrolled;
-    size_t numBColumns = Width_unrolled;
-    size_t numCRows = Map_out;
-    size_t numCColumns = Width_unrolled;
 
     float val = 0;
 
-    for (int tileId = 0; tileId < (numAColumns - 1) / TILE_WIDTH + 1; tileId++) {
-        if (row_out < numARows && tileId * TILE_WIDTH + tx < numAColumns) {
-            tileA[ty][tx] = mask[(size_t) row_out * numAColumns + tileId * TILE_WIDTH + tx];
+    for (int tileId = 0; tileId < (Height_unrolled - 1) / TILE_WIDTH + 1; tileId++) {
+        // load mask
+        if (row_out < Map_out && tileId * TILE_WIDTH + tx < Height_unrolled) {
+            tileA[ty][tx] = mask[(size_t) row_out * Height_unrolled + tileId * TILE_WIDTH + tx];
         } else {
             tileA[ty][tx] = 0;
         }
+        // load feature map
         size_t row_in = (size_t) tileId * TILE_WIDTH + ty;
-        if (col_out < numBColumns && row_in < numBRows) {
+        if (col_out < Width_unrolled && row_in < Height_unrolled) {
             //tileB[ty][tx] = B[((size_t) tileId * TILE_WIDTH + ty) * numBColumns + col]; => unrolled(i*tile+ty, col)
             size_t channel = row_in / Kernel_size;
             int p = (row_in % Kernel_size) / K;
@@ -77,7 +69,7 @@ __global__ void kernel_fusion(const float *input, float *output, const float * m
         }
         __syncthreads();
 
-        if (row_out < numCRows && col_out < numCColumns) {
+        if (row_out < Map_out && col_out < Width_unrolled) {
             for (int i = 0; i < TILE_WIDTH; i++) {
                 val += tileA[ty][i] * tileB[i][tx];
             }
@@ -85,9 +77,10 @@ __global__ void kernel_fusion(const float *input, float *output, const float * m
         __syncthreads();
     }
 
-    if (row_out < numCRows && col_out < numCColumns) {
+    if (row_out < Map_out && col_out < Width_out * Height_out) {
         // C[row * numCColumns + col] = val;
         // Batch x Map_out x Height_out x Width_out
+        // already permuted
         out_4d(batch, map, height, width) = val;
     }
 
@@ -124,7 +117,7 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_output, const float *
     const int Width_out = Width - K + 1;
 
     // Do Kernel Call
-    dim3 Grid_fusion((size_t) (Height_out+TILE_WIDTH-1)/TILE_WIDTH * (Width_out+TILE_WIDTH-1)/TILE_WIDTH, (size_t)(Map_out+TILE_WIDTH-1)/TILE_WIDTH, Batch);
+    dim3 Grid_fusion((size_t) (Height_out*Width_out+TILE_WIDTH-1)/TILE_WIDTH, (size_t)(Map_out+TILE_WIDTH-1)/TILE_WIDTH, Batch);
     dim3 Block_fusion(TILE_WIDTH, TILE_WIDTH, 1);
     kernel_fusion<<<Grid_fusion, Block_fusion>>>(device_input, device_output, device_mask, Batch, Channel, Map_out, Height, Width, K);
 }

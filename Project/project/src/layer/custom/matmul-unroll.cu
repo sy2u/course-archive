@@ -162,8 +162,8 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_output, const float *
     // TODO: Set the kernel dimensions and call the matmul kernel
     dim3 Grid_matmul((size_t)(Width_unrolled+TILE_WIDTH-1)/TILE_WIDTH, (size_t)(Map_out+TILE_WIDTH-1)/TILE_WIDTH, 1);
     dim3 Block_matmul(TILE_WIDTH, TILE_WIDTH, 1);
-    matrixMultiplyShared<<<Grid_matmul,Block_matmul>>>(device_mask, unrolled_matrix, matmul_output, 
-        Map_out, Height_unrolled, Height_unrolled, Width_unrolled, Map_out, Width_unrolled);
+    matrixMultiplyShared<<<Grid_matmul,Block_matmul>>>
+        (device_mask, unrolled_matrix, matmul_output, Map_out, Height_unrolled, Height_unrolled, Width_unrolled, Map_out, Width_unrolled);
 
     // Permute the result of matrix multiplication
     const int out_image_size = Height_out * Width_out;
