@@ -1,4 +1,4 @@
-// Op_1 Loop Unrolling
+// Op_1: Restrict
 
 #include <cmath>
 #include <iostream>
@@ -7,7 +7,7 @@
 #define TILE_WIDTH 16
 #define BLOCK_SIZE 256
 
-__global__ void matrix_unrolling_kernel(const float *input, float *output,
+__global__ void matrix_unrolling_kernel(const float * __restrict__  input, float * __restrict__ output,
                                         const int Batch, const int Channel,
                                         const int Height, const int Width,
                                         const int K) {
@@ -50,23 +50,11 @@ __global__ void matrix_unrolling_kernel(const float *input, float *output,
 
     if( h < Height_out && w < Width_out ){
         int w_base = c * (K*K);
-        size_t w_unroll = h * Width_out + w;
-        if ( K == 3 ) {
-            out_3d(b, w_base + 0 * K + 0, w_unroll) = in_4d(b ,c, h + 0, w + 0);
-            out_3d(b, w_base + 0 * K + 1, w_unroll) = in_4d(b ,c, h + 0, w + 1);
-            out_3d(b, w_base + 0 * K + 2, w_unroll) = in_4d(b ,c, h + 0, w + 2);
-            out_3d(b, w_base + 1 * K + 0, w_unroll) = in_4d(b ,c, h + 1, w + 0);
-            out_3d(b, w_base + 1 * K + 1, w_unroll) = in_4d(b ,c, h + 1, w + 1);
-            out_3d(b, w_base + 1 * K + 2, w_unroll) = in_4d(b ,c, h + 1, w + 2);
-            out_3d(b, w_base + 2 * K + 0, w_unroll) = in_4d(b ,c, h + 2, w + 0);
-            out_3d(b, w_base + 2 * K + 1, w_unroll) = in_4d(b ,c, h + 2, w + 1);
-            out_3d(b, w_base + 2 * K + 2, w_unroll) = in_4d(b ,c, h + 2, w + 2);
-        } else {
-            for( int p = 0; p < K; p++ ){
-                for( int q = 0; q < K; q++ ){
-                    size_t h_unroll = w_base + p * K + q;
-                    out_3d(b, h_unroll, w_unroll) = in_4d(b ,c, h+p, w+q);
-                }
+        for( int p = 0; p < K; p++ ){
+            for( int q = 0; q < K; q++ ){
+                size_t h_unroll = w_base + p * K + q;
+                size_t w_unroll = h * Width_out + w;
+                out_3d(b, h_unroll, w_unroll) = in_4d(b ,c, h+p, w+q);
             }
         }
     } 
@@ -77,7 +65,7 @@ __global__ void matrix_unrolling_kernel(const float *input, float *output,
 
 // Tiled matrix multiplication kernel. Computes C = AB
 // You don't need to modify this kernel.
-__global__ void matrixMultiplyShared(const float *A, const float *B, float *C,
+__global__ void matrixMultiplyShared(const float * __restrict__ A, const float * __restrict__ B, float * __restrict__ C,
                                      int numARows, int numAColumns,
                                      int numBRows, int numBColumns,
                                      int numCRows, int numCColumns)
@@ -104,23 +92,8 @@ __global__ void matrixMultiplyShared(const float *A, const float *B, float *C,
         __syncthreads();
 
         if (row < numCRows && col < numCColumns) {
-            for (int i = 0; i < TILE_WIDTH; i += 16) {
+            for (int i = 0; i < TILE_WIDTH; i++) {
                 val += tileA[ty][i] * tileB[i][tx];
-                val += tileA[ty][i+1] * tileB[i+1][tx];
-                val += tileA[ty][i+2] * tileB[i+2][tx];
-                val += tileA[ty][i+3] * tileB[i+3][tx];
-                val += tileA[ty][i+4] * tileB[i+4][tx];
-                val += tileA[ty][i+5] * tileB[i+5][tx];
-                val += tileA[ty][i+6] * tileB[i+6][tx];
-                val += tileA[ty][i+7] * tileB[i+7][tx];
-                val += tileA[ty][i+8] * tileB[i+8][tx];
-                val += tileA[ty][i+9] * tileB[i+9][tx];
-                val += tileA[ty][i+10] * tileB[i+10][tx];
-                val += tileA[ty][i+11] * tileB[i+11][tx];
-                val += tileA[ty][i+12] * tileB[i+12][tx];
-                val += tileA[ty][i+13] * tileB[i+13][tx];
-                val += tileA[ty][i+14] * tileB[i+14][tx];
-                val += tileA[ty][i+15] * tileB[i+15][tx];
             }
         }
         __syncthreads();
@@ -135,7 +108,7 @@ __global__ void matrixMultiplyShared(const float *A, const float *B, float *C,
 // The output feature map after matmul is of shape Map_out x Batch x Height_out x Width_out,
 // and we need to permute it into Batch x Map_out x Height_out x Width_out.
 // You don't need to modify this kernel.
-__global__ void matrix_permute_kernel(const float *input, float *output, int Map_out,
+__global__ void matrix_permute_kernel(const float * __restrict__ input, float * __restrict__ output, int Map_out,
                                       int Batch, int image_size) {
     int b = blockIdx.y;
     int x = blockIdx.x * BLOCK_SIZE + threadIdx.x;
@@ -148,7 +121,7 @@ __global__ void matrix_permute_kernel(const float *input, float *output, int Map
 }
 
 
-__host__ void GPUInterface::conv_forward_gpu_prolog(const float *host_output, const float *host_input, const float *host_mask, float **device_output_ptr, float **device_input_ptr, float **device_mask_ptr, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
+__host__ void GPUInterface::conv_forward_gpu_prolog(const float * host_output, const float * host_input, const float * __restrict__ host_mask, float ** __restrict__ device_output_ptr, float ** __restrict__ device_input_ptr, float ** __restrict__ device_mask_ptr, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
 {
     // TODO: Allocate memory and copy over the relevant data structures to the GPU
     // We pass double pointers for you to initialize the relevant device pointers,
@@ -171,7 +144,7 @@ __host__ void GPUInterface::conv_forward_gpu_prolog(const float *host_output, co
 }
 
 
-__host__ void GPUInterface::conv_forward_gpu(float *device_output, const float *device_input, const float *device_mask, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
+__host__ void GPUInterface::conv_forward_gpu(float * __restrict__ device_output, const float * __restrict__ device_input, const float * __restrict__ device_mask, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
 {
     const int Height_out = Height - K + 1;
     const int Width_out = Width - K + 1;
@@ -206,7 +179,7 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_output, const float *
 }
 
 
-__host__ void GPUInterface::conv_forward_gpu_epilog(float *host_output, float *device_output, float *device_input, float *device_mask, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
+__host__ void GPUInterface::conv_forward_gpu_epilog(float * host_output, float * __restrict__ device_output, float * __restrict__ device_input, float * __restrict__ device_mask, const int Batch, const int Map_out, const int Channel, const int Height, const int Width, const int K)
 {
     // TODO: Copy the output back to host
     const int Height_out = Height - K + 1;
