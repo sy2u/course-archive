@@ -1,0 +1,1 @@
+/home/siyingy3/Documents/ece425/mp3/pnr_workdir/synth/outputs/control.sdc

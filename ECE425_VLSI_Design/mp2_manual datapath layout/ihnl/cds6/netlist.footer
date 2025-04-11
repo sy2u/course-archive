@@ -1,0 +1,6 @@
+nmux2 I9 ( net7, lbu, lhu, mem_mux_sel[0], mem_mux_sel_inv[0]);
+nmux2 I10 ( net9, net5, net7, mem_mux_sel[2], mem_mux_sel_inv[2]);
+nmux2 I8 ( net5, lb, lh, mem_mux_sel[0], mem_mux_sel_inv[0]);
+mux2 I7 ( mem_mux_out, net9, lw, mem_mux_sel[1], mem_mux_sel_inv[1]);
+
+endmodule

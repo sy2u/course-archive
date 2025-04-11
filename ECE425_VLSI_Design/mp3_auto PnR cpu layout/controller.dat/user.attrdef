@@ -1,0 +1,1 @@
+define_attribute contactResistance -data_type double -obj_type layer -category lef_property -help_string {This was created by a LEF PROPERTYDEFINITION statement with the name "contactResistance". Any change to the value is only valid during the current session. The next read_db will recreate these attribute names and values from the LEF file only.} -default_value {0.0} -quiet

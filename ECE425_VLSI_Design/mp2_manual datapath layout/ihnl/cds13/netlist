@@ -1,0 +1,25 @@
+// Library - ece425mp2_siyingy3, Cell - adder, View - schematic
+// LAST TIME SAVED: Mar 14 16:19:12 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module adder ( cout, s, a, b, cin );
+
+output  cout, s;
+
+input  a, b, cin;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "adder";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+NAND2 I12 ( net13, a, b);
+NAND2 I11 ( net14, cin, net3);
+NAND2 I13 ( cout, net14, net13);
+XOR2 I10 ( s, cin, net3);
+XOR2 I9 ( net3, a, b);
+
+endmodule

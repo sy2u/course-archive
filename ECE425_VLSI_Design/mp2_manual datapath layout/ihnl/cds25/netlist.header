@@ -1,0 +1,60 @@
+// Library - ece425mp2_siyingy3, Cell - bitslice, View - schematic
+// LAST TIME SAVED: Apr  4 18:12:30 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module bitslice ( alu_cout, alu_mux_2_out, alu_mux_2_out_inv, alu_out,
+     cmp_eq_out, cmp_lt_out, cmp_src_a, cmp_src_b, pc, pc_cout,
+     rf_data, rs2_rdata, shift_out, alu_cin, alu_inv_rs2,
+     alu_mux_1_sel, alu_mux_1_sel_inv, alu_mux_2_sel,
+     alu_mux_2_sel_inv, alu_op, alu_op_inv, clk, cmp_eq_in, cmp_lt_in,
+     cmp_mux_sel, cmp_mux_sel_inv, cmp_out, imm, lb, lbu, lh, lhu, lw,
+     mem_mux_sel, mem_mux_sel_inv, pc_adder_4, pc_cin, pc_mux_sel,
+     pc_mux_sel_inv, pc_reset_value, rd_mux_sel, rd_mux_sel_inv,
+     rd_sel, rd_sel_inv, rs1_sel, rs1_sel_inv, rs2_sel, rs2_sel_inv,
+     rst, rst_inv, shift_amount, shift_amount_inv, shift_dir,
+     shift_dir_inv, shift_in_from_left_0, shift_in_from_left_1,
+     shift_in_from_left_2, shift_in_from_left_3, shift_in_from_left_4,
+     shift_in_from_right_0, shift_in_from_right_1,
+     shift_in_from_right_2, shift_in_from_right_3,
+     shift_in_from_right_4 );
+
+output  alu_cout, alu_mux_2_out, alu_mux_2_out_inv, alu_out,
+     cmp_eq_out, cmp_lt_out, cmp_src_a, cmp_src_b, pc, pc_cout,
+     rs2_rdata;
+
+input  alu_cin, alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, clk, cmp_eq_in, cmp_lt_in,
+     cmp_mux_sel, cmp_mux_sel_inv, cmp_out, imm, lb, lbu, lh, lhu, lw,
+     pc_adder_4, pc_cin, pc_mux_sel, pc_mux_sel_inv, pc_reset_value,
+     rst, rst_inv, shift_dir, shift_dir_inv, shift_in_from_left_0,
+     shift_in_from_left_1, shift_in_from_left_2, shift_in_from_left_3,
+     shift_in_from_left_4, shift_in_from_right_0,
+     shift_in_from_right_1, shift_in_from_right_2,
+     shift_in_from_right_3, shift_in_from_right_4;
+
+output [31:0]  rf_data;
+output [5:0]  shift_out;
+
+input [1:0]  alu_op_inv;
+input [2:0]  rd_mux_sel_inv;
+input [2:0]  mem_mux_sel_inv;
+input [4:0]  shift_amount;
+input [2:0]  rd_mux_sel;
+input [2:0]  mem_mux_sel;
+input [1:0]  alu_op;
+input [31:0]  rd_sel;
+input [31:0]  rs2_sel;
+input [31:0]  rs2_sel_inv;
+input [4:0]  shift_amount_inv;
+input [31:0]  rs1_sel_inv;
+input [31:0]  rd_sel_inv;
+input [31:0]  rs1_sel;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "bitslice";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+

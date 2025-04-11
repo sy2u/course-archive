@@ -1,0 +1,13 @@
+( ( defbus
+( "mem_mux_sel" 2 0  "mem_mux_sel" 2 0  )
+( "mem_mux_sel_inv" 2 0  "mem_mux_sel_inv" 2 0  )
+ )
+( net
+( "mem_mux_sel_inv<2>" "mem_mux_sel_inv[2]" )
+( "mem_mux_sel_inv<0>" "mem_mux_sel_inv[0]" )
+( "mem_mux_sel_inv<1>" "mem_mux_sel_inv[1]" )
+( "mem_mux_sel<2>" "mem_mux_sel[2]" )
+( "mem_mux_sel<0>" "mem_mux_sel[0]" )
+( "mem_mux_sel<1>" "mem_mux_sel[1]" )
+ )
+ )

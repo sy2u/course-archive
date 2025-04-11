@@ -1,0 +1,5 @@
+( ( net
+( "vss!" "cds_globals.vss_" )
+( "vdd!" "cds_globals.vdd_" )
+ )
+ )

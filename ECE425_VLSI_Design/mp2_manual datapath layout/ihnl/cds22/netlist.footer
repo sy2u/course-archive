@@ -1,0 +1,101 @@
+nLatch I225 ( rs2_rdata, cell_dout_2, clk);
+nLatch I224 ( rs1_rdata, cell_dout_1, clk);
+reg_cell I216 ( rf_data[31], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[31], rs1_sel_inv[31], rs2_sel[31], rs2_sel_inv[31],
+     rd_sel[31], rd_sel_inv[31]);
+reg_cell I215 ( rf_data[30], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[30], rs1_sel_inv[30], rs2_sel[30], rs2_sel_inv[30],
+     rd_sel[30], rd_sel_inv[30]);
+reg_cell I214 ( rf_data[29], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[29], rs1_sel_inv[29], rs2_sel[29], rs2_sel_inv[29],
+     rd_sel[29], rd_sel_inv[29]);
+reg_cell I213 ( rf_data[28], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[28], rs1_sel_inv[28], rs2_sel[28], rs2_sel_inv[28],
+     rd_sel[28], rd_sel_inv[28]);
+reg_cell I212 ( rf_data[27], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[27], rs1_sel_inv[27], rs2_sel[27], rs2_sel_inv[27],
+     rd_sel[27], rd_sel_inv[27]);
+reg_cell I211 ( rf_data[26], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[26], rs1_sel_inv[26], rs2_sel[26], rs2_sel_inv[26],
+     rd_sel[26], rd_sel_inv[26]);
+reg_cell I210 ( rf_data[25], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[25], rs1_sel_inv[25], rs2_sel[25], rs2_sel_inv[25],
+     rd_sel[25], rd_sel_inv[25]);
+reg_cell I209 ( rf_data[24], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[24], rs1_sel_inv[24], rs2_sel[24], rs2_sel_inv[24],
+     rd_sel[24], rd_sel_inv[24]);
+reg_cell I208 ( rf_data[23], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[23], rs1_sel_inv[23], rs2_sel[23], rs2_sel_inv[23],
+     rd_sel[23], rd_sel_inv[23]);
+reg_cell I207 ( rf_data[22], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[22], rs1_sel_inv[22], rs2_sel[22], rs2_sel_inv[22],
+     rd_sel[22], rd_sel_inv[22]);
+reg_cell I206 ( rf_data[21], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[21], rs1_sel_inv[21], rs2_sel[21], rs2_sel_inv[21],
+     rd_sel[21], rd_sel_inv[21]);
+reg_cell I205 ( rf_data[20], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[20], rs1_sel_inv[20], rs2_sel[20], rs2_sel_inv[20],
+     rd_sel[20], rd_sel_inv[20]);
+reg_cell I204 ( rf_data[19], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[19], rs1_sel_inv[19], rs2_sel[19], rs2_sel_inv[19],
+     rd_sel[19], rd_sel_inv[19]);
+reg_cell I203 ( rf_data[18], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[18], rs1_sel_inv[18], rs2_sel[18], rs2_sel_inv[18],
+     rd_sel[18], rd_sel_inv[18]);
+reg_cell I202 ( rf_data[17], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[17], rs1_sel_inv[17], rs2_sel[17], rs2_sel_inv[17],
+     rd_sel[17], rd_sel_inv[17]);
+reg_cell I201 ( rf_data[16], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[16], rs1_sel_inv[16], rs2_sel[16], rs2_sel_inv[16],
+     rd_sel[16], rd_sel_inv[16]);
+reg_cell I200 ( rf_data[15], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[15], rs1_sel_inv[15], rs2_sel[15], rs2_sel_inv[15],
+     rd_sel[15], rd_sel_inv[15]);
+reg_cell I199 ( rf_data[14], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[14], rs1_sel_inv[14], rs2_sel[14], rs2_sel_inv[14],
+     rd_sel[14], rd_sel_inv[14]);
+reg_cell I198 ( rf_data[13], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[13], rs1_sel_inv[13], rs2_sel[13], rs2_sel_inv[13],
+     rd_sel[13], rd_sel_inv[13]);
+reg_cell I197 ( rf_data[12], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[12], rs1_sel_inv[12], rs2_sel[12], rs2_sel_inv[12],
+     rd_sel[12], rd_sel_inv[12]);
+reg_cell I196 ( rf_data[11], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[11], rs1_sel_inv[11], rs2_sel[11], rs2_sel_inv[11],
+     rd_sel[11], rd_sel_inv[11]);
+reg_cell I195 ( rf_data[10], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[10], rs1_sel_inv[10], rs2_sel[10], rs2_sel_inv[10],
+     rd_sel[10], rd_sel_inv[10]);
+reg_cell I155 ( rf_data[1], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[1], rs1_sel_inv[1], rs2_sel[1], rs2_sel_inv[1], rd_sel[1],
+     rd_sel_inv[1]);
+reg_cell I187 ( rf_data[2], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[2], rs1_sel_inv[2], rs2_sel[2], rs2_sel_inv[2], rd_sel[2],
+     rd_sel_inv[2]);
+reg_cell I188 ( rf_data[3], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[3], rs1_sel_inv[3], rs2_sel[3], rs2_sel_inv[3], rd_sel[3],
+     rd_sel_inv[3]);
+reg_cell I189 ( rf_data[4], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[4], rs1_sel_inv[4], rs2_sel[4], rs2_sel_inv[4], rd_sel[4],
+     rd_sel_inv[4]);
+reg_cell I190 ( rf_data[5], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[5], rs1_sel_inv[5], rs2_sel[5], rs2_sel_inv[5], rd_sel[5],
+     rd_sel_inv[5]);
+reg_cell I191 ( rf_data[6], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[6], rs1_sel_inv[6], rs2_sel[6], rs2_sel_inv[6], rd_sel[6],
+     rd_sel_inv[6]);
+reg_cell I192 ( rf_data[7], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[7], rs1_sel_inv[7], rs2_sel[7], rs2_sel_inv[7], rd_sel[7],
+     rd_sel_inv[7]);
+reg_cell I193 ( rf_data[8], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[8], rs1_sel_inv[8], rs2_sel[8], rs2_sel_inv[8], rd_sel[8],
+     rd_sel_inv[8]);
+reg_cell I194 ( rf_data[9], cell_dout_1, cell_dout_2, rd_mux_out,
+     rs1_sel[9], rs1_sel_inv[9], rs2_sel[9], rs2_sel_inv[9], rd_sel[9],
+     rd_sel_inv[9]);
+transgate I142 ( cell_dout_1, cds_globals.vdd_, rs1_sel[0],
+     rs1_sel_inv[0]);
+transgate I144 ( cell_dout_2, cds_globals.vdd_, rs2_sel[0],
+     rs2_sel_inv[0]);
+
+endmodule

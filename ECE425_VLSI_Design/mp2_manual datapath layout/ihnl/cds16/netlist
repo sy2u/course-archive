@@ -1,0 +1,25 @@
+// Library - ece425mp2_siyingy3, Cell - pc, View - schematic
+// LAST TIME SAVED: Apr  1 02:59:00 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module pc ( pc, alu_out, clk, pc_mux_sel, pc_mux_sel_inv,
+     pc_reset_value, pcp4, rst, rst_inv );
+
+output  pc;
+
+input  alu_out, clk, pc_mux_sel, pc_mux_sel_inv, pc_reset_value, pcp4,
+     rst, rst_inv;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "pc";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+DFF I2 ( pc, clk, net5);
+nmux2 I5 ( net1, pcp4, alu_out, pc_mux_sel, pc_mux_sel_inv);
+nmux2 I6 ( net5, net1, pc_reset_value, rst, rst_inv);
+
+endmodule

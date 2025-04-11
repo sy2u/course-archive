@@ -1,0 +1,22 @@
+// Library - ece425mp2_siyingy3, Cell - mem_mux, View - schematic
+// LAST TIME SAVED: Mar 31 17:13:25 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module mem_mux ( mem_mux_out, lb, lbu, lh, lhu, lw, mem_mux_sel,
+     mem_mux_sel_inv );
+
+output  mem_mux_out;
+
+input  lb, lbu, lh, lhu, lw;
+
+input [2:0]  mem_mux_sel_inv;
+input [2:0]  mem_mux_sel;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "mem_mux";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+

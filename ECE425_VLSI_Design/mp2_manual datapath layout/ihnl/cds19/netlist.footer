@@ -1,0 +1,12 @@
+INV I14 ( net5, D);
+INV I4 ( net4, net2);
+INV I3 ( net2, EN);
+INV I2 ( net9, Q);
+INV I1 ( Q, net3);
+INV I0 ( net1, net5);
+NMOS_VTL  M10 ( .D(net3), .B(cds_globals.vss_), .G(net2), .S(net9));
+NMOS_VTL  M0 ( .D(net3), .B(cds_globals.vss_), .G(net4), .S(net1));
+PMOS_VTL  M8 ( .D(net3), .B(cds_globals.vdd_), .G(net4), .S(net9));
+PMOS_VTL  M5 ( .D(net3), .B(cds_globals.vdd_), .G(net2), .S(net1));
+
+endmodule

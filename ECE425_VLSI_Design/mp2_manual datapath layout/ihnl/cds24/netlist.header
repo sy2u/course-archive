@@ -1,0 +1,19 @@
+// Library - ece425mp2_siyingy3, Cell - cmp_upd, View - schematic
+// LAST TIME SAVED: Mar 29 15:29:29 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module cmp_upd ( cmp_eq_out, cmp_lt_out, cmp_eq_in, cmp_lt_in,
+     cmp_mux_out, rs1_rdata );
+
+output  cmp_eq_out, cmp_lt_out;
+
+input  cmp_eq_in, cmp_lt_in, cmp_mux_out, rs1_rdata;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "cmp_upd";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+

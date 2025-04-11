@@ -1,0 +1,7 @@
+NAND2 I12 ( net13, a, b);
+NAND2 I11 ( net14, cin, net3);
+NAND2 I13 ( cout, net14, net13);
+XOR2 I10 ( s, cin, net3);
+XOR2 I9 ( net3, a, b);
+
+endmodule

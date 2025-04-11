@@ -1,0 +1,22 @@
+// Library - ece425mp2_siyingy3, Cell - transgate, View - schematic
+// LAST TIME SAVED: Mar 21 21:16:41 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module transgate ( Z, A, EN, NOT_EN );
+
+inout  Z;
+
+input  A, EN, NOT_EN;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "transgate";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+NMOS_VTL  M0 ( .D(Z), .B(1'b0), .G(EN), .S(A));
+PMOS_VTL  M1 ( .D(Z), .B(1'b1), .G(NOT_EN), .S(A));
+
+endmodule

@@ -1,0 +1,38 @@
+CADENCE IHNL11140
+$model
+ece425mp2_siyingy3/shift/schematic shift
+ece425mp1_siyingy3/NOR2/schematic NOR2
+ece425mp1_siyingy3/OR2/schematic OR2
+ece425mp2_siyingy3/adder/schematic adder
+ece425mp1_siyingy3/XOR2/schematic XOR2
+ece425mp2_siyingy3/nmux2/schematic nmux2
+ece425mp2_siyingy3/mem_mux/schematic mem_mux
+PMOS_VTL PMOS_VTL
+ece425mp1_siyingy3/INV/schematic INV
+ece425mp2_siyingy3/pcadder/schematic pcadder
+ece425mp2_siyingy3/cmp_upd/schematic cmp_upd
+ece425mp2_siyingy3/bitslice/schematic bitslice
+ece425mp2_siyingy3/reg_cell/schematic reg_cell
+ece425mp2_siyingy3/alu_mux2/schematic alu_mux2
+NMOS_VTL NMOS_VTL
+ece425mp2_siyingy3/pc/schematic pc
+ece425mp1_siyingy3/BUF/schematic BUF
+ece425mp2_siyingy3/rs2_inverter/schematic rs2_inverter
+ece425mp2_siyingy3/mux2/schematic mux2
+ece425mp1_siyingy3/AND2/schematic AND2
+ece425mp2_siyingy3/mux3/schematic mux3
+ece425mp2_siyingy3/alu/schematic alu
+ece425mp1_siyingy3/DFF/schematic DFF
+ece425mp2_siyingy3/transgate/schematic transgate
+ece425mp1_siyingy3/NAND2/schematic NAND2
+ece425mp2_siyingy3/reg_file/schematic reg_file
+ece425mp2_siyingy3/datapath/schematic datapath
+ece425mp2_siyingy3/rd_mux/schematic rd_mux
+ece425mp2_siyingy3/nLatch/schematic nLatch
+$endmodel
+$net
+vss! cds_globals.vss_
+vdd! cds_globals.vdd_
+$endnet
+$param
+$endparam

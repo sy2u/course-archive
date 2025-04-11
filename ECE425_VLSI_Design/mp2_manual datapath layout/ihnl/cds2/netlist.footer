@@ -1,0 +1,4 @@
+mux2 I3 ( Z, C, net5, S1, S1_inv);
+mux2 I2 ( net5, A, B, S0, S0_inv);
+
+endmodule

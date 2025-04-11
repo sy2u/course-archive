@@ -1,0 +1,30 @@
+// Library - ece425mp2_siyingy3, Cell - rd_mux, View - schematic
+// LAST TIME SAVED: Mar 31 17:13:49 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module rd_mux ( rd_mux_out, alu_out, cmp_out, imm, mem_mux_out, pcp4,
+     rd_mux_sel, rd_mux_sel_inv, shift_out );
+
+output  rd_mux_out;
+
+input  alu_out, cmp_out, imm, mem_mux_out, pcp4, shift_out;
+
+input [2:0]  rd_mux_sel;
+input [2:0]  rd_mux_sel_inv;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "rd_mux";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+nmux2 I10 ( net7, alu_out, shift_out, rd_mux_sel[0],
+     rd_mux_sel_inv[0]);
+nmux2 I11 ( net6, cmp_out, imm, rd_mux_sel[0], rd_mux_sel_inv[0]);
+nmux2 I12 ( net10, net7, net6, rd_mux_sel[1], rd_mux_sel_inv[1]);
+mux2 I9 ( rd_mux_out, net10, net9, rd_mux_sel[2], rd_mux_sel_inv[2]);
+mux2 I7 ( net9, pcp4, mem_mux_out, rd_mux_sel[0], rd_mux_sel_inv[0]);
+
+endmodule

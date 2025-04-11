@@ -1,0 +1,9 @@
+NAND2 I12 ( net1, cmp_mux_out, net6);
+INV I11 ( net6, rs1_rdata);
+INV I9 ( net3, cmp_eq_in);
+NOR2 I10 ( cmp_eq_out, net4, net3);
+NOR2 I13 ( net7, net3, net1);
+XOR2 I8 ( net4, rs1_rdata, cmp_mux_out);
+OR2 I16 ( cmp_lt_out, net7, cmp_lt_in);
+
+endmodule

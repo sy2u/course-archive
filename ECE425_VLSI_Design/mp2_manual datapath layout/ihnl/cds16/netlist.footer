@@ -1,0 +1,5 @@
+DFF I2 ( pc, clk, net5);
+nmux2 I5 ( net1, pcp4, alu_out, pc_mux_sel, pc_mux_sel_inv);
+nmux2 I6 ( net5, net1, pc_reset_value, rst, rst_inv);
+
+endmodule

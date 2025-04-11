@@ -1,0 +1,735 @@
+// Library - ece425mp2_siyingy3, Cell - datapath, View - schematic
+// LAST TIME SAVED: Apr  5 08:14:04 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module datapath ( cmp_a_31, cmp_b_31, cmp_eq, cmp_lt, dmem_addr,
+     dmem_wdata, imem_addr, alu_cin, alu_inv_rs2, alu_mux_1_sel,
+     alu_mux_1_sel_inv, alu_mux_2_sel, alu_mux_2_sel_inv, alu_op,
+     alu_op_inv, clk, cmp_mux_sel, cmp_mux_sel_inv, cmp_out,
+     dmem_rdata, imm, mem_mux_sel, mem_mux_sel_inv, pc_mux_sel,
+     pc_mux_sel_inv, rd_mux_sel, rd_mux_sel_inv, rd_sel, rd_sel_inv,
+     rs1_sel, rs1_sel_inv, rs2_sel, rs2_sel_inv, rst, rst_inv,
+     shift_dir, shift_dir_inv, shift_msb );
+
+output  cmp_a_31, cmp_b_31, cmp_eq, cmp_lt;
+
+input  alu_cin, alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, clk, cmp_mux_sel,
+     cmp_mux_sel_inv, cmp_out, pc_mux_sel, pc_mux_sel_inv, rst,
+     rst_inv, shift_dir, shift_dir_inv, shift_msb;
+
+output [31:0]  dmem_addr;
+output [31:0]  imem_addr;
+output [31:0]  dmem_wdata;
+
+input [31:0]  rd_sel_inv;
+input [31:0]  rs1_sel_inv;
+input [2:0]  rd_mux_sel_inv;
+input [2:0]  mem_mux_sel_inv;
+input [1:0]  alu_op_inv;
+input [31:0]  rs2_sel_inv;
+input [1:0]  alu_op;
+input [2:0]  mem_mux_sel;
+input [2:0]  rd_mux_sel;
+input [31:0]  rd_sel;
+input [31:0]  rs1_sel;
+input [31:0]  rs2_sel;
+input [31:0]  dmem_rdata;
+input [31:0]  imm;
+
+// Buses in the design
+
+wire  [4:0]  alu_mux_2_out_inv;
+
+wire  [31:0]  rf_data_31;
+
+wire  [31:0]  rf_data_30;
+
+wire  [31:0]  rf_data_29;
+
+wire  [31:0]  rf_data_28;
+
+wire  [31:0]  rf_data_27;
+
+wire  [31:0]  rf_data_26;
+
+wire  [31:0]  rf_data_25;
+
+wire  [31:0]  rf_data_24;
+
+wire  [31:0]  rf_data_23;
+
+wire  [31:0]  rf_data_22;
+
+wire  [31:0]  rf_data_21;
+
+wire  [31:0]  rf_data_20;
+
+wire  [31:0]  rf_data_19;
+
+wire  [31:0]  rf_data_18;
+
+wire  [31:0]  rf_data_17;
+
+wire  [31:0]  rf_data_16;
+
+wire  [31:0]  rf_data_15;
+
+wire  [31:0]  rf_data_14;
+
+wire  [31:0]  rf_data_13;
+
+wire  [31:0]  rf_data_12;
+
+wire  [31:0]  rf_data_11;
+
+wire  [31:0]  rf_data_10;
+
+wire  [31:0]  rf_data_9;
+
+wire  [31:0]  rf_data_8;
+
+wire  [31:0]  rf_data_7;
+
+wire  [31:0]  rf_data_6;
+
+wire  [31:0]  rf_data_5;
+
+wire  [31:0]  rf_data_4;
+
+wire  [31:0]  rf_data_3;
+
+wire  [31:0]  rf_data_2;
+
+wire  [31:0]  rf_data_1;
+
+wire  [31:0]  rf_data_0;
+
+wire  [5:0]  shift_out_30;
+
+wire  [5:0]  shift_out_31;
+
+wire  [5:0]  shift_out_29;
+
+wire  [5:0]  shift_out_28;
+
+wire  [5:0]  shift_out_27;
+
+wire  [5:0]  shift_out_26;
+
+wire  [5:0]  shift_out_25;
+
+wire  [5:0]  shift_out_24;
+
+wire  [5:0]  shift_out_0;
+
+wire  [5:0]  shift_out_11;
+
+wire  [5:0]  shift_out_21;
+
+wire  [5:0]  shift_out_9;
+
+wire  [5:0]  shift_out_12;
+
+wire  [5:0]  shift_out_15;
+
+wire  [5:0]  shift_out_17;
+
+wire  [5:0]  shift_out_10;
+
+wire  [5:0]  shift_out_22;
+
+wire  [5:0]  shift_out_14;
+
+wire  [5:0]  shift_out_23;
+
+wire  [5:0]  shift_out_16;
+
+wire  [5:0]  shift_out_2;
+
+wire  [5:0]  shift_out_3;
+
+wire  [5:0]  shift_out_19;
+
+wire  [5:0]  shift_out_6;
+
+wire  [5:0]  shift_out_8;
+
+wire  [5:0]  shift_out_7;
+
+wire  [5:0]  shift_out_4;
+
+wire  [1:31]  b_alu_cin;
+
+wire  [5:0]  shift_out_13;
+
+wire  [5:0]  shift_out_18;
+
+wire  [5:0]  shift_out_20;
+
+wire  [5:0]  shift_out_5;
+
+wire  [1:31]  b_cmp_eq_out;
+
+wire  [5:0]  shift_out_1;
+
+wire  [1:31]  b_cmp_lt_out;
+
+wire  [1:32]  b_pc_cin;
+
+wire  [4:0]  alu_mux_2_out;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "datapath";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+bitslice I31 ( net2, net1032, net66, dmem_addr[31], b_cmp_eq_out[31],
+     b_cmp_lt_out[31], cmp_a_31, cmp_b_31, imem_addr[31], b_pc_cin[32],
+     rf_data_31[31:0], dmem_wdata[31], shift_out_31[5:0],
+     b_alu_cin[31], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, 1'b1, 1'b0, cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[31], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[31], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[31], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_msb, shift_msb, shift_msb, shift_msb,
+     shift_msb, shift_out_30[0], shift_out_29[1], shift_out_27[2],
+     shift_out_23[3], shift_out_15[4]);
+bitslice I30 ( b_alu_cin[31], net578, net64, dmem_addr[30],
+     b_cmp_eq_out[30], b_cmp_lt_out[30], net71, net65, imem_addr[30],
+     b_pc_cin[31], rf_data_30[31:0], dmem_wdata[30], shift_out_30[5:0],
+     b_alu_cin[30], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[31], b_cmp_lt_out[31], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[30], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[30], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[30], pc_mux_sel, pc_mux_sel_inv,
+     1'b0, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_31[0], shift_msb, shift_msb, shift_msb,
+     shift_msb, shift_out_29[0], shift_out_28[1], shift_out_26[2],
+     shift_out_22[3], shift_out_14[4]);
+bitslice I29 ( b_alu_cin[30], net563, net60, dmem_addr[29],
+     b_cmp_eq_out[29], b_cmp_lt_out[29], net72, net63, imem_addr[29],
+     b_pc_cin[30], rf_data_29[31:0], dmem_wdata[29], shift_out_29[5:0],
+     b_alu_cin[29], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[30], b_cmp_lt_out[30], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[29], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[29], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[29], pc_mux_sel, pc_mux_sel_inv,
+     1'b0, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_30[0], shift_out_31[1], shift_msb,
+     shift_msb, shift_msb, shift_out_28[0], shift_out_27[1],
+     shift_out_25[2], shift_out_21[3], shift_out_13[4]);
+bitslice I28 ( b_alu_cin[29], net549, net59, dmem_addr[28],
+     b_cmp_eq_out[28], b_cmp_lt_out[28], net73, net62, imem_addr[28],
+     b_pc_cin[29], rf_data_28[31:0], dmem_wdata[28], shift_out_28[5:0],
+     b_alu_cin[28], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[29], b_cmp_lt_out[29], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[28], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[28], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[28], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_29[0], shift_out_30[1], shift_msb,
+     shift_msb, shift_msb, shift_out_27[0], shift_out_26[1],
+     shift_out_24[2], shift_out_20[3], shift_out_12[4]);
+bitslice I27 ( b_alu_cin[28], net535, net56, dmem_addr[27],
+     b_cmp_eq_out[27], b_cmp_lt_out[27], net75, net25, imem_addr[27],
+     b_pc_cin[28], rf_data_27[31:0], dmem_wdata[27], shift_out_27[5:0],
+     b_alu_cin[27], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[28], b_cmp_lt_out[28], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[27], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[27], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[27], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_28[0], shift_out_29[1], shift_out_31[2],
+     shift_msb, shift_msb, shift_out_26[0], shift_out_25[1],
+     shift_out_23[2], shift_out_19[3], shift_out_11[4]);
+bitslice I26 ( b_alu_cin[27], net521, net55, dmem_addr[26],
+     b_cmp_eq_out[26], b_cmp_lt_out[26], net76, net61, imem_addr[26],
+     b_pc_cin[27], rf_data_26[31:0], dmem_wdata[26], shift_out_26[5:0],
+     b_alu_cin[26], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[27], b_cmp_lt_out[27], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[26], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[26], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[26], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_27[0], shift_out_28[1], shift_out_30[2],
+     shift_msb, shift_msb, shift_out_25[0], shift_out_24[1],
+     shift_out_22[2], shift_out_18[3], shift_out_10[4]);
+bitslice I25 ( b_alu_cin[26], net507, net52, dmem_addr[25],
+     b_cmp_eq_out[25], b_cmp_lt_out[25], net77, net24, imem_addr[25],
+     b_pc_cin[26], rf_data_25[31:0], dmem_wdata[25], shift_out_25[5:0],
+     b_alu_cin[25], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[26], b_cmp_lt_out[26], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[25], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[25], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[25], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_26[0], shift_out_27[1], shift_out_29[2],
+     shift_msb, shift_msb, shift_out_24[0], shift_out_23[1],
+     shift_out_21[2], shift_out_17[3], shift_out_9[4]);
+bitslice I24 ( b_alu_cin[25], net493, net47, dmem_addr[24],
+     b_cmp_eq_out[24], b_cmp_lt_out[24], net78, net58, imem_addr[24],
+     b_pc_cin[25], rf_data_24[31:0], dmem_wdata[24], shift_out_24[5:0],
+     b_alu_cin[24], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[25], b_cmp_lt_out[25], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[24], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[24], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[24], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_25[0], shift_out_26[1], shift_out_28[2],
+     shift_msb, shift_msb, shift_out_23[0], shift_out_22[1],
+     shift_out_20[2], shift_out_16[3], shift_out_8[4]);
+bitslice I23 ( b_alu_cin[24], net479, net46, dmem_addr[23],
+     b_cmp_eq_out[23], b_cmp_lt_out[23], net79, net21, imem_addr[23],
+     b_pc_cin[24], rf_data_23[31:0], dmem_wdata[23], shift_out_23[5:0],
+     b_alu_cin[23], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[24], b_cmp_lt_out[24], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[23], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[23], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[23], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_24[0], shift_out_25[1], shift_out_27[2],
+     shift_out_31[3], shift_msb, shift_out_22[0], shift_out_21[1],
+     shift_out_19[2], shift_out_15[3], shift_out_7[4]);
+bitslice I22 ( b_alu_cin[23], net1022, net42, dmem_addr[22],
+     b_cmp_eq_out[22], b_cmp_lt_out[22], net80, net57, imem_addr[22],
+     b_pc_cin[23], rf_data_22[31:0], dmem_wdata[22], shift_out_22[5:0],
+     b_alu_cin[22], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[23], b_cmp_lt_out[23], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[22], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[22], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[22], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_23[0], shift_out_24[1], shift_out_26[2],
+     shift_out_30[3], shift_msb, shift_out_21[0], shift_out_20[1],
+     shift_out_18[2], shift_out_14[3], shift_out_6[4]);
+bitslice I21 ( b_alu_cin[22], net1023, net40, dmem_addr[21],
+     b_cmp_eq_out[21], b_cmp_lt_out[21], net81, net20, imem_addr[21],
+     b_pc_cin[22], rf_data_21[31:0], dmem_wdata[21], shift_out_21[5:0],
+     b_alu_cin[21], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[22], b_cmp_lt_out[22], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[21], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[21], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[21], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_22[0], shift_out_23[1], shift_out_25[2],
+     shift_out_29[3], shift_msb, shift_out_20[0], shift_out_19[1],
+     shift_out_17[2], shift_out_13[3], shift_out_5[4]);
+bitslice I20 ( b_alu_cin[21], net438, net39, dmem_addr[20],
+     b_cmp_eq_out[20], b_cmp_lt_out[20], net82, net54, imem_addr[20],
+     b_pc_cin[21], rf_data_20[31:0], dmem_wdata[20], shift_out_20[5:0],
+     b_alu_cin[20], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[21], b_cmp_lt_out[21], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[20], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[20], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[20], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_21[0], shift_out_22[1], shift_out_24[2],
+     shift_out_28[3], shift_msb, shift_out_19[0], shift_out_18[1],
+     shift_out_16[2], shift_out_12[3], shift_out_4[4]);
+bitslice I19 ( b_alu_cin[20], net424, net38, dmem_addr[19],
+     b_cmp_eq_out[19], b_cmp_lt_out[19], net28, net18, imem_addr[19],
+     b_pc_cin[20], rf_data_19[31:0], dmem_wdata[19], shift_out_19[5:0],
+     b_alu_cin[19], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[20], b_cmp_lt_out[20], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[19], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[19], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[19], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_20[0], shift_out_21[1], shift_out_23[2],
+     shift_out_27[3], shift_msb, shift_out_18[0], shift_out_17[1],
+     shift_out_15[2], shift_out_11[3], shift_out_3[4]);
+bitslice I18 ( b_alu_cin[19], net1024, net37, dmem_addr[18],
+     b_cmp_eq_out[18], b_cmp_lt_out[18], net406, net53, imem_addr[18],
+     b_pc_cin[19], rf_data_18[31:0], dmem_wdata[18], shift_out_18[5:0],
+     b_alu_cin[18], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[19], b_cmp_lt_out[19], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[18], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[18], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[18], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_19[0], shift_out_20[1], shift_out_22[2],
+     shift_out_26[3], shift_msb, shift_out_17[0], shift_out_16[1],
+     shift_out_14[2], shift_out_10[3], shift_out_2[4]);
+bitslice I17 ( b_alu_cin[18], net1025, net36, dmem_addr[17],
+     b_cmp_eq_out[17], b_cmp_lt_out[17], net363, net15, imem_addr[17],
+     b_pc_cin[18], rf_data_17[31:0], dmem_wdata[17], shift_out_17[5:0],
+     b_alu_cin[17], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[18], b_cmp_lt_out[18], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[17], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[17], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[17], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_18[0], shift_out_19[1], shift_out_21[2],
+     shift_out_25[3], shift_msb, shift_out_16[0], shift_out_15[1],
+     shift_out_13[2], shift_out_9[3], shift_out_1[4]);
+bitslice I16 ( b_alu_cin[17], net358, net35, dmem_addr[16],
+     b_cmp_eq_out[16], b_cmp_lt_out[16], net378, net51, imem_addr[16],
+     b_pc_cin[17], rf_data_16[31:0], dmem_wdata[16], shift_out_16[5:0],
+     b_alu_cin[16], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[17], b_cmp_lt_out[17], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[16], dmem_rdata[7],
+     1'b0, dmem_rdata[15], 1'b0,
+     dmem_rdata[16], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[16], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_17[0], shift_out_18[1], shift_out_20[2],
+     shift_out_24[3], shift_msb, shift_out_15[0], shift_out_14[1],
+     shift_out_12[2], shift_out_8[3], shift_out_0[4]);
+bitslice I15 ( b_alu_cin[16], net341, net34, dmem_addr[15],
+     b_cmp_eq_out[15], b_cmp_lt_out[15], net347, net14, imem_addr[15],
+     b_pc_cin[16], rf_data_15[31:0], dmem_wdata[15], shift_out_15[5:0],
+     b_alu_cin[15], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[16], b_cmp_lt_out[16], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[15], dmem_rdata[7],
+     1'b0, dmem_rdata[15], dmem_rdata[15], dmem_rdata[15],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[15], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_16[0],
+     shift_out_17[1], shift_out_19[2], shift_out_23[3],
+     shift_out_31[4], shift_out_14[0], shift_out_13[1],
+     shift_out_11[2], shift_out_7[3], 1'b0);
+bitslice I14 ( b_alu_cin[15], net1026, net33, dmem_addr[14],
+     b_cmp_eq_out[14], b_cmp_lt_out[14], net404, net50, imem_addr[14],
+     b_pc_cin[15], rf_data_14[31:0], dmem_wdata[14], shift_out_14[5:0],
+     b_alu_cin[14], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[15], b_cmp_lt_out[15], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[14], dmem_rdata[7],
+     1'b0, dmem_rdata[14], dmem_rdata[14], dmem_rdata[14],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[14], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_15[0],
+     shift_out_16[1], shift_out_18[2], shift_out_22[3],
+     shift_out_30[4], shift_out_13[0], shift_out_12[1],
+     shift_out_10[2], shift_out_6[3], 1'b0);
+bitslice I13 ( b_alu_cin[14], net314, net32, dmem_addr[13],
+     b_cmp_eq_out[13], b_cmp_lt_out[13], net364, net13, imem_addr[13],
+     b_pc_cin[14], rf_data_13[31:0], dmem_wdata[13], shift_out_13[5:0],
+     b_alu_cin[13], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[14], b_cmp_lt_out[14], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[13], dmem_rdata[7],
+     1'b0, dmem_rdata[13], dmem_rdata[13], dmem_rdata[13],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[13], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_14[0],
+     shift_out_15[1], shift_out_17[2], shift_out_21[3],
+     shift_out_29[4], shift_out_12[0], shift_out_11[1], shift_out_9[2],
+     shift_out_5[3], 1'b0);
+bitslice I12 ( b_alu_cin[13], net1027, net31, dmem_addr[12],
+     b_cmp_eq_out[12], b_cmp_lt_out[12], net381, net49, imem_addr[12],
+     b_pc_cin[13], rf_data_12[31:0], dmem_wdata[12], shift_out_12[5:0],
+     b_alu_cin[12], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[13], b_cmp_lt_out[13], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[12], dmem_rdata[7],
+     1'b0, dmem_rdata[12], dmem_rdata[12], dmem_rdata[12],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[12], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_13[0],
+     shift_out_14[1], shift_out_16[2], shift_out_20[3],
+     shift_out_28[4], shift_out_11[0], shift_out_10[1], shift_out_8[2],
+     shift_out_4[3], 1'b0);
+bitslice I11 ( b_alu_cin[12], net1028, net30, dmem_addr[11],
+     b_cmp_eq_out[11], b_cmp_lt_out[11], net348, net12, imem_addr[11],
+     b_pc_cin[12], rf_data_11[31:0], dmem_wdata[11], shift_out_11[5:0],
+     b_alu_cin[11], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[12], b_cmp_lt_out[12], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[11], dmem_rdata[7],
+     1'b0, dmem_rdata[11], dmem_rdata[11], dmem_rdata[11],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[11], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_12[0],
+     shift_out_13[1], shift_out_15[2], shift_out_19[3],
+     shift_out_27[4], shift_out_10[0], shift_out_9[1], shift_out_7[2],
+     shift_out_3[3], 1'b0);
+bitslice I10 ( b_alu_cin[11], net274, net29, dmem_addr[10],
+     b_cmp_eq_out[10], b_cmp_lt_out[10], net405, net48, imem_addr[10],
+     b_pc_cin[11], rf_data_10[31:0], dmem_wdata[10], shift_out_10[5:0],
+     b_alu_cin[10], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[11], b_cmp_lt_out[11], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[10], dmem_rdata[7],
+     1'b0, dmem_rdata[10], dmem_rdata[10], dmem_rdata[10],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[10], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_11[0],
+     shift_out_12[1], shift_out_14[2], shift_out_18[3],
+     shift_out_26[4], shift_out_9[0], shift_out_8[1], shift_out_6[2],
+     shift_out_2[3], 1'b0);
+bitslice I9 ( b_alu_cin[10], net1029, net27, dmem_addr[9],
+     b_cmp_eq_out[9], b_cmp_lt_out[9], net69, net67, imem_addr[9],
+     b_pc_cin[10], rf_data_9[31:0], dmem_wdata[9], shift_out_9[5:0],
+     b_alu_cin[9], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[10], b_cmp_lt_out[10], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[9], dmem_rdata[7],
+     1'b0, dmem_rdata[9], dmem_rdata[9], dmem_rdata[9],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[9], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_10[0],
+     shift_out_11[1], shift_out_13[2], shift_out_17[3],
+     shift_out_25[4], shift_out_8[0], shift_out_7[1], shift_out_5[2],
+     shift_out_1[3], 1'b0);
+bitslice I8 ( b_alu_cin[9], net247, net23, dmem_addr[8],
+     b_cmp_eq_out[8], b_cmp_lt_out[8], net22, net41, imem_addr[8],
+     b_pc_cin[9], rf_data_8[31:0], dmem_wdata[8], shift_out_8[5:0],
+     b_alu_cin[8], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[9], b_cmp_lt_out[9], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[8], dmem_rdata[7],
+     1'b0, dmem_rdata[8], dmem_rdata[8], dmem_rdata[8],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[8], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_9[0],
+     shift_out_10[1], shift_out_12[2], shift_out_16[3],
+     shift_out_24[4], shift_out_7[0], shift_out_6[1], shift_out_4[2],
+     shift_out_0[3], 1'b0);
+bitslice I7 ( b_alu_cin[8], net1030, net19, dmem_addr[7],
+     b_cmp_eq_out[7], b_cmp_lt_out[7], net26, net4, imem_addr[7],
+     b_pc_cin[8], rf_data_7[31:0], dmem_wdata[7], shift_out_7[5:0],
+     b_alu_cin[7], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[8], b_cmp_lt_out[8], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[7], dmem_rdata[7],
+     dmem_rdata[7], dmem_rdata[7], dmem_rdata[7], dmem_rdata[7],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[7], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_8[0],
+     shift_out_9[1], shift_out_11[2], shift_out_15[3], shift_out_23[4],
+     shift_out_6[0], shift_out_5[1], shift_out_3[2], 1'b0,
+     1'b0);
+bitslice I6 ( b_alu_cin[7], net1021, net17, dmem_addr[6],
+     b_cmp_eq_out[6], b_cmp_lt_out[6], net409, net43, imem_addr[6],
+     b_pc_cin[7], rf_data_6[31:0], dmem_wdata[6], shift_out_6[5:0],
+     b_alu_cin[6], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[7], b_cmp_lt_out[7], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[6], dmem_rdata[6],
+     dmem_rdata[6], dmem_rdata[6], dmem_rdata[6], dmem_rdata[6],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[6], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_7[0],
+     shift_out_8[1], shift_out_10[2], shift_out_14[3], shift_out_22[4],
+     shift_out_5[0], shift_out_4[1], shift_out_2[2], 1'b0,
+     1'b0);
+bitslice I5 ( b_alu_cin[6], net1031, net16, dmem_addr[5],
+     b_cmp_eq_out[5], b_cmp_lt_out[5], net366, net5, imem_addr[5],
+     b_pc_cin[6], rf_data_5[31:0], dmem_wdata[5], shift_out_5[5:0],
+     b_alu_cin[5], alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[6], b_cmp_lt_out[6], cmp_mux_sel,
+     cmp_mux_sel_inv, 1'b0, imm[5], dmem_rdata[5],
+     dmem_rdata[5], dmem_rdata[5], dmem_rdata[5], dmem_rdata[5],
+     mem_mux_sel[2:0], mem_mux_sel_inv[2:0], 1'b0,
+     b_pc_cin[5], pc_mux_sel, pc_mux_sel_inv, 1'b1,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], rd_sel[31:0],
+     rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_6[0],
+     shift_out_7[1], shift_out_9[2], shift_out_13[3], shift_out_21[4],
+     shift_out_4[0], shift_out_3[1], shift_out_1[2], 1'b0,
+     1'b0);
+bitslice I4 ( b_alu_cin[5], alu_mux_2_out[4], alu_mux_2_out_inv[4],
+     dmem_addr[4], b_cmp_eq_out[4], b_cmp_lt_out[4], net383, net44,
+     imem_addr[4], b_pc_cin[5], rf_data_4[31:0], dmem_wdata[4],
+     shift_out_4[5:0], b_alu_cin[4], alu_inv_rs2, alu_mux_1_sel,
+     alu_mux_1_sel_inv, alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0],
+     alu_op_inv[1:0], clk, b_cmp_eq_out[5], b_cmp_lt_out[5],
+     cmp_mux_sel, cmp_mux_sel_inv, 1'b0, imm[4],
+     dmem_rdata[4], dmem_rdata[4], dmem_rdata[4], dmem_rdata[4],
+     dmem_rdata[4], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[4], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_5[0], shift_out_6[1], shift_out_8[2],
+     shift_out_12[3], shift_out_20[4], shift_out_3[0], shift_out_2[1],
+     shift_out_0[2], 1'b0, 1'b0);
+bitslice I3 ( b_alu_cin[4], alu_mux_2_out[3], alu_mux_2_out_inv[3],
+     dmem_addr[3], b_cmp_eq_out[3], b_cmp_lt_out[3], net350, net7,
+     imem_addr[3], b_pc_cin[4], rf_data_3[31:0], dmem_wdata[3],
+     shift_out_3[5:0], b_alu_cin[3], alu_inv_rs2, alu_mux_1_sel,
+     alu_mux_1_sel_inv, alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0],
+     alu_op_inv[1:0], clk, b_cmp_eq_out[4], b_cmp_lt_out[4],
+     cmp_mux_sel, cmp_mux_sel_inv, 1'b0, imm[3],
+     dmem_rdata[3], dmem_rdata[3], dmem_rdata[3], dmem_rdata[3],
+     dmem_rdata[3], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[3], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_4[0], shift_out_5[1], shift_out_7[2],
+     shift_out_11[3], shift_out_19[4], shift_out_2[0], shift_out_1[1],
+     1'b0, 1'b0, 1'b0);
+bitslice I2 ( b_alu_cin[3], alu_mux_2_out[2], alu_mux_2_out_inv[2],
+     dmem_addr[2], b_cmp_eq_out[2], b_cmp_lt_out[2], net403, net45,
+     imem_addr[2], b_pc_cin[3], rf_data_2[31:0], dmem_wdata[2],
+     shift_out_2[5:0], b_alu_cin[2], alu_inv_rs2, alu_mux_1_sel,
+     alu_mux_1_sel_inv, alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0],
+     alu_op_inv[1:0], clk, b_cmp_eq_out[3], b_cmp_lt_out[3],
+     cmp_mux_sel, cmp_mux_sel_inv, 1'b0, imm[2],
+     dmem_rdata[2], dmem_rdata[2], dmem_rdata[2], dmem_rdata[2],
+     dmem_rdata[2], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b1, b_pc_cin[2], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_3[0], shift_out_4[1], shift_out_6[2],
+     shift_out_10[3], shift_out_18[4], shift_out_1[0], shift_out_0[1],
+     1'b0, 1'b0, 1'b0);
+bitslice I1 ( b_alu_cin[2], alu_mux_2_out[1], alu_mux_2_out_inv[1],
+     dmem_addr[1], b_cmp_eq_out[1], b_cmp_lt_out[1], net367, net9,
+     imem_addr[1], b_pc_cin[2], rf_data_1[31:0], dmem_wdata[1],
+     shift_out_1[5:0], b_alu_cin[1], alu_inv_rs2, alu_mux_1_sel,
+     alu_mux_1_sel_inv, alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0],
+     alu_op_inv[1:0], clk, b_cmp_eq_out[2], b_cmp_lt_out[2],
+     cmp_mux_sel, cmp_mux_sel_inv, 1'b0, imm[1],
+     dmem_rdata[1], dmem_rdata[1], dmem_rdata[1], dmem_rdata[1],
+     dmem_rdata[1], mem_mux_sel[2:0], mem_mux_sel_inv[2:0],
+     1'b0, b_pc_cin[1], pc_mux_sel, pc_mux_sel_inv,
+     1'b1, rd_mux_sel[2:0], rd_mux_sel_inv[2:0],
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0], rst, rst_inv,
+     alu_mux_2_out[4:0], alu_mux_2_out_inv[4:0], shift_dir,
+     shift_dir_inv, shift_out_2[0], shift_out_3[1], shift_out_5[2],
+     shift_out_9[3], shift_out_17[4], shift_out_0[0], 1'b0,
+     1'b0, 1'b0, 1'b0);
+bitslice I0 ( b_alu_cin[1], alu_mux_2_out[0], alu_mux_2_out_inv[0],
+     dmem_addr[0], cmp_eq, cmp_lt, net384, net10, imem_addr[0],
+     b_pc_cin[1], rf_data_0[31:0], dmem_wdata[0], shift_out_0[5:0],
+     alu_cin, alu_inv_rs2, alu_mux_1_sel, alu_mux_1_sel_inv,
+     alu_mux_2_sel, alu_mux_2_sel_inv, alu_op[1:0], alu_op_inv[1:0],
+     clk, b_cmp_eq_out[1], b_cmp_lt_out[1], cmp_mux_sel,
+     cmp_mux_sel_inv, cmp_out, imm[0], dmem_rdata[0], dmem_rdata[0],
+     dmem_rdata[0], dmem_rdata[0], dmem_rdata[0], mem_mux_sel[2:0],
+     mem_mux_sel_inv[2:0], 1'b0, 1'b0,
+     pc_mux_sel, pc_mux_sel_inv, 1'b1, rd_mux_sel[2:0],
+     rd_mux_sel_inv[2:0], rd_sel[31:0], rd_sel_inv[31:0],
+     rs1_sel[31:0], rs1_sel_inv[31:0], rs2_sel[31:0],
+     rs2_sel_inv[31:0], rst, rst_inv, alu_mux_2_out[4:0],
+     alu_mux_2_out_inv[4:0], shift_dir, shift_dir_inv, shift_out_1[0],
+     shift_out_2[1], shift_out_4[2], shift_out_8[3], shift_out_16[4],
+     1'b0, 1'b0, 1'b0,
+     1'b0, 1'b0);
+
+endmodule

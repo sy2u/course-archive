@@ -1,0 +1,9 @@
+XOR2 I0 ( net3, alu_mux_1_out, alu_mux_2_out);
+OR2 I1 ( net6, alu_mux_1_out, alu_mux_2_out);
+AND2 I2 ( net9, alu_mux_1_out, alu_mux_2_out);
+adder I3 ( alu_cout, net13, alu_mux_1_out, alu_mux_2_out, alu_cin);
+nmux2 I10 ( net20, net13, net3, alu_op[0], alu_op_inv[0]);
+nmux2 I12 ( alu_out, net20, net1, alu_op[1], alu_op_inv[1]);
+nmux2 I11 ( net1, net6, net9, alu_op[0], alu_op_inv[0]);
+
+endmodule

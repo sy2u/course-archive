@@ -1,0 +1,31 @@
+// Library - ece425mp2_siyingy3, Cell - alu, View - schematic
+// LAST TIME SAVED: Mar 31 17:10:49 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module alu ( alu_cout, alu_out, alu_cin, alu_mux_1_out, alu_mux_2_out,
+     alu_op, alu_op_inv );
+
+output  alu_cout, alu_out;
+
+input  alu_cin, alu_mux_1_out, alu_mux_2_out;
+
+input [1:0]  alu_op_inv;
+input [1:0]  alu_op;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "alu";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+XOR2 I0 ( net3, alu_mux_1_out, alu_mux_2_out);
+OR2 I1 ( net6, alu_mux_1_out, alu_mux_2_out);
+AND2 I2 ( net9, alu_mux_1_out, alu_mux_2_out);
+adder I3 ( alu_cout, net13, alu_mux_1_out, alu_mux_2_out, alu_cin);
+nmux2 I10 ( net20, net13, net3, alu_op[0], alu_op_inv[0]);
+nmux2 I12 ( alu_out, net20, net1, alu_op[1], alu_op_inv[1]);
+nmux2 I11 ( net1, net6, net9, alu_op[0], alu_op_inv[0]);
+
+endmodule

@@ -1,0 +1,15 @@
+Hi!! Here's something breif explaination for my submission.zip.
+
+Schematic:
+Datapath and Regflie schematic is pretty big, so I took several zoomed schematic to show the details. But not all instance are shown in the detailed screenshot, because much of them are just repeated in the same way. The detail screenshot contains the beginning and the end of the schematic, asa well as a sample of the middle repetition part.
+
+Layout:
+Again, bitslice and regfile layout are simply one line, so it's pretty unclear. I also took some detailed screenshot for different parts and repitition part sample.
+
+Netlist:
+I simply copied the ihnl folder in the datapath folder in work directory. By manually looking at the netlist content, I think it has contained all modules needed. But I'm not that sure.
+
+Library:
+In the library, I also have some unused modules like alu_large, mem_mux_large, reg_file_large, bitslice_backup etc. They're my first version module and was optimized for better overall area. They're stored in the library for backup, and not used in datapath. Some of submodules may not be able to pass lvs because some signals are connected in the higher level layout, so only datapath is guaranteed to work individually. For example, if we need bitslice to work, first we should manually connect clock signal in PC and clock signal in reg_file.
+
+I have devoted tons of time in this mp, and I'm trying my best to provide as much as instructed in README.md. I'm pretty sure that everything is working. If there's still something missing, please let me know, thanks!!

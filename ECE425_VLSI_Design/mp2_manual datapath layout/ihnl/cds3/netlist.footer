@@ -1,0 +1,4 @@
+INV I1 ( Z, net2);
+INV I0 ( net2, A);
+
+endmodule

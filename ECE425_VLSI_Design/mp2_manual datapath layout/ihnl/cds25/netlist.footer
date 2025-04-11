@@ -1,0 +1,28 @@
+shift I11 ( shift_out[5:0], alu_mux_1_out, shift_amount[4:0],
+     shift_amount_inv[4:0], shift_dir, shift_dir_inv,
+     shift_in_from_left_0, shift_in_from_left_1, shift_in_from_left_2,
+     shift_in_from_left_3, shift_in_from_left_4, shift_in_from_right_0,
+     shift_in_from_right_1, shift_in_from_right_2,
+     shift_in_from_right_3, shift_in_from_right_4);
+mem_mux I2 ( mem_mux_out, lb, lbu, lh, lhu, lw, mem_mux_sel[2:0],
+     mem_mux_sel_inv[2:0]);
+mux2 I16 ( cmp_src_b, rs2_rdata, imm, cmp_mux_sel, cmp_mux_sel_inv);
+mux2 I12 ( alu_mux_1_out, cmp_src_a, pc, alu_mux_1_sel,
+     alu_mux_1_sel_inv);
+alu_mux2 I26 ( alu_mux_2_out, alu_mux_2_out_inv, rs2_after_inv, imm,
+     alu_mux_2_sel, alu_mux_2_sel_inv);
+alu I5 ( alu_cout, alu_out, alu_cin, alu_mux_1_out, alu_mux_2_out,
+     alu_op[1:0], alu_op_inv[1:0]);
+pc I6 ( pc, alu_out, clk, pc_mux_sel, pc_mux_sel_inv, pc_reset_value,
+     pcp4, rst, rst_inv);
+pcadder I7 ( pc_cout, pcp4, pc, pc_adder_4, pc_cin);
+rd_mux I8 ( rd_mux_out, alu_out, cmp_out, imm, mem_mux_out, pcp4,
+     rd_mux_sel[2:0], rd_mux_sel_inv[2:0], shift_out[5]);
+reg_file I9 ( rf_data[31:0], cmp_src_a, rs2_rdata, clk, rd_mux_out,
+     rd_sel[31:0], rd_sel_inv[31:0], rs1_sel[31:0], rs1_sel_inv[31:0],
+     rs2_sel[31:0], rs2_sel_inv[31:0]);
+rs2_inverter I10 ( rs2_after_inv, alu_inv_rs2, rs2_rdata);
+cmp_upd I25 ( cmp_eq_out, cmp_lt_out, cmp_eq_in, cmp_lt_in, cmp_src_b,
+     cmp_src_a);
+
+endmodule

@@ -1,0 +1,18 @@
+PMOS_VTL  M6 ( .D(net13), .B(cds_globals.vdd_), .G(net1),
+     .S(cds_globals.vdd_));
+PMOS_VTL  M5 ( .D(Z), .B(cds_globals.vdd_), .G(B), .S(net13));
+PMOS_VTL  M4 ( .D(Z), .B(cds_globals.vdd_), .G(A), .S(net13));
+PMOS_VTL  M1 ( .D(net1), .B(cds_globals.vdd_), .G(B), .S(net4));
+PMOS_VTL  M0 ( .D(net4), .B(cds_globals.vdd_), .G(A),
+     .S(cds_globals.vdd_));
+NMOS_VTL  M9 ( .D(net33), .B(cds_globals.vss_), .G(A),
+     .S(cds_globals.vss_));
+NMOS_VTL  M8 ( .D(Z), .B(cds_globals.vss_), .G(B), .S(net33));
+NMOS_VTL  M7 ( .D(Z), .B(cds_globals.vss_), .G(net1),
+     .S(cds_globals.vss_));
+NMOS_VTL  M2 ( .D(net1), .B(cds_globals.vss_), .G(B),
+     .S(cds_globals.vss_));
+NMOS_VTL  M3 ( .D(net1), .B(cds_globals.vss_), .G(A),
+     .S(cds_globals.vss_));
+
+endmodule

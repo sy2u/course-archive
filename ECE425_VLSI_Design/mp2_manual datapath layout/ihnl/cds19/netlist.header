@@ -1,0 +1,18 @@
+// Library - ece425mp2_siyingy3, Cell - nLatch, View - schematic
+// LAST TIME SAVED: Mar 30 01:52:42 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module nLatch ( Q, D, EN );
+
+output  Q;
+
+input  D, EN;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "nLatch";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+

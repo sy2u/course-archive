@@ -1,0 +1,21 @@
+// Library - ece425mp2_siyingy3, Cell - pcadder, View - schematic
+// LAST TIME SAVED: Mar 19 17:03:52 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module pcadder ( pc_cout, pcp4, pc, pc_adder_4, pc_cin );
+
+output  pc_cout, pcp4;
+
+input  pc, pc_adder_4, pc_cin;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "pcadder";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+adder I0 ( pc_cout, pcp4, pc, pc_adder_4, pc_cin);
+
+endmodule

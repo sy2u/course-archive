@@ -1,0 +1,4 @@
+NOR2 I0 ( net3, A, B);
+INV I1 ( Z, net3);
+
+endmodule

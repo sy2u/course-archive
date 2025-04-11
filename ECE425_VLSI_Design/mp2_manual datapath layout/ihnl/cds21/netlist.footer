@@ -1,0 +1,8 @@
+INV I1 ( rf_data, net3);
+INV I0 ( net3, net2);
+transgate I5 ( net2, rf_data, write_sel_inv, write_sel);
+transgate I4 ( data_out_1, net3, read_sel_1, read_sel_1_inv);
+transgate I3 ( net2, data_in, write_sel, write_sel_inv);
+transgate I2 ( data_out_2, net3, read_sel_2, read_sel_2_inv);
+
+endmodule

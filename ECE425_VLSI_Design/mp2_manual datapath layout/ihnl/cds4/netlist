@@ -1,0 +1,49 @@
+// Library - ece425mp2_siyingy3, Cell - shift, View - schematic
+// LAST TIME SAVED: Mar 27 22:14:21 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module shift ( shift_out, alu_mux_1_out, shift_amount,
+     shift_amount_inv, shift_dir, shift_dir_inv, shift_in_from_left_0,
+     shift_in_from_left_1, shift_in_from_left_2, shift_in_from_left_3,
+     shift_in_from_left_4, shift_in_from_right_0,
+     shift_in_from_right_1, shift_in_from_right_2,
+     shift_in_from_right_3, shift_in_from_right_4 );
+
+
+input  alu_mux_1_out, shift_dir, shift_dir_inv, shift_in_from_left_0,
+     shift_in_from_left_1, shift_in_from_left_2, shift_in_from_left_3,
+     shift_in_from_left_4, shift_in_from_right_0,
+     shift_in_from_right_1, shift_in_from_right_2,
+     shift_in_from_right_3, shift_in_from_right_4;
+
+output [5:0]  shift_out;
+
+input [4:0]  shift_amount;
+input [4:0]  shift_amount_inv;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "shift";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+mux3 I11 ( shift_out[1], shift_in_from_right_0, shift_in_from_left_0,
+     shift_out[0], shift_dir, shift_dir_inv, shift_amount[0],
+     shift_amount_inv[0]);
+mux3 I12 ( shift_out[2], shift_in_from_right_1, shift_in_from_left_1,
+     shift_out[1], shift_dir, shift_dir_inv, shift_amount[1],
+     shift_amount_inv[1]);
+mux3 I13 ( shift_out[3], shift_in_from_right_2, shift_in_from_left_2,
+     shift_out[2], shift_dir, shift_dir_inv, shift_amount[2],
+     shift_amount_inv[2]);
+mux3 I14 ( shift_out[4], shift_in_from_right_3, shift_in_from_left_3,
+     shift_out[3], shift_dir, shift_dir_inv, shift_amount[3],
+     shift_amount_inv[3]);
+mux3 I15 ( shift_out[5], shift_in_from_right_4, shift_in_from_left_4,
+     shift_out[4], shift_dir, shift_dir_inv, shift_amount[4],
+     shift_amount_inv[4]);
+BUF I18 ( shift_out[0], alu_mux_1_out);
+
+endmodule

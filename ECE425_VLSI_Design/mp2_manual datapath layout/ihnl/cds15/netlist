@@ -1,0 +1,36 @@
+// Library - ece425mp1_siyingy3, Cell - DFF, View - schematic
+// LAST TIME SAVED: Feb 26 22:57:14 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module DFF ( Q, CLK, D );
+
+output  Q;
+
+input  CLK, D;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp1_siyingy3";
+    specparam CDS_CELLNAME = "DFF";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
+INV I9 ( net16, net10);
+INV I8 ( net14, net3);
+INV I7 ( Q, net10);
+INV I6 ( net10, net5);
+INV I5 ( net3, net7);
+INV I4 ( net6, D);
+INV I3 ( net1, net2);
+INV I2 ( net2, CLK);
+PMOS_VTL  M3 ( .D(net5), .B(1'b1), .G(net2), .S(net3));
+PMOS_VTL  M2 ( .D(net5), .B(1'b1), .G(net1), .S(net16));
+PMOS_VTL  M0 ( .D(net7), .B(1'b1), .G(net1), .S(net6));
+PMOS_VTL  M1 ( .D(net7), .B(1'b1), .G(net2), .S(net14));
+NMOS_VTL  M7 ( .D(net7), .B(1'b0), .G(net1), .S(net14));
+NMOS_VTL  M6 ( .D(net5), .B(1'b0), .G(net2), .S(net16));
+NMOS_VTL  M5 ( .D(net5), .B(1'b0), .G(net1), .S(net3));
+NMOS_VTL  M4 ( .D(net7), .B(1'b0), .G(net2), .S(net6));
+
+endmodule

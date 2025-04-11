@@ -1,0 +1,18 @@
+// Library - ece425mp2_siyingy3, Cell - mux2, View - schematic
+// LAST TIME SAVED: Mar 27 21:05:27 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module mux2 ( z, a, b, s, s_inv );
+
+output  z;
+
+input  a, b, s, s_inv;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "mux2";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+

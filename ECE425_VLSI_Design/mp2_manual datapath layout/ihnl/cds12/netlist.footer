@@ -1,0 +1,4 @@
+NAND2 I2 ( net1, A, B);
+INV I1 ( Z, net1);
+
+endmodule

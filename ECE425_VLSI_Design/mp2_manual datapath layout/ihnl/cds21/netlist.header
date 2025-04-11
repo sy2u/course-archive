@@ -1,0 +1,23 @@
+// Library - ece425mp2_siyingy3, Cell - reg_cell, View - schematic
+// LAST TIME SAVED: Mar 30 19:01:25 2024
+// NETLIST TIME: Apr  5 20:01:30 2024
+`timescale 1ns / 1ns 
+
+module reg_cell ( rf_data, data_out_1, data_out_2, data_in, read_sel_1,
+     read_sel_1_inv, read_sel_2, read_sel_2_inv, write_sel,
+     write_sel_inv );
+
+output  rf_data;
+
+inout  data_out_1, data_out_2;
+
+input  data_in, read_sel_1, read_sel_1_inv, read_sel_2, read_sel_2_inv,
+     write_sel, write_sel_inv;
+
+
+specify 
+    specparam CDS_LIBNAME  = "ece425mp2_siyingy3";
+    specparam CDS_CELLNAME = "reg_cell";
+    specparam CDS_VIEWNAME = "schematic";
+endspecify
+
