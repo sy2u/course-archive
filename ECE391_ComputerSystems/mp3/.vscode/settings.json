@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "schedule.h": "c",
+        "type_traits": "c",
+        "ece391syscall.h": "c",
+        "ece391support.h": "c",
+        "limits": "c"
+    }
+}
