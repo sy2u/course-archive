@@ -1,0 +1,3 @@
+[submodule "ECE411_CompOrg/mp_OoO"]
+	path = ECE411_CompOrg/mp_OoO
+	url = git@github.com:sy2u/IWD-RISCV.git
