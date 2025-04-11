@@ -1,0 +1,8 @@
+NAND2.rise.AB: t = 1.5098846-1.503500033ns = 6.384567ps
+NAND2.fall.B: t = 3.01075781ns-3.00349999ns = 7.25791ps
+NAND2.rise.B: t = 4.51025722ns-4.5035005ns = 6.75672ps
+NAND2.fall.A: t = 6.00836029ns-6.003499919ns = 4.860371ps
+NAND2.rise.A: t = 7.508759265ns-7.503500007ns = 5.259258ps
+NAND2.fall.AB: t = 9.006281181ns-9.00349971ns = 2.781471ps
+
+Reason: This is caused by the position of capacitors. Input A is closer to the output than input B, and so are the corresponding capacitance of the nMOS they connected to. Since pMOS are connected in parallel and nMOS are connected in series, the position of nMOS makes the most difference. By computing Elmore delay from the schematic, we can get t(fall.AB) <t(fall.A) < t(rise.A) < t(rise.AB) < t(rise.B) < t(fall.B).
