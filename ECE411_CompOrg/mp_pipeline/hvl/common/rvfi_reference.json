@@ -1,0 +1,18 @@
+{
+    "valid[0]"     : "dut.stage_wb.valid",
+    "order[0]"     : "dut.stage_wb.order",
+    "inst[0]"      : "dut.stage_wb.inst",
+    "rs1_addr[0]"  : "dut.stage_wb.rs1_s",
+    "rs2_addr[0]"  : "dut.stage_wb.rs2_s",
+    "rs1_rdata[0]" : "dut.stage_wb.rs1_v",
+    "rs2_rdata[0]" : "dut.stage_wb.rs2_v",
+    "rd_addr[0]"   : "dut.stage_wb.rd_s_monitor",
+    "rd_wdata[0]"  : "dut.stage_wb.rd_v",
+    "pc_rdata[0]"  : "dut.stage_wb.pc",
+    "pc_wdata[0]"  : "dut.stage_wb.pc_next",
+    "mem_addr[0]"  : "dut.stage_wb.mem_addr",
+    "mem_rmask[0]" : "dut.stage_wb.mem_rmask",
+    "mem_wmask[0]" : "dut.stage_wb.mem_wmask",
+    "mem_rdata[0]" : "dut.stage_wb.dmem_rdata",
+    "mem_wdata[0]" : "dut.stage_wb.mem_wdata"
+}
