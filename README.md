@@ -30,3 +30,11 @@ Or, if you've already cloned it:
 ```bash
 git submodule update --init --recursive
 ```
+
+## 📑 Academic Integrity
+
+- Every file in this repository is provided **for academic reference only**. **DO NOT copy, reuse, or submit any code from this repository** for coursework or assignments at any institution.
+
+- Using this code for academic submissions is strictly prohibited and constitutes a **violation of academic integrity policies**.
+
+- As the author of this repository, I bear **NO responsibility** for any academic misconduct resulting from unauthorized usage or plagiarism of its contents.
