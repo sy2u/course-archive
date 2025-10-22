@@ -1,3 +1,6 @@
 [submodule "ECE411_CompOrg/mp_OoO"]
 	path = ECE411_CompOrg/mp_OoO
 	url = git@github.com:sy2u/IWD-RISCV.git
+[submodule "ECE391_CompSys/mp3"]
+	path = ECE391_CompSys/mp3
+	url = https://github.com/sy2u/Illinix-OS.git
